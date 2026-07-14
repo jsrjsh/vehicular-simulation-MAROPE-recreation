@@ -1,8 +1,8 @@
 # agents/d3qn/agent.py
 """
 Dueling Double DQN Agent implementation for MA-ROPE.
-Includes uniform replay buffer, epsilon-greedy decay, Double-DQN target math,
-and safety task action masking.
+Includes prioritized experience replay integration, epsilon-greedy decay,
+Double-DQN target math, and safety task action masking.
 """
 
 import os
@@ -17,8 +17,8 @@ from agents.d3qn.replay import ReplayBuffer
 class D3QNAgent:
     """
     Dueling Double DQN Agent.
-    Interfaces with V2XEnv and implements experience replay, Huber loss,
-    hard target network updates, and safety policy action filters.
+    Interfaces with V2XEnv and implements uniform/prioritized experience replay,
+    weighted Huber loss, hard target network updates, and safety policy action filters.
     """
     def __init__(self,
                  state_dim: int = 12,
@@ -31,6 +31,7 @@ class D3QNAgent:
                  epsilon_start: float = 1.0,
                  epsilon_end: float = 0.05,
                  epsilon_decay_steps: int = 2000,
+                 replay_mode: str = "uniform",
                  seed: int = None):
         
         self.state_dim = state_dim
@@ -48,7 +49,16 @@ class D3QNAgent:
         self.seed_val = seed
         
         # Replay Buffer
-        self.replay_buffer = ReplayBuffer(capacity=buffer_capacity, seed=seed)
+        self.replay_buffer = ReplayBuffer(
+            capacity=buffer_capacity,
+            mode=replay_mode,
+            alpha=0.6,
+            beta_start=0.4,
+            beta_end=1.0,
+            beta_anneal_steps=50000,
+            epsilon=1e-6,
+            seed=seed
+        )
         
         # Networks
         self.online_net = DuelingQNetwork(state_dim, action_dim)
@@ -62,7 +72,8 @@ class D3QNAgent:
             
         # Optimizer and Loss
         self.optimizer = optim.Adam(self.online_net.parameters(), lr=lr)
-        self.loss_fn = nn.SmoothL1Loss()  # Huber Loss
+        # SmoothL1Loss with no reductions to support importance weights
+        self.loss_fn = nn.SmoothL1Loss(reduction="none")
         
         self.step_count = 0
         self.update_count = 0
@@ -76,27 +87,21 @@ class D3QNAgent:
         Selects an action using epsilon-greedy exploration.
         If is_safety_task is True, action indices {1, 2, 3} are masked.
         """
-        # Determine current epsilon
         eps = 0.05 if evaluate else self.epsilon
         
-        # Action masking values
         allowed_actions = list(range(self.action_dim))
         if is_safety_task:
-            # Exclude LTE offloading actions {1, 2, 3}
             allowed_actions = [a for a in allowed_actions if a not in [1, 2, 3]]
             
         if self.rng.uniform(0.0, 1.0) < eps:
-            # Explore
             return int(self.rng.choice(allowed_actions))
         else:
-            # Exploit
             state_t = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
             self.online_net.eval()
             with torch.no_grad():
                 q_values = self.online_net(state_t).squeeze(0)
                 
             if is_safety_task:
-                # Mask LTE action indices {1, 2, 3} by setting Q-values to -infinity
                 masked_q = q_values.clone()
                 masked_q[1] = -1e9
                 masked_q[2] = -1e9
@@ -108,21 +113,19 @@ class D3QNAgent:
     def decay_epsilon(self):
         """Decays exploration parameter epsilon exponentially."""
         self.step_count += 1
-        # Epsilon decay formula: epsilon = max(epsilon_end, epsilon_start * exp(-step_count / tau))
-        # Where tau = 667.57 so epsilon reaches 0.05 at step_count = 2000
         tau = 667.57
         self.epsilon = max(self.epsilon_end, self.epsilon_start * math.exp(-self.step_count / tau))
 
     def learn(self) -> float:
         """
         Performs a single gradient descent step on a sampled batch of transitions.
-        Implements Double-DQN target calculations and safety masks.
+        Integrates TD error calculations and prioritized priority updates.
         """
         if len(self.replay_buffer) < self.batch_size:
             return 0.0
             
-        # Sample transition batch
-        states, actions, rewards, next_states, dones = self.replay_buffer.sample(self.batch_size)
+        # Sample transition batch (includes indices and importance weights)
+        states, actions, rewards, next_states, dones, indices, weights = self.replay_buffer.sample(self.batch_size)
         
         self.online_net.train()
         self.target_net.eval()
@@ -135,8 +138,6 @@ class D3QNAgent:
             q_online_next = self.online_net(next_states)
             
             # Mask LTE actions (1, 2, 3) in Q_online_next if next state is safety task
-            # In observation, next_states[:, 10] represents normalized deadline (D_ms / 2000.0)
-            # For safety, D_ms = 100 -> normalized deadline = 100/2000 = 0.05
             for idx in range(self.batch_size):
                 deadline_val = next_states[idx, 10].item()
                 if abs(deadline_val - 0.05) < 1e-4:
@@ -152,8 +153,11 @@ class D3QNAgent:
             # Double-DQN target value
             q_target = rewards + self.gamma * q_target_next * (1.0 - dones)
             
-        # Compute Huber loss
-        loss = self.loss_fn(q_eval, q_target)
+        # Compute element-wise Huber losses
+        loss_tensor = self.loss_fn(q_eval, q_target)
+        
+        # Weighted Huber loss using importance weights
+        loss = (loss_tensor * weights).mean()
         
         # Optimize online net
         self.optimizer.zero_grad()
@@ -162,6 +166,10 @@ class D3QNAgent:
         # Clip gradients to norm 10
         nn.utils.clip_grad_norm_(self.online_net.parameters(), max_norm=10.0)
         self.optimizer.step()
+        
+        # Compute TD errors for priority updates
+        td_errors = torch.abs(q_eval - q_target).detach().cpu().numpy()
+        self.replay_buffer.update_priorities(indices, td_errors)
         
         # Decement exploration
         self.decay_epsilon()

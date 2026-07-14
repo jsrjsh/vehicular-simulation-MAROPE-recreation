@@ -1,8 +1,8 @@
 # scripts/evaluate_single_agent.py
 """
 Evaluation runner for single-agent D3QN.
-Loads a checkpoint, runs evaluation episodes with exploration set to 0.05,
-and logs metrics to CSV.
+Loads a checkpoint corresponding to the environment and replay mode configurations,
+runs evaluation episodes with exploration set to 0.05, and logs metrics.
 """
 
 import os
@@ -16,6 +16,8 @@ def main():
     parser = argparse.ArgumentParser(description="MA-ROPE Single-Agent D3QN Evaluator")
     parser.add_argument("--environment-mode", type=str, choices=["baseline_recreation", "physically_corrected"],
                         default="physically_corrected", help="Simulation mode")
+    parser.add_argument("--replay-mode", type=str, choices=["uniform", "prioritized"],
+                        default="uniform", help="Replay buffer mode")
     parser.add_argument("--episodes", type=int, default=5, help="Number of evaluation episodes")
     parser.add_argument("--seed", type=int, default=100, help="Random seed")
     parser.add_argument("--checkpoint-path", type=str, default="", help="Path to checkpoint file")
@@ -23,13 +25,13 @@ def main():
     args = parser.parse_args()
     
     if not args.checkpoint_path:
-        args.checkpoint_path = f"checkpoints/{args.environment_mode}/checkpoint.pt"
+        args.checkpoint_path = f"checkpoints/{args.environment_mode}/{args.replay_mode}/checkpoint.pt"
         
     if not os.path.exists(args.checkpoint_path):
         raise FileNotFoundError(f"Checkpoint not found at: {args.checkpoint_path}")
 
     print("==================================================")
-    print(f"STARTING SINGLE-AGENT EVALUATION (Mode: {args.environment_mode})")
+    print(f"STARTING SINGLE-AGENT EVALUATION (Env: {args.environment_mode} | Replay: {args.replay_mode})")
     print(f"Checkpoint: {args.checkpoint_path}")
     print("==================================================")
 
@@ -46,13 +48,14 @@ def main():
     agent = D3QNAgent(
         state_dim=12,
         action_dim=11,
+        replay_mode=args.replay_mode,
         seed=args.seed
     )
     
     # Load weights
     agent.load(args.checkpoint_path)
 
-    log_dir = f"logs/{args.environment_mode}"
+    log_dir = f"logs/{args.environment_mode}/{args.replay_mode}"
     os.makedirs(log_dir, exist_ok=True)
     csv_file_path = f"{log_dir}/eval_stats.csv"
     
@@ -66,7 +69,6 @@ def main():
     successes = []
 
     for ep in range(1, args.episodes + 1):
-        # Episode reset seed: seed + episode_index
         obs_dict = env.reset(seed=args.seed + ep)
         state = obs_dict[0]
         
@@ -80,9 +82,7 @@ def main():
             task = env.active_tasks[0]
             is_safety = (task["type"] == "safety")
             
-            # Action selection with evaluation flag (epsilon = 0.05)
             action = agent.select_action(state, is_safety_task=is_safety, evaluate=True)
-            
             next_obs, rewards_dict, dones, infos = env.step({0: action})
             
             next_state = next_obs[0]

@@ -101,7 +101,7 @@ class TestD3QN(unittest.TestCase):
         self.assertEqual(len(buffer), 10)
         
         # Sample batch
-        states, actions, rewards, next_states, dones = buffer.sample(batch_size=5)
+        states, actions, rewards, next_states, dones, indices, weights = buffer.sample(batch_size=5)
         
         self.assertEqual(states.shape, (5, 12))
         self.assertEqual(actions.shape, (5,))

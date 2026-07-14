@@ -1,8 +1,8 @@
 # scripts/train_single_agent.py
 """
 Training runner for a single-agent D3QN in the V2X environment.
-Supports '--environment-mode' configuration and logs results.
-Includes a tiny deterministic learning fixture to verify learning capabilities.
+Supports '--environment-mode' and '--replay-mode' configurations.
+Includes comparative deterministic learning fixture and smoke training runs.
 """
 
 import os
@@ -14,18 +14,17 @@ import torch
 from env.environment import V2XEnv
 from agents.d3qn.agent import D3QNAgent
 
-def run_learning_fixture():
+def run_learning_fixture(replay_mode: str):
     """
     Tiny deterministic learning fixture.
     1-state MDP where action 8 yields reward 1.0, and all other actions yield 0.0.
     Verifies that the D3QN agent reliably learns the preferred action across 5 seeds.
     """
-    print("==================================================")
-    print("RUNNING TINY DETERMINISTIC LEARNING FIXTURE")
-    print("==================================================")
+    print(f"Running learning fixture for replay mode: {replay_mode}...")
     
     seeds = [0, 1, 2, 3, 4]
     all_success = True
+    results = {}
     
     for seed in seeds:
         # Initialize agent
@@ -35,18 +34,19 @@ def run_learning_fixture():
             lr=1e-3,
             batch_size=8,
             target_update_frequency=10,
+            replay_mode=replay_mode,
             seed=seed
         )
         
         # Train on the 1-state MDP
-        # State is constant, reward is 1.0 for action 8, 0.0 otherwise
         state = np.zeros(12, dtype=np.float32)
         next_state = np.zeros(12, dtype=np.float32)
         
+        steps_taken = 0
+        learned = False
+        
         for step in range(150):
-            is_safety = False
-            # Action selection
-            action = agent.select_action(state, is_safety_task=is_safety)
+            action = agent.select_action(state)
             reward = 1.0 if action == 8 else 0.0
             done = True
             
@@ -56,23 +56,27 @@ def run_learning_fixture():
             # Learn
             if len(agent.replay_buffer) >= agent.batch_size:
                 agent.learn()
+                steps_taken += 1
                 
-        # Evaluate greedy action (epsilon = 0.0)
+            # Check if optimal action is chosen greedily
+            if agent.select_action(state, evaluate=True) == 8 and not learned:
+                learned = True
+                results[seed] = steps_taken
+                
+        # Final check
         final_action = agent.select_action(state, evaluate=True)
-        print(f"Seed {seed}: Final Selected Action = {final_action} (Expected: 8)")
         if final_action != 8:
             all_success = False
+            results[seed] = -1  # Failed to learn
             
-    if all_success:
-        print("RESULT: SUCCESS - D3QN reliably learned optimal action across all seeds.")
-    else:
-        print("RESULT: FAILURE - D3QN failed to learn optimal action on one or more seeds.")
-    return all_success
+    return all_success, results
 
 def main():
     parser = argparse.ArgumentParser(description="MA-ROPE Single-Agent D3QN Trainer")
     parser.add_argument("--environment-mode", type=str, choices=["baseline_recreation", "physically_corrected"],
                         default="physically_corrected", help="Simulation mode")
+    parser.add_argument("--replay-mode", type=str, choices=["uniform", "prioritized"],
+                        default="uniform", help="Experience replay mode")
     parser.add_argument("--episodes", type=int, default=30, help="Number of training episodes")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     parser.add_argument("--run-fixture", action="store_true", help="Run the tiny learning fixture first")
@@ -80,20 +84,26 @@ def main():
     args = parser.parse_args()
     
     if args.run_fixture:
-        success = run_learning_fixture()
+        print("==================================================")
+        print("RUNNING TINY DETERMINISTIC LEARNING FIXTURE")
+        print("==================================================")
+        success, results = run_learning_fixture(args.replay_mode)
+        for seed, steps in results.items():
+            status = f"Learned in {steps} steps" if steps >= 0 else "FAILED"
+            print(f"Seed {seed}: {status}")
         if not success:
             print("Learning fixture failed. Exiting.")
             return
 
     print("==================================================")
-    print(f"STARTING SINGLE-AGENT SMOKE TRAINING (Mode: {args.environment_mode})")
+    print(f"STARTING SINGLE-AGENT SMOKE TRAINING (Env: {args.environment_mode} | Replay: {args.replay_mode})")
     print("==================================================")
 
     # Initialize single-agent V2X environment
     env = V2XEnv(
         n_vehicles=1,
         scenario="urllc",
-        max_steps=100,  # short episodes
+        max_steps=100,
         seed=args.seed,
         mode=args.environment_mode
     )
@@ -107,12 +117,13 @@ def main():
         buffer_capacity=5000,
         batch_size=32,
         target_update_frequency=50,
+        replay_mode=args.replay_mode,
         seed=args.seed
     )
 
-    # Log directories
-    log_dir = f"logs/{args.environment_mode}"
-    checkpoint_dir = f"checkpoints/{args.environment_mode}"
+    # Log directories (isolate by environment-mode and replay-mode)
+    log_dir = f"logs/{args.environment_mode}/{args.replay_mode}"
+    checkpoint_dir = f"checkpoints/{args.environment_mode}/{args.replay_mode}"
     os.makedirs(log_dir, exist_ok=True)
     os.makedirs(checkpoint_dir, exist_ok=True)
     
@@ -135,17 +146,13 @@ def main():
             is_safety = (task["type"] == "safety")
             
             action = agent.select_action(state, is_safety_task=is_safety)
-            
             next_obs, rewards, dones, infos = env.step({0: action})
             
             next_state = next_obs[0]
             reward = rewards[0]
             done = dones[0]
             
-            # Record transition
             agent.replay_buffer.add(state, action, reward, next_state, done)
-            
-            # Gradient step
             loss = agent.learn()
             if loss > 0.0:
                 losses.append(loss)
