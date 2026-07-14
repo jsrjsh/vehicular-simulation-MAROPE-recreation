@@ -3,6 +3,7 @@
 Deterministic multi-agent environment core for V2X task offloading in MA-ROPE.
 Implements vehicle mobility, RSU queue workloads, task generation, latency/energy costs,
 observation building, and reward evaluation.
+Supports two modes: 'physically_corrected' and 'baseline_recreation'.
 """
 
 import math
@@ -29,7 +30,8 @@ class V2XEnv:
                  task_arrival_prob: float = DEFAULT_TASK_ARRIVAL_PROB,
                  max_steps: int = DEFAULT_MAX_STEPS,
                  include_rsu_queue: bool = DEFAULT_INCLUDE_RSU_QUEUE,
-                 seed: int = None):
+                 seed: int = None,
+                 mode: str = "physically_corrected"):
         
         self.n_vehicles = n_vehicles
         self.road_length_m = road_length_m
@@ -38,6 +40,10 @@ class V2XEnv:
         self.task_arrival_prob = task_arrival_prob
         self.max_steps = max_steps
         self.include_rsu_queue = include_rsu_queue
+        
+        if mode not in ["physically_corrected", "baseline_recreation"]:
+            raise ValueError(f"Unknown mode: {mode}")
+        self.mode = mode
         
         if self.scenario_name not in SCENARIOS:
             raise ValueError(f"Unknown scenario: {self.scenario_name}")
@@ -56,11 +62,10 @@ class V2XEnv:
         self.active_tasks = {}  # agent_id -> task_dict
         
         # Episode metrics and counters per agent
-        # agent_id -> rat_idx -> counter
         self.tx_counters = {}
         self.rx_counters = {}
         self.rx_on_time_counters = {}
-        self.total_offload_transmissions = 0  # Global count of any offloading across all RATs
+        self.total_offload_transmissions = 0  # Global count of any offloading
         
         # RSU state
         self.rsu_queues = {r_idx: 0.0 for r_idx in range(len(self.rsu_positions))}
@@ -90,8 +95,7 @@ class V2XEnv:
     def get_empirical_prr(self, agent_id: int, rat_idx: int) -> float:
         """
         Computes the empirical PRR for the given RAT.
-        If no samples exist, falls back to the observation defaults:
-        0.5 if there are global offload transmissions, else 1.0.
+        If no samples exist, falls back to the observation defaults.
         """
         tx = self.tx_counters[agent_id][rat_idx]
         if tx > 0:
@@ -142,7 +146,7 @@ class V2XEnv:
             # 1. Normalized SINRs per RAT (features 0-3)
             for r_idx in range(1, 5):
                 # Sample instantaneous SINR (fading and shadow are modeled)
-                sinr_db = compute_sinr(r_idx, dist, speed, self.rng)
+                sinr_db = compute_sinr(r_idx, dist, speed, self.rng, mode=self.mode)
                 obs[r_idx - 1] = np.clip((sinr_db + 20.0) / 60.0, 0.0, 1.0)
                 
             # 2. Empirical PRR per RAT (features 4-7)
@@ -189,7 +193,6 @@ class V2XEnv:
                 rsu_workloads[rsu_idx].append((i, rat_idx, rho))
                 
         # Aggregate Q_r for each RSU
-        # Sum of the requested offloading ratios of connected offloading vehicles
         for r_idx in range(len(self.rsu_positions)):
             self.rsu_queues[r_idx] = sum(item[2] for item in rsu_workloads[r_idx])
             self.rsu_cbr_prev[r_idx] = self.rsu_cbr_curr[r_idx]
@@ -206,21 +209,18 @@ class V2XEnv:
             dist = self._toroidal_distance(pos, rsu_pos)
             speed = self.speeds[i]
             
-            # Instantly evaluate link SINRs for selected RAT and other RATs
+            # Instantly evaluate link SINRs
             veh_sinrs = {}
             for r_idx in range(1, 5):
-                veh_sinrs[r_idx] = compute_sinr(r_idx, dist, speed, self.rng)
+                veh_sinrs[r_idx] = compute_sinr(r_idx, dist, speed, self.rng, mode=self.mode)
             sinrs[i] = veh_sinrs
             
             if rat_idx == 0 or rho == 0.0:
                 adapted_rhos[i] = 0.0
             else:
-                # Calculate SINR proportion
                 gammas = {r: max(10**(veh_sinrs[r] / 10.0), 1e-6) for r in range(1, 5)}
                 sum_gammas = sum(gammas.values())
                 q_r = gammas[rat_idx] / sum_gammas
-                
-                # Rescale and clip chosen offloading ratio
                 adapted_rhos[i] = np.clip(rho * q_r, 0.0, 1.0)
 
         # 3. Compute Latency and Energy costs
@@ -236,8 +236,11 @@ class V2XEnv:
             
             if rat_idx == 0 or rho_prime == 0.0:
                 l_total = l_local
-                # Local computing energy (J)
-                e_total = P_CPU_W * (l_total / 1000.0)
+                if self.mode == "baseline_recreation":
+                    c_ratio = task["cpu_cycles"] / CPU_FREQ_HZ
+                    e_total = P_CPU_W * math.log10(max(c_ratio, 1e-9))
+                else:
+                    e_total = P_CPU_W * (l_total / 1000.0)
             else:
                 # Remote computation latency (ms)
                 remote_speed = SAFETY_REMOTE_MEC_SPEEDUP if task["type"] == "safety" else 1.0
@@ -251,16 +254,28 @@ class V2XEnv:
                 # Sidelink/transmission propagation delay (ms)
                 l_offload = RAT_SPECS[rat_idx]["latency_ms"]
                 
-                # Parallel computation max model (core novelty)
-                l_total = max(l_local * (1.0 - rho_prime), l_remote + l_queue + l_offload)
-                
-                # Energy consumed (J)
-                tx_energy_mj = RAT_SPECS[rat_idx]["tx_energy_mj"]
-                e_tx = (tx_energy_mj * task["data_mb"] * rho_prime) / 1000.0
-                e_total = P_CPU_W * (l_total / 1000.0) + e_tx
+                if self.mode == "baseline_recreation":
+                    # Literal rendering formula using log10
+                    l_local_term = math.log10(max(l_local, 1e-9)) * (1.0 - rho_prime)
+                    l_total = max(l_local_term, l_remote + l_queue + l_offload)
+                    
+                    # Literal energy formula
+                    c_ratio = task["cpu_cycles"] / CPU_FREQ_HZ
+                    term1 = P_CPU_W * math.log10(max(c_ratio, 1e-9))
+                    # tx_energy_mj is tx_energy parameter
+                    tx_mj = RAT_SPECS[rat_idx]["tx_energy_mj"]
+                    # D / (1-rho) where D is D_ms
+                    term2 = tx_mj * math.log10(max(task["D_ms"] / max(1.0 - rho_prime, 1e-9), 1e-9))
+                    term3 = 1.0 * rho_prime * math.log10(max(rho_prime, 1e-9))
+                    e_total = term1 + term2 + term3
+                else:
+                    l_total = max(l_local * (1.0 - rho_prime), l_remote + l_queue + l_offload)
+                    tx_energy_mj = RAT_SPECS[rat_idx]["tx_energy_mj"]
+                    e_tx = (tx_energy_mj * task["data_mb"] * rho_prime) / 1000.0
+                    e_total = P_CPU_W * (l_total / 1000.0) + e_tx
                 
             latencies[i] = l_total
-            energies[i] = max(e_total, 0.0)
+            energies[i] = e_total
 
         # 4. Physical transmission Bernoulli success and counter updates
         successes = {}
@@ -270,11 +285,10 @@ class V2XEnv:
             task = self.active_tasks[i]
             
             if rat_idx == 0 or rho_prime == 0.0:
-                successes[i] = True  # Local processing is always reliable
+                successes[i] = True
             else:
-                # Calculate link success probability from SINR
                 sinr_db = sinrs[i][rat_idx]
-                success = compute_link_success(rat_idx, sinr_db, self.rng)
+                success = compute_link_success(rat_idx, sinr_db, self.rng, mode=self.mode)
                 successes[i] = success
                 
                 # Update counters
@@ -305,9 +319,13 @@ class V2XEnv:
             alpha = task["alpha"]
             beta = task["beta"]
             l_ratio = latencies[i] / task["D_ms"]
-            e_ratio = energies[i] / 3.0
+            # Avoid math domain error in exp for extremely large negative/positive ratios
+            l_ratio = max(min(l_ratio, 100.0), -100.0)
             
-            # Eq. 4a training reward
+            # Clamp energy ratio to avoid overflow/underflow in exp()
+            e_ratio = energies[i] / 3.0
+            e_ratio = max(min(e_ratio, 100.0), -100.0)
+            
             u = (alpha * prr_val
                  + (beta / 2.0) * math.exp(-l_ratio)
                  + (beta / 2.0) * math.exp(-e_ratio)
@@ -332,22 +350,24 @@ class V2XEnv:
         dones = {i: is_done for i in self.agents}
         dones["__all__"] = is_done
         
-        # Pack info with metrics
+        # Pack info
         infos = {}
         for i in self.agents:
             rat_idx, rho = decoded_actions[i]
             task = self.active_tasks[i]
             
-            # Compute evaluation metric U_OTR
             if rat_idx == 0 or rho == 0.0:
                 otr_val = 1.0
             else:
                 tx = self.tx_counters[i][rat_idx]
                 otr_val = self.rx_on_time_counters[i][rat_idx] / tx if tx > 0 else (0.5 if self.total_offload_transmissions > 0 else 1.0)
                 
+            l_ratio_val = max(min(latencies[i] / task["D_ms"], 100.0), -100.0)
+            e_ratio_val = max(min(energies[i] / 3.0, 100.0), -100.0)
+            
             u_otr = (task["alpha"] * otr_val
-                     + (task["beta"] / 2.0) * math.exp(-latencies[i] / task["D_ms"])
-                     + (task["beta"] / 2.0) * math.exp(-energies[i] / 3.0)
+                     + (task["beta"] / 2.0) * math.exp(-l_ratio_val)
+                     + (task["beta"] / 2.0) * math.exp(-e_ratio_val)
                      + (task["beta"] / 4.0) * (self.rsu_cbr_prev[self._get_nearest_rsu(self.positions[i])] - self.rsu_cbr_curr[self._get_nearest_rsu(self.positions[i])]))
             u_otr = float(np.clip(u_otr, 0.0, 1.0))
             

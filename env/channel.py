@@ -2,6 +2,7 @@
 """
 Physical layer and wireless channel modeling for the MA-ROPE simulation platform.
 Implements path-loss, shadow fading, Jakes fading, SINR, and link success probability.
+Supports two modes: 'physically_corrected' and 'baseline_recreation'.
 """
 
 import math
@@ -35,17 +36,12 @@ def compute_path_loss(rat_idx: int, distance_m: float) -> float:
     else:
         raise ValueError(f"Unknown path loss model: {model}")
 
-def compute_jakes_fading(rat_idx: int, speed_mps: float, rng: np.random.RandomState) -> float:
+def compute_jakes_fading(rat_idx: int, speed_mps: float, rng: np.random.RandomState, mode: str = "physically_corrected") -> float:
     """
     Computes Jakes Rayleigh fading loss (dB) for the given RAT and vehicle speed.
     Active only for LTE (1) and 5GNR (4).
-    Equation reference:
-      f_D = v * f_GHz * 10^9 / c
-      T_c = 0.423 / max(f_D, 1e-6)
-      r = min(Delta_t / T_c, 10.0), Delta_t = 0.1
-      A = max(sqrt(x1^2 + x2^2), 1e-9) where x1, x2 ~ N(0, 1)
-      L_fade = -20 * log10(A) * min(r/5, 1.5)
-      return max(L_fade, 0.0)
+    If mode is 'baseline_recreation', uses the literal unscaled Doppler shift.
+    If mode is 'physically_corrected', uses the converted frequency in Hz.
     """
     spec = RAT_SPECS[rat_idx]
     if spec["fading"] != "jakes":
@@ -55,7 +51,14 @@ def compute_jakes_fading(rat_idx: int, speed_mps: float, rng: np.random.RandomSt
         return 0.0
 
     freq_ghz = spec["freq_ghz"]
-    f_D = (speed_mps * (freq_ghz * 1e9)) / SPEED_OF_LIGHT
+    
+    if mode == "baseline_recreation":
+        # Literal unscaled formula from the recreation guide
+        f_D = (speed_mps * freq_ghz) / SPEED_OF_LIGHT
+    else:
+        # Corrected formula scaling GHz to Hz
+        f_D = (speed_mps * (freq_ghz * 1e9)) / SPEED_OF_LIGHT
+        
     T_c = 0.423 / max(f_D, 1e-6)
     
     delta_t = 0.1
@@ -69,15 +72,11 @@ def compute_jakes_fading(rat_idx: int, speed_mps: float, rng: np.random.RandomSt
     L_fade = (-20.0 * math.log10(A)) * min(r / 5.0, 1.5)
     return max(L_fade, 0.0)
 
-def compute_sinr(rat_idx: int, distance_m: float, speed_mps: float, rng: np.random.RandomState) -> float:
+def compute_sinr(rat_idx: int, distance_m: float, speed_mps: float, rng: np.random.RandomState, mode: str = "physically_corrected") -> float:
     """
     Computes the instantaneous SINR (dB) for a wireless link.
-    Equation reference:
-      SINR = P_tx - PL - N_0 + X_shadow - L_fade
-      where:
-        X_shadow ~ N(0, sigma_h^2)
-        PL = compute_path_loss(...)
-        L_fade = compute_jakes_fading(...)
+    If mode is 'baseline_recreation', shadowing term is squared literally as written in the guide.
+    If mode is 'physically_corrected', shadowing is a standard zero-mean normal sample.
     """
     spec = RAT_SPECS[rat_idx]
     if spec["name"] == "Local":
@@ -88,20 +87,22 @@ def compute_sinr(rat_idx: int, distance_m: float, speed_mps: float, rng: np.rand
     sigma_h = spec["shadow_sigma_db"]
 
     pl = compute_path_loss(rat_idx, distance_m)
-    l_fade = compute_jakes_fading(rat_idx, speed_mps, rng)
+    l_fade = compute_jakes_fading(rat_idx, speed_mps, rng, mode=mode)
 
-    # Shadow fading (log-normal shadowing)
-    x_shadow = rng.normal(0.0, sigma_h)
+    # Shadow fading
+    raw_shadow = rng.normal(0.0, sigma_h)
+    if mode == "baseline_recreation":
+        # Literal formula: + N(0, sigma_h)^2
+        x_shadow = raw_shadow ** 2
+    else:
+        x_shadow = raw_shadow
 
     sinr = p_tx - pl - n_0 + x_shadow - l_fade
     return sinr
 
-def compute_link_success(rat_idx: int, sinr_db: float, rng: np.random.RandomState) -> bool:
+def compute_link_success(rat_idx: int, sinr_db: float, rng: np.random.RandomState, mode: str = "physically_corrected") -> bool:
     """
     Computes the link success probability and samples a Bernoulli draw.
-    Equation reference:
-      p = 1 / (1 + exp(-(SINR - tau) / (3 * sigma_h)))
-      where tau = sinr_thresh_db, sigma_h = shadow_sigma_db
     """
     spec = RAT_SPECS[rat_idx]
     if spec["name"] == "Local":
