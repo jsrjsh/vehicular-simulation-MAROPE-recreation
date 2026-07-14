@@ -380,7 +380,8 @@ class V2XEnv:
                 "chosen_rho": rho,
                 "adapted_rho": adapted_rhos[i],
                 "u_otr": u_otr,
-                "empirical_prr": self.get_empirical_prr(i, rat_idx) if rat_idx > 0 else 1.0
+                "empirical_prr": self.get_empirical_prr(i, rat_idx) if rat_idx > 0 else 1.0,
+                "queue_delay_ms": (self.rsu_queues[self._get_nearest_rsu(self.positions[i])] * DELAY_PER_UNIT_MS) if self.include_rsu_queue else 0.0
             }
             
         return next_obs, rewards, dones, infos
