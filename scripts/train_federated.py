@@ -1,14 +1,15 @@
 # scripts/train_federated.py
 """
 Federated Learning training runner for MA-ROPE.
-Supports '--environment-mode' and '--replay-mode' isolated configs.
-Includes the controlled comparative fixture and communications metrics logging.
+Supports '--environment-mode', '--replay-mode', and LDP '--privacy-mode' parameters.
+Includes the comparative learning fixtures and privacy-utility sweep logs.
 """
 
 import os
 import argparse
 import csv
 import copy
+import math
 import numpy as np
 import torch
 from env.environment import V2XEnv
@@ -18,14 +19,14 @@ from agents.d3qn.agent import D3QNAgent
 def run_controlled_fixture():
     """
     Deterministic comparative federated learning fixture.
-    Compares: (1) Isolated local training, (2) Centralized pooled training, (3) Synchronous FedAvg.
-    Clients have non-identical state vectors representing distinct data distributions.
+    Compares: (1) No Privacy, (2) Weak Privacy, (3) Moderate Privacy, (4) Strong Privacy.
+    Evaluates learning capability on 1-state MDP across 5 independent seeds.
     """
     print("==================================================")
-    print("RUNNING CONTROLLED FEDERATED LEARNING FIXTURE")
+    print("RUNNING PRIVACY COMPARATIVE SANITY FIXTURE")
     print("==================================================")
     
-    seeds = [10, 20, 30]
+    seeds = [0, 1, 2, 3, 4]
     steps = 100
     
     # State vectors for 3 distinct clients
@@ -34,81 +35,49 @@ def run_controlled_fixture():
     s2 = np.ones(12, dtype=np.float32) * 2.0
     states = [s0, s1, s2]
     
-    # Helper to calculate weight divergence (Frobenius norm) between client online nets
-    def calc_divergence(net1, net2):
-        dist = 0.0
-        for p1, p2 in zip(net1.parameters(), net2.parameters()):
-            dist += torch.sum((p1 - p2) ** 2).item()
-        return math.sqrt(dist)
-
-    import math
-
-    # --- 1. Isolated Local Training ---
-    print("\n--- Running Isolated Local Training ---")
-    isolated_agents = [
-        D3QNAgent(state_dim=12, action_dim=11, batch_size=8, target_update_frequency=10, seed=s)
-        for s in seeds
-    ]
-    for step in range(steps):
-        for idx, agent in enumerate(isolated_agents):
-            state = states[idx]
-            action = agent.select_action(state)
-            reward = 1.0 if action == 8 else 0.0
-            agent.replay_buffer.add(state, action, reward, state, True)
-            if len(agent.replay_buffer) >= agent.batch_size:
-                agent.learn()
-                
-    iso_choices = [agent.select_action(states[i], evaluate=True) for i, agent in enumerate(isolated_agents)]
-    print(f"Isolated Final Actions: {iso_choices} (Expected: [8, 8, 8])")
-
-    # --- 2. Centralized Pooled Training ---
-    print("\n--- Running Centralized Pooled Training ---")
-    pooled_agent = D3QNAgent(state_dim=12, action_dim=11, batch_size=8, target_update_frequency=10, seed=42)
-    for step in range(steps):
-        for idx in range(3):
-            state = states[idx]
-            action = pooled_agent.select_action(state)
-            reward = 1.0 if action == 8 else 0.0
-            # Put all client data in one centralized buffer
-            pooled_agent.replay_buffer.add(state, action, reward, state, True)
-            if len(pooled_agent.replay_buffer) >= pooled_agent.batch_size:
-                pooled_agent.learn()
-                
-    pooled_choices = [pooled_agent.select_action(states[i], evaluate=True) for i in range(3)]
-    print(f"Centralized Final Actions: {pooled_choices} (Expected: [8, 8, 8])")
-
-    # --- 3. Synchronous FedAvg ---
-    print("\n--- Running Synchronous FedAvg Training ---")
-    coord = FederatedCoordinator(
-        n_agents=3,
-        batch_size=8,
-        target_update_frequency=10,
-        participation_prob=1.0,  # 100% participation for fixture
-        seed=42
-    )
-    # Sync every 10 steps
-    for step in range(steps):
-        for idx in range(3):
-            agent = coord.agents[idx]
-            state = states[idx]
-            action = agent.select_action(state)
-            reward = 1.0 if action == 8 else 0.0
-            agent.replay_buffer.add(state, action, reward, state, True)
-            if len(agent.replay_buffer) >= agent.batch_size:
-                agent.learn()
-                
-        if (step + 1) % 10 == 0:
-            coord.aggregate_and_broadcast()
+    privacy_levels = {
+        "no_privacy": {"mode": "none", "sigma": 0.0, "C": 5.0},
+        "weak_privacy": {"mode": "ldp_gaussian", "sigma": 0.1, "C": 5.0},
+        "mod_privacy": {"mode": "ldp_gaussian", "sigma": 0.5, "C": 5.0},
+        "strong_privacy": {"mode": "ldp_gaussian", "sigma": 2.0, "C": 5.0}
+    }
+    
+    for lvl_name, lvl_cfg in privacy_levels.items():
+        print(f"\n--- Testing Privacy Level: {lvl_name} (Sigma: {lvl_cfg['sigma']}, C: {lvl_cfg['C']}) ---")
+        
+        success_seeds = 0
+        for seed in seeds:
+            coord = FederatedCoordinator(
+                n_agents=3,
+                batch_size=8,
+                target_update_frequency=10,
+                participation_prob=1.0,
+                privacy_mode=lvl_cfg["mode"],
+                clip_norm=lvl_cfg["C"],
+                noise_multiplier=lvl_cfg["sigma"],
+                seed=seed
+            )
             
-    fed_choices = [coord.agents[i].select_action(states[i], evaluate=True) for i in range(3)]
-    print(f"FedAvg Final Actions: {fed_choices} (Expected: [8, 8, 8])")
-
-    # Compare divergences
-    div_iso = calc_divergence(isolated_agents[0].online_net, isolated_agents[1].online_net)
-    div_fed = calc_divergence(coord.agents[0].online_net, coord.agents[1].online_net)
-    print(f"\nDivergence Client 0-1 (Isolated): {div_iso:.4f}")
-    print(f"Divergence Client 0-1 (FedAvg): {div_fed:.4f} (Expected: 0.0 due to weight sync)")
-
+            for step in range(steps):
+                for idx in range(3):
+                    agent = coord.agents[idx]
+                    state = states[idx]
+                    action = agent.select_action(state)
+                    reward = 1.0 if action == 8 else 0.0
+                    agent.replay_buffer.add(state, action, reward, state, True)
+                    if len(agent.replay_buffer) >= agent.batch_size:
+                        agent.learn()
+                        
+                if (step + 1) % 10 == 0:
+                    coord.aggregate_and_broadcast()
+                    
+            # Check if all clients greedily pick action 8
+            choices = [coord.agents[i].select_action(states[i], evaluate=True) for i in range(3)]
+            if choices == [8, 8, 8]:
+                success_seeds += 1
+                
+        print(f"Result {lvl_name}: {success_seeds}/5 Seeds converged to optimal action.")
+        
     return True
 
 def main():
@@ -117,12 +86,21 @@ def main():
                         default="physically_corrected", help="Simulation mode")
     parser.add_argument("--replay-mode", type=str, choices=["uniform", "prioritized"],
                         default="uniform", help="Experience replay mode")
+    
+    # Privacy Arguments
+    parser.add_argument("--privacy-mode", type=str, choices=["none", "ldp_gaussian"],
+                        default="none", help="LDP Mode")
+    parser.add_argument("--clip-norm", type=float, default=5.0, help="LDP clipping threshold C")
+    parser.add_argument("--noise-multiplier", type=float, default=0.0, help="LDP Gaussian multiplier sigma")
+    parser.add_argument("--epsilon", type=float, default=None, help="LDP round privacy epsilon")
+    parser.add_argument("--delta", type=float, default=1e-5, help="LDP probability delta")
+    
     parser.add_argument("--n-agents", type=int, default=4, help="Number of vehicular agents")
     parser.add_argument("--sync-interval", type=int, default=20, help="Federation synchronization interval")
     parser.add_argument("--participation-prob", type=float, default=0.9, help="Client participation probability")
     parser.add_argument("--episodes", type=int, default=15, help="Number of training episodes")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--run-fixture", action="store_true", help="Run comparative controlled fixture first")
+    parser.add_argument("--run-fixture", action="store_true", help="Run comparative privacy sanity fixture first")
     
     args = parser.parse_args()
     
@@ -130,12 +108,32 @@ def main():
         run_controlled_fixture()
         return
 
+    # Derive noise multiplier if epsilon is explicitly defined
+    nominal_epsilon = "none"
+    if args.privacy_mode == "ldp_gaussian" and args.epsilon is not None:
+        nominal_epsilon = args.epsilon
+        # Gaussian mechanism conversion: sigma = sqrt(2 * ln(1.25/delta)) / epsilon
+        derived_sigma = math.sqrt(2.0 * math.log(1.25 / args.delta)) / args.epsilon
+        print(f"[LDP Parameterizer] Derived noise multiplier sigma = {derived_sigma:.4f} from epsilon={args.epsilon}, delta={args.delta}")
+        args.noise_multiplier = derived_sigma
+
+    # Isolate directories
+    if args.privacy_mode == "ldp_gaussian":
+        mode_sub = f"ldp_gaussian/eps_{args.epsilon}_delta_{args.delta}"
+    else:
+        mode_sub = "none"
+        
+    log_dir = f"logs/{args.environment_mode}/{args.replay_mode}/{mode_sub}"
+    checkpoint_dir = f"checkpoints/{args.environment_mode}/{args.replay_mode}/{mode_sub}"
+    os.makedirs(log_dir, exist_ok=True)
+    os.makedirs(checkpoint_dir, exist_ok=True)
+
     print("==================================================")
     print(f"STARTING FEDERATED SMOKE TRAINING")
-    print(f"Env: {args.environment_mode} | Replay: {args.replay_mode} | Agents: {args.n_agents} | Sync Interval: {args.sync_interval}")
+    print(f"Env: {args.environment_mode} | Replay: {args.replay_mode} | Privacy: {args.privacy_mode} (Eps: {nominal_epsilon})")
     print("==================================================")
 
-    # Initialize environment with N vehicles matching N agents
+    # Initialize environment
     env = V2XEnv(
         n_vehicles=args.n_agents,
         scenario="urllc",
@@ -156,16 +154,13 @@ def main():
         target_update_frequency=50,
         replay_mode=args.replay_mode,
         participation_prob=args.participation_prob,
+        privacy_mode=args.privacy_mode,
+        clip_norm=args.clip_norm,
+        noise_multiplier=args.noise_multiplier,
         seed=args.seed
     )
 
-    # Isolated log/checkpoint directories
-    log_dir = f"logs/{args.environment_mode}/{args.replay_mode}/federated"
-    checkpoint_dir = f"checkpoints/{args.environment_mode}/{args.replay_mode}/federated"
-    os.makedirs(log_dir, exist_ok=True)
-    os.makedirs(checkpoint_dir, exist_ok=True)
-    
-    # Train curves file
+    # Training Curves
     train_stats_path = f"{log_dir}/train_stats.csv"
     train_file = open(train_stats_path, "w", newline="")
     train_writer = csv.writer(train_file)
@@ -176,6 +171,12 @@ def main():
     comm_file = open(comm_stats_path, "w", newline="")
     comm_writer = csv.writer(comm_file)
     comm_writer.writerow(["round", "active_agents", "ratio", "aborted", "bytes_this_round", "cum_bytes"])
+
+    # Privacy stats file
+    privacy_stats_path = f"{log_dir}/privacy_stats.csv"
+    priv_file = open(privacy_stats_path, "w", newline="")
+    priv_writer = csv.writer(priv_file)
+    priv_writer.writerow(["round", "client_idx", "raw_norm", "clipped_norm", "noise_norm", "snr", "clipped"])
 
     step_count = 0
 
@@ -206,7 +207,6 @@ def main():
                 next_state = next_obs_dict[i]
                 v_done = dones_dict[i]
                 
-                # Insert and Learn locally
                 agent = coordinator.agents[i]
                 agent.replay_buffer.add(state, action, reward, next_state, v_done)
                 loss = agent.learn()
@@ -229,6 +229,20 @@ def main():
                     coordinator.cum_bytes
                 ])
                 comm_file.flush()
+                
+                # Write LDP client stats
+                if not round_info["aborted"] and args.privacy_mode == "ldp_gaussian":
+                    for client_idx, c_stats in round_info["clients"].items():
+                        priv_writer.writerow([
+                            round_info["round"],
+                            client_idx,
+                            c_stats["raw_norm"],
+                            c_stats["clipped_norm"],
+                            c_stats["noise_norm"],
+                            c_stats["snr"],
+                            c_stats["clipped"]
+                        ])
+                    priv_file.flush()
 
         mean_reward = np.mean(list(ep_rewards.values()))
         flat_losses = [l for client_losses in losses.values() for l in client_losses]
@@ -240,6 +254,7 @@ def main():
 
     train_file.close()
     comm_file.close()
+    priv_file.close()
     
     # Save global online network weights from agent 0 (synchronized)
     global_checkpoint_path = f"{checkpoint_dir}/global_checkpoint.pt"

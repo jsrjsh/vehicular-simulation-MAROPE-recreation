@@ -1,7 +1,8 @@
 # scripts/evaluate_federated.py
 """
 Evaluation runner for multi-agent federated models.
-Loads a global checkpoint and evaluates it on V2XEnv, logging metrics.
+Loads a global checkpoint under target environment/replay/privacy configurations
+and evaluates it on V2XEnv.
 """
 
 import os
@@ -17,6 +18,10 @@ def main():
                         default="physically_corrected", help="Simulation mode")
     parser.add_argument("--replay-mode", type=str, choices=["uniform", "prioritized"],
                         default="uniform", help="Replay buffer mode")
+    parser.add_argument("--privacy-mode", type=str, choices=["none", "ldp_gaussian"],
+                        default="none", help="LDP Mode")
+    parser.add_argument("--epsilon", type=float, default=None, help="Round epsilon parameter")
+    parser.add_argument("--delta", type=float, default=1e-5, help="Delta parameter")
     parser.add_argument("--n-agents", type=int, default=4, help="Number of vehicular agents")
     parser.add_argument("--episodes", type=int, default=5, help="Number of evaluation episodes")
     parser.add_argument("--seed", type=int, default=100, help="Random seed")
@@ -25,14 +30,18 @@ def main():
     args = parser.parse_args()
     
     if not args.checkpoint_path:
-        args.checkpoint_path = f"checkpoints/{args.environment_mode}/{args.replay_mode}/federated/global_checkpoint.pt"
+        if args.privacy_mode == "ldp_gaussian":
+            mode_sub = f"ldp_gaussian/eps_{args.epsilon}_delta_{args.delta}"
+        else:
+            mode_sub = "none"
+        args.checkpoint_path = f"checkpoints/{args.environment_mode}/{args.replay_mode}/{mode_sub}/global_checkpoint.pt"
         
     if not os.path.exists(args.checkpoint_path):
         raise FileNotFoundError(f"Global checkpoint not found at: {args.checkpoint_path}")
 
     print("==================================================")
     print(f"STARTING FEDERATED GLOBAL MODEL EVALUATION")
-    print(f"Env: {args.environment_mode} | Replay: {args.replay_mode} | Agents: {args.n_agents}")
+    print(f"Env: {args.environment_mode} | Replay: {args.replay_mode} | Privacy: {args.privacy_mode}")
     print(f"Checkpoint: {args.checkpoint_path}")
     print("==================================================")
 
@@ -45,14 +54,19 @@ def main():
         mode=args.environment_mode
     )
 
-    # Initialize evaluation agents loading the global model checkpoint
+    # Initialize evaluation agents
     agents = []
     for idx in range(args.n_agents):
         agent = D3QNAgent(state_dim=12, action_dim=11, seed=args.seed + idx)
         agent.load(args.checkpoint_path)
         agents.append(agent)
 
-    log_dir = f"logs/{args.environment_mode}/{args.replay_mode}/federated"
+    if args.privacy_mode == "ldp_gaussian":
+        mode_sub = f"ldp_gaussian/eps_{args.epsilon}_delta_{args.delta}"
+    else:
+        mode_sub = "none"
+        
+    log_dir = f"logs/{args.environment_mode}/{args.replay_mode}/{mode_sub}"
     os.makedirs(log_dir, exist_ok=True)
     csv_file_path = f"{log_dir}/eval_stats.csv"
     
