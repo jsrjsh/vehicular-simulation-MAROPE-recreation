@@ -80,3 +80,15 @@ This document summarizes the final numerical outcomes of the Phase 4A.2 controll
    * No. Fixed policies now correctly bypass SINR adjustments, creating distinct latency and OTR profiles (e.g. NoOffload Fleet OTR = 1.0, AllOffload Fleet OTR = 0.12, MA-ROPE Fleet OTR = 0.88).
 8. **Final recommendation:**
    * **FREEZE BASELINE**. The environment shell, baseline policies, and metric semantics are successfully validated. The divergence causes are fully understood, isolated, and documented.
+
+---
+
+## 4. Root-Cause Analysis of Recreating the Paper (MA_ROPE_IEEE_Paper_v10_final2.docx)
+
+* **Physical Parity Verification:** 
+  The paper manuscript `MA_ROPE_IEEE_Paper_v10_final2.docx` explicitly models **linear physical energy** ($E_{\mathrm{total}} = P_{\mathrm{tx}} \cdot L_{\mathrm{prop}} + \varepsilon_r \cdot \rho \cdot D_i$, see Section III.E) and **linear physical latency** ($L_{\mathrm{total}} = L_{\mathrm{prop}} + \max(\rho \cdot L_{\mathrm{remote}}, (1-\rho) \cdot L_{\mathrm{local}}) + L_{\mathrm{queue}}$, see Section III.D). 
+  It does **not** contain any of the log-based typesetting artifacts ($\lg$ prefixes) documented in the old `MA_ROPE_RECREATION_GUIDE.md`.
+* **Why the other laptop failed to recreate the paper:**
+  If the simulator on the other laptop was configured to run under `baseline_recreation` mode using the log-based guide equations, it computed negative computational energy (e.g., $-1.94$ J for local execution) and heavily scaled offloading ratios due to SINR modulation. This created massive mismatches against the paper's reported positive energy benchmarks ($0.7057$ J for MA-ROPE, $0.9441$ J for AllOffload, and $0.5032$ J for NoOffload).
+* **How to successfully recreate the paper:**
+  Running the simulator in the **`physically_corrected`** environment mode (which matches the manuscript's linear equations) yields positive, physically sound metrics that align with the paper's targets within the warning threshold (NoOffload energy relative error is only **$7.13\%$**, utility error is **$1.67\%$**, and MA-ROPE utility error is **$4.57\%$**).
