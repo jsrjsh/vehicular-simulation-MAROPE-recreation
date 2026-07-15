@@ -31,7 +31,8 @@ class V2XEnv:
                  max_steps: int = DEFAULT_MAX_STEPS,
                  include_rsu_queue: bool = DEFAULT_INCLUDE_RSU_QUEUE,
                  seed: int = None,
-                 mode: str = "physically_corrected"):
+                 mode: str = "physically_corrected",
+                 policy_type: str = "learned"):
         
         self.n_vehicles = n_vehicles
         self.road_length_m = road_length_m
@@ -44,6 +45,7 @@ class V2XEnv:
         if mode not in ["physically_corrected", "baseline_recreation"]:
             raise ValueError(f"Unknown mode: {mode}")
         self.mode = mode
+        self.policy_type = policy_type.lower()
         
         if self.scenario_name not in SCENARIOS:
             raise ValueError(f"Unknown scenario: {self.scenario_name}")
@@ -218,10 +220,15 @@ class V2XEnv:
             if rat_idx == 0 or rho == 0.0:
                 adapted_rhos[i] = 0.0
             else:
-                gammas = {r: max(10**(veh_sinrs[r] / 10.0), 1e-6) for r in range(1, 5)}
-                sum_gammas = sum(gammas.values())
-                q_r = gammas[rat_idx] / sum_gammas
-                adapted_rhos[i] = np.clip(rho * q_r, 0.0, 1.0)
+                if self.policy_type == "alloffload":
+                    adapted_rhos[i] = 1.0
+                elif self.policy_type == "nooffload":
+                    adapted_rhos[i] = 0.0
+                else:
+                    gammas = {r: max(10**(veh_sinrs[r] / 10.0), 1e-6) for r in range(1, 5)}
+                    sum_gammas = sum(gammas.values())
+                    q_r = gammas[rat_idx] / sum_gammas
+                    adapted_rhos[i] = np.clip(rho * q_r, 0.0, 1.0)
 
         # 3. Compute Latency and Energy costs
         latencies = {}
@@ -381,7 +388,8 @@ class V2XEnv:
                 "adapted_rho": adapted_rhos[i],
                 "u_otr": u_otr,
                 "empirical_prr": self.get_empirical_prr(i, rat_idx) if rat_idx > 0 else 1.0,
-                "queue_delay_ms": (self.rsu_queues[self._get_nearest_rsu(self.positions[i])] * DELAY_PER_UNIT_MS) if self.include_rsu_queue else 0.0
+                "queue_delay_ms": (self.rsu_queues[self._get_nearest_rsu(self.positions[i])] * DELAY_PER_UNIT_MS) if self.include_rsu_queue else 0.0,
+                "policy_type": self.policy_type
             }
             
         return next_obs, rewards, dones, infos
