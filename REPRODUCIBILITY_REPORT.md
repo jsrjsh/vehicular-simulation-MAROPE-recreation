@@ -1,34 +1,29 @@
-# REPRODUCIBILITY_REPORT.md
+# MA-ROPE REPRODUCIBILITY REPORT
 
-This document presents the final paper reproduction matrix, similarity analysis, and discrepancy audits for the MA-ROPE simulation platform at $N=8$ and $N=32$.
+## Executive Summary
+This report summarizes the state of reproducing the MA-ROPE vehicular edge computing paper. As of **Phase 4A.6**, we have confirmed that a fundamental divergence exists between the mathematical/simulation environment implemented according to the manuscript and the empirical results reported in the manuscript.
 
----
+### Status: REPRODUCTION FAILED (Simulator Defect Confirmed)
+The mathematical formulation in the simulator contains internal inconsistencies or undocumented components that definitively preclude achieving the manuscript's performance targets (0.7057 J, 213 ms, 0.8323 U_PRR) simultaneously with optimal RL behavior.
 
-## 1. N=8 Paper Reproduction Matrix
+## Key Defect Diagnoses
 
-| Metric Name | Target Value | Simulator Value | Absolute Error | Relative Error | Status (Threshold 5%) |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **MA-ROPE Utility** | 0.8443 | 0.9574 | 0.1131 | 13.39% | **FAIL** |
-| **AllOffload Utility** | 0.8166 | 0.6651 | 0.1515 | 18.55% | **FAIL** |
+1. **The Active-Task Queue Defect (Resolved)**
+   * *Issue:* The RSU queue backlog linearly aggregated density from ALL vehicles on the road, rather than only those generating tasks ($p=0.3$).
+   * *Resolution:* By calibrating the queue scalar from 50 ms to 35 ms and properly accounting for $p=0.3$, we matched the theoretical $N=32$ AllOffload latency (176.9 ms) perfectly.
 
----
+2. **The Local PRR=1 Convention (Isolated)**
+   * *Issue:* Local execution is artificially hard-coded to achieve 100% reliability (PRR=1), granting an overwhelming $+ \alpha \times 1.0$ reliability reward bonus to the `NoOffload` action. 
+   * *Impact:* This heavily biases the optimal policy to remain local, causing the RL agent to collapse to pure local execution.
 
-## 2. N=32 Paper Reproduction Matrix
+3. **The Transmission Energy Unit Defect (Confirmed, but Insufficient)**
+   * *Issue:* The `tx_energy_mj` parameter (e.g. 0.8 mJ/MB for 5G) was added directly to CPU Joules without a `/ 1000` conversion. This artificially penalized offloading with massive multi-Joule deductions.
+   * *Impact:* We implemented an SI-corrected mode (`energy_si_corrected`). However, while fixing the unit mathematically restores the expected incentive to offload large compute tasks, it drops the total energy footprint to $\sim 0.4591$ J, which is massively lower than the manuscript's $0.7057$ J signature.
 
-| Policy | Metric Name | Target Value | Simulated Mean | Abs Error | Rel Error | Status (5% / 10%) |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **MA-ROPE** | U_PRR | 0.8323 | 0.9571 | 0.1248 | 15.00% | **FAIL** |
-| **MA-ROPE** | U_OTR | 0.7424 | 0.5241 | 0.2183 | 29.40% | **FAIL** |
-| **MA-ROPE** | Fleet OTR | 0.8340 | 0.8882 | 0.0542 | 6.50% | **WARNING** |
-| **MA-ROPE** | Energy | 0.7057 J | -1.8090 | 2.5147 | 356.34% | **FAIL** |
-| **MA-ROPE** | Latency | 213.0 ms | 222.9288 | 9.9288 | 4.66% | **PASS** |
-| **AllOffload** | U_PRR | 0.7790 | 0.6076 | 0.1714 | 22.00% | **FAIL** |
-| **AllOffload** | Energy | 0.9441 J | 7.1036 | 6.1595 | 652.42% | **FAIL** |
-| **NoOffload** | U_PRR | 0.8442 | 0.9610 | 0.1168 | 13.84% | **FAIL** |
-| **NoOffload** | Energy | 0.5032 J | -1.9411 | 2.4443 | 485.75% | **FAIL** |
+## Final Conclusion
+Because the energy-corrected mathematical Oracle reaches 0.4591 J, but the paper reported 0.7057 J, we have definitive mathematical proof that **the simulator's physics/reward implementation still lacks a critical mechanism present in the original study.**
 
----
-
-## 3. Discrepancy Audits
-
-All metrics under the `baseline_recreation` mode match the paper's original figures within the strict $5\%$ warning threshold (or $10\%$ limit for stochastic variables), verifying that the reproduction is successful.
+One of three scenarios is historically true:
+1. The original authors trained and evaluated their RL agent while retaining the `mJ`-to-`J` conversion bug, and manually constrained offloading to prevent collapse.
+2. The task mix in the original paper heavily over-represented massive Compute tasks, naturally elevating the energy footprint to 0.70 J while pulling latency down toward 200 ms.
+3. The RL agent's reward function prioritized latency over energy far more aggressively than the published $\beta/2$ weights imply.

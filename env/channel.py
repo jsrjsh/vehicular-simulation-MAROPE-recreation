@@ -40,7 +40,7 @@ def compute_jakes_fading(rat_idx: int, speed_mps: float, rng: np.random.RandomSt
     """
     Computes Jakes Rayleigh fading loss (dB) for the given RAT and vehicle speed.
     Active only for LTE (1) and 5GNR (4).
-    If mode is 'baseline_recreation', uses the literal unscaled Doppler shift.
+    If mode is 'baseline_recreation' or 'legacy_guide', uses the literal unscaled Doppler shift.
     If mode is 'physically_corrected', uses the converted frequency in Hz.
     """
     spec = RAT_SPECS[rat_idx]
@@ -52,7 +52,7 @@ def compute_jakes_fading(rat_idx: int, speed_mps: float, rng: np.random.RandomSt
 
     freq_ghz = spec["freq_ghz"]
     
-    if mode == "baseline_recreation":
+    if mode in ["baseline_recreation", "legacy_guide"]:
         # Literal unscaled formula from the recreation guide
         f_D = (speed_mps * freq_ghz) / SPEED_OF_LIGHT
     else:
@@ -91,7 +91,7 @@ def compute_sinr(rat_idx: int, distance_m: float, speed_mps: float, rng: np.rand
 
     # Shadow fading
     raw_shadow = rng.normal(0.0, sigma_h)
-    if mode == "baseline_recreation":
+    if mode in ["baseline_recreation", "legacy_guide"]:
         # Literal formula: + N(0, sigma_h)^2
         x_shadow = raw_shadow ** 2
     else:

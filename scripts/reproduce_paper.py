@@ -101,7 +101,7 @@ def run_ma_rope(n_agents=8, episodes=30, seed=42):
 def run_fixed_mode(action_val, n_agents=8, seed=42):
     mode_name = "AllOffload" if action_val == 8 else "NoOffload"
     print(f"\n--- Evaluating Fixed Mode: {mode_name} ---")
-    env = V2XEnv(n_vehicles=n_agents, scenario="urllc", max_steps=100, seed=seed, mode="physically_corrected")
+    env = V2XEnv(n_vehicles=n_agents, scenario="urllc", max_steps=100, seed=seed, mode="physically_corrected", policy_type=mode_name)
     
     eval_rewards = []
     eval_latencies = []

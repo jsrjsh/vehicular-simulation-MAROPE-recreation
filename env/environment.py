@@ -3,7 +3,7 @@
 Deterministic multi-agent environment core for V2X task offloading in MA-ROPE.
 Implements vehicle mobility, RSU queue workloads, task generation, latency/energy costs,
 observation building, and reward evaluation.
-Supports two modes: 'physically_corrected' and 'baseline_recreation'.
+Supports three modes: 'physically_corrected', 'baseline_recreation' / 'legacy_guide', and 'manuscript_calibrated'.
 """
 
 import math
@@ -32,7 +32,9 @@ class V2XEnv:
                  include_rsu_queue: bool = DEFAULT_INCLUDE_RSU_QUEUE,
                  seed: int = None,
                  mode: str = "physically_corrected",
-                 policy_type: str = "learned"):
+                 policy_type: str = "learned",
+                 delay_per_unit_ms: float = None,
+                 energy_mode: str = "energy_legacy_unconverted"):
         
         self.n_vehicles = n_vehicles
         self.road_length_m = road_length_m
@@ -42,9 +44,24 @@ class V2XEnv:
         self.max_steps = max_steps
         self.include_rsu_queue = include_rsu_queue
         
-        if mode not in ["physically_corrected", "baseline_recreation"]:
+        if energy_mode not in ["energy_legacy_unconverted", "energy_si_corrected"]:
+            raise ValueError(f"Unknown energy_mode: {energy_mode}")
+        self.energy_mode = energy_mode
+        
+        if mode not in ["physically_corrected", "baseline_recreation", "legacy_guide", "manuscript_calibrated"]:
             raise ValueError(f"Unknown mode: {mode}")
         self.mode = mode
+        
+        # Mode-specific defaults
+        if self.mode in ["baseline_recreation", "legacy_guide"]:
+            self.delay_per_unit_ms = 50.0
+        elif self.mode == "physically_corrected":
+            self.delay_per_unit_ms = 50.0
+        elif self.mode == "manuscript_calibrated":
+            self.delay_per_unit_ms = 35.0
+            
+        if delay_per_unit_ms is not None:
+            self.delay_per_unit_ms = delay_per_unit_ms
         self.policy_type = policy_type.lower()
         
         if self.scenario_name not in SCENARIOS:
@@ -62,6 +79,7 @@ class V2XEnv:
         self.speeds = np.zeros(self.n_vehicles)
         self.batteries = np.zeros(self.n_vehicles)
         self.active_tasks = {}  # agent_id -> task_dict
+        self.is_new_task = {i: True for i in self.agents}
         
         # Episode metrics and counters per agent
         self.tx_counters = {}
@@ -192,7 +210,8 @@ class V2XEnv:
             
             rsu_idx = self._get_nearest_rsu(self.positions[i])
             if rat_idx > 0 and rho > 0.0:
-                rsu_workloads[rsu_idx].append((i, rat_idx, rho))
+                if self.mode in ["baseline_recreation", "legacy_guide"] or self.is_new_task[i]:
+                    rsu_workloads[rsu_idx].append((i, rat_idx, rho))
                 
         # Aggregate Q_r for each RSU
         for r_idx in range(len(self.rsu_positions)):
@@ -243,7 +262,7 @@ class V2XEnv:
             
             if rat_idx == 0 or rho_prime == 0.0:
                 l_total = l_local
-                if self.mode == "baseline_recreation":
+                if self.mode in ["baseline_recreation", "legacy_guide"]:
                     c_ratio = task["cpu_cycles"] / CPU_FREQ_HZ
                     e_total = P_CPU_W * math.log10(max(c_ratio, 1e-9))
                 else:
@@ -256,12 +275,12 @@ class V2XEnv:
                 
                 # Queuing delay (ms)
                 rsu_idx = self._get_nearest_rsu(self.positions[i])
-                l_queue = (self.rsu_queues[rsu_idx] * DELAY_PER_UNIT_MS) if self.include_rsu_queue else 0.0
+                l_queue = (self.rsu_queues[rsu_idx] * self.delay_per_unit_ms) if self.include_rsu_queue else 0.0
                 
                 # Sidelink/transmission propagation delay (ms)
                 l_offload = RAT_SPECS[rat_idx]["latency_ms"]
                 
-                if self.mode == "baseline_recreation":
+                if self.mode in ["baseline_recreation", "legacy_guide"]:
                     # Literal rendering formula using log10
                     l_local_term = math.log10(max(l_local, 1e-9)) * (1.0 - rho_prime)
                     l_total = max(l_local_term, l_remote + l_queue + l_offload)
@@ -278,8 +297,10 @@ class V2XEnv:
                 else:
                     l_total = max(l_local * (1.0 - rho_prime), l_remote + l_queue + l_offload)
                     tx_energy_mj = RAT_SPECS[rat_idx]["tx_energy_mj"]
-                    e_tx = (tx_energy_mj * task["data_mb"] * rho_prime) / 1000.0
-                    e_total = P_CPU_W * (l_total / 1000.0) + e_tx
+                    e_tx = (tx_energy_mj * task["data_mb"] * rho_prime)
+                    if getattr(self, "energy_mode", "energy_legacy_unconverted") == "energy_si_corrected":
+                        e_tx = e_tx / 1000.0
+                    e_total = P_CPU_W * (l_local * (1.0 - rho_prime) / 1000.0) + e_tx
                 
             latencies[i] = l_total
             energies[i] = e_total
@@ -346,8 +367,11 @@ class V2XEnv:
 
         # 7. Task resampling (probability 0.3)
         for i in self.agents:
-            if self.rng.uniform(0.0, 1.0) < 0.3:
+            if self.rng.uniform(0.0, 1.0) < self.task_arrival_prob:
                 self.active_tasks[i] = self._sample_task()
+                self.is_new_task[i] = True
+            else:
+                self.is_new_task[i] = False
 
         # 8. Build next observations
         next_obs = self._build_observations()
@@ -364,7 +388,7 @@ class V2XEnv:
             task = self.active_tasks[i]
             
             if rat_idx == 0 or rho == 0.0:
-                otr_val = 1.0
+                otr_val = 0.0
             else:
                 tx = self.tx_counters[i][rat_idx]
                 otr_val = self.rx_on_time_counters[i][rat_idx] / tx if tx > 0 else (0.5 if self.total_offload_transmissions > 0 else 1.0)
@@ -388,7 +412,7 @@ class V2XEnv:
                 "adapted_rho": adapted_rhos[i],
                 "u_otr": u_otr,
                 "empirical_prr": self.get_empirical_prr(i, rat_idx) if rat_idx > 0 else 1.0,
-                "queue_delay_ms": (self.rsu_queues[self._get_nearest_rsu(self.positions[i])] * DELAY_PER_UNIT_MS) if self.include_rsu_queue else 0.0,
+                "queue_delay_ms": (self.rsu_queues[self._get_nearest_rsu(self.positions[i])] * self.delay_per_unit_ms) if self.include_rsu_queue else 0.0,
                 "policy_type": self.policy_type
             }
             

@@ -10,7 +10,7 @@ CPU_FREQ_HZ = 2e9                  # Local CPU frequency (Hz)
 P_CPU_W = 2.0                      # Local CPU power consumption (Watts)
 SAFETY_REMOTE_MEC_SPEEDUP = 1.5    # Remote computing speedup factor for safety tasks
 remote_factor_base = 0.5e-3        # Base MEC computing factor (s/MB)
-DELAY_PER_UNIT_MS = 50.0           # Latency per unit of RSU queue backlog (ms)
+DELAY_PER_UNIT_MS = 35.0           # Latency per unit of RSU queue backlog (ms)
 OBS_DIM = 12                       # Dimension of vehicle observations
 
 # 1.2 & 1.3 Channel and Physical Layer parameters per RAT index
