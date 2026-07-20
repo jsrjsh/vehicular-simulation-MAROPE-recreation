@@ -34,7 +34,8 @@ class V2XEnv:
                  mode: str = "physically_corrected",
                  policy_type: str = "learned",
                  delay_per_unit_ms: float = None,
-                 energy_mode: str = "energy_legacy_unconverted"):
+                 energy_mode: str = "energy_legacy_unconverted",
+                 local_reliability_mode: str = "local_success"):
         
         self.n_vehicles = n_vehicles
         self.road_length_m = road_length_m
@@ -43,6 +44,7 @@ class V2XEnv:
         self.task_arrival_prob = task_arrival_prob
         self.max_steps = max_steps
         self.include_rsu_queue = include_rsu_queue
+        self.local_reliability_mode = local_reliability_mode
         
         if energy_mode not in ["energy_legacy_unconverted", "energy_si_corrected"]:
             raise ValueError(f"Unknown energy_mode: {energy_mode}")
@@ -335,7 +337,17 @@ class V2XEnv:
             task = self.active_tasks[i]
             
             if rat_idx == 0 or rho_prime == 0.0:
-                prr_val = 1.0
+                mode = getattr(self, "local_reliability_mode", "local_success")
+                if mode == "local_success":
+                    prr_val = 1.0
+                elif mode == "local_default":
+                    prr_val = 0.5
+                elif mode == "local_zero":
+                    prr_val = 0.0
+                elif mode == "local_neutral":
+                    prr_val = 0.0 # Will be ignored during utility calculation
+                else:
+                    prr_val = 1.0
             else:
                 prr_val = self.get_empirical_prr(i, rat_idx)
                 
@@ -354,10 +366,21 @@ class V2XEnv:
             e_ratio = energies[i] / 3.0
             e_ratio = max(min(e_ratio, 100.0), -100.0)
             
-            u = (alpha * prr_val
-                 + (beta / 2.0) * math.exp(-l_ratio)
-                 + (beta / 2.0) * math.exp(-e_ratio)
-                 + (beta / 4.0) * delta_cbr)
+            if (rat_idx == 0 or rho_prime == 0.0) and getattr(self, "local_reliability_mode", "local_success") == "local_neutral":
+                # Omit reliability term and renormalize
+                # Original max reward = alpha + beta/2 + beta/2 = alpha + beta = 1.0 (assuming delta_cbr is small)
+                # If we omit PRR, max reward is beta. So we divide by beta to renormalize.
+                renorm = 1.0 / beta if beta > 0 else 1.0
+                u = renorm * (
+                     (beta / 2.0) * math.exp(-l_ratio)
+                     + (beta / 2.0) * math.exp(-e_ratio)
+                     + (beta / 4.0) * delta_cbr
+                )
+            else:
+                u = (alpha * prr_val
+                     + (beta / 2.0) * math.exp(-l_ratio)
+                     + (beta / 2.0) * math.exp(-e_ratio)
+                     + (beta / 4.0) * delta_cbr)
                  
             rewards[i] = float(np.clip(u, 0.0, 1.0))
 

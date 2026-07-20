@@ -1,0 +1,108 @@
+
+================ N = 8 ================
+
+--- Environment Mode: paper_reproduction ---
+Policy: MA-ROPE
+  u_prr_active: 0.9544 ± 0.0236
+  u_otr_active: 0.8089 ± 0.2049
+  fleet_otr: 0.9357 ± 0.0453
+  prr: 0.9421 ± 0.0449
+  latency_active_ms: 204.3910 ± 48.1545
+  energy_active_j: -1.6781 ± 0.6668
+  queue_loss: 0.0579 ± 0.0449
+Policy: ALLOFFLOAD
+  u_prr_active: 0.6651 ± 0.0090
+  u_otr_active: 0.3030 ± 0.0211
+  fleet_otr: 0.3397 ± 0.0358
+  prr: 0.9706 ± 0.0082
+  latency_active_ms: 228.8864 ± 30.2902
+  energy_active_j: 7.1016 ± 0.0888
+  queue_loss: 0.0295 ± 0.0082
+Policy: NOOFFLOAD
+  u_prr_active: 0.9596 ± 0.0098
+  u_otr_active: 0.5076 ± 0.0121
+  fleet_otr: 1.0000 ± 0.0000
+  prr: 1.0000 ± 0.0000
+  latency_active_ms: 240.5619 ± 33.1278
+  energy_active_j: -1.9150 ± 0.0828
+  queue_loss: 0.0000 ± 0.0000
+
+--- Environment Mode: physically_corrected ---
+Policy: MA-ROPE
+  u_prr_active: 0.8725 ± 0.0291
+  u_otr_active: 0.6959 ± 0.2647
+  fleet_otr: 0.8403 ± 0.0590
+  prr: 0.9370 ± 0.0574
+  latency_active_ms: 190.3321 ± 65.6390
+  energy_active_j: 0.3847 ± 0.1333
+  queue_loss: 0.0630 ± 0.0574
+Policy: ALLOFFLOAD
+  u_prr_active: 0.7691 ± 0.0117
+  u_otr_active: 0.4284 ± 0.0212
+  fleet_otr: 0.3261 ± 0.0333
+  prr: 0.9304 ± 0.0130
+  latency_active_ms: 228.8864 ± 30.2902
+  energy_active_j: 0.9808 ± 0.1010
+  queue_loss: 0.0697 ± 0.0130
+Policy: NOOFFLOAD
+  u_prr_active: 0.8554 ± 0.0131
+  u_otr_active: 0.3012 ± 0.0104
+  fleet_otr: 1.0000 ± 0.0000
+  prr: 1.0000 ± 0.0000
+  latency_active_ms: 240.5619 ± 33.1278
+  energy_active_j: 0.4811 ± 0.0663
+  queue_loss: 0.0000 ± 0.0000
+
+================ N = 32 ================
+
+--- Environment Mode: paper_reproduction ---
+Policy: MA-ROPE
+  u_prr_active: 0.9578 ± 0.0039
+  u_otr_active: 0.8123 ± 0.2045
+  fleet_otr: 0.8882 ± 0.0349
+  prr: 0.9415 ± 0.0208
+  latency_active_ms: 222.5585 ± 13.2911
+  energy_active_j: -1.8111 ± 0.0478
+  queue_loss: 0.0585 ± 0.0208
+Policy: ALLOFFLOAD
+  u_prr_active: 0.6076 ± 0.0062
+  u_otr_active: 0.1264 ± 0.0159
+  fleet_otr: 0.1246 ± 0.0291
+  prr: 0.9754 ± 0.0027
+  latency_active_ms: 829.9795 ± 21.6958
+  energy_active_j: 7.1036 ± 0.0585
+  queue_loss: 0.0246 ± 0.0027
+Policy: NOOFFLOAD
+  u_prr_active: 0.9610 ± 0.0044
+  u_otr_active: 0.5079 ± 0.0067
+  fleet_otr: 1.0000 ± 0.0000
+  prr: 1.0000 ± 0.0000
+  latency_active_ms: 233.6699 ± 18.1196
+  energy_active_j: -1.9411 ± 0.0611
+  queue_loss: 0.0000 ± 0.0000
+
+--- Environment Mode: physically_corrected ---
+Policy: MA-ROPE
+  u_prr_active: 0.8659 ± 0.0152
+  u_otr_active: 0.6864 ± 0.2570
+  fleet_otr: 0.7657 ± 0.0322
+  prr: 0.9247 ± 0.0451
+  latency_active_ms: 202.9571 ± 40.4964
+  energy_active_j: 0.4103 ± 0.0831
+  queue_loss: 0.0753 ± 0.0451
+Policy: ALLOFFLOAD
+  u_prr_active: 0.7127 ± 0.0089
+  u_otr_active: 0.2580 ± 0.0152
+  fleet_otr: 0.1189 ± 0.0268
+  prr: 0.9330 ± 0.0058
+  latency_active_ms: 829.9795 ± 21.6958
+  energy_active_j: 0.9690 ± 0.0683
+  queue_loss: 0.0670 ± 0.0058
+Policy: NOOFFLOAD
+  u_prr_active: 0.8583 ± 0.0075
+  u_otr_active: 0.3002 ± 0.0066
+  fleet_otr: 1.0000 ± 0.0000
+  prr: 1.0000 ± 0.0000
+  latency_active_ms: 233.6699 ± 18.1196
+  energy_active_j: 0.4673 ± 0.0362
+  queue_loss: 0.0000 ± 0.0000

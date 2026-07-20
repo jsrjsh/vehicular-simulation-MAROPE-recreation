@@ -1,0 +1,4 @@
+- [x] Task 1: Create `evaluate_marope_calibrated.py` script
+- [x] Run 5-seed training sweeps for MA-ROPE, AllOffload, and NoOffload under `manuscript_calibrated`
+- [x] Analyze retrained MA-ROPE energy profile against manuscript targets (~0.7057 J for N=32)
+- [x] Determine if further policy-level tuning is required.
