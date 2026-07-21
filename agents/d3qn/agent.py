@@ -122,7 +122,7 @@ class D3QNAgent:
         Integrates TD error calculations and prioritized priority updates.
         """
         if len(self.replay_buffer) < self.batch_size:
-            return 0.0
+            return 0.0, 0.0
             
         # Sample transition batch (includes indices and importance weights)
         states, actions, rewards, next_states, dones, indices, weights = self.replay_buffer.sample(self.batch_size)
@@ -179,7 +179,7 @@ class D3QNAgent:
         if self.update_count % self.target_update_frequency == 0:
             self.update_target_network()
             
-        return float(loss.item())
+        return float(loss.item()), float(q_eval.mean().item())
 
     def save(self, filepath: str):
         """Saves online network weights checkpoint."""
