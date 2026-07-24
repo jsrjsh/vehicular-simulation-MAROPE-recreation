@@ -51,7 +51,7 @@ for mode in MODES:
     results_md += f"| **{mode.capitalize()}** | {stats_str['success_rate']} | {stats_str['reward']} | {stats_str['latency_success']} | {stats_str['energy']} | {stats_str['queue']} |\n"
 
 # Output to artifact path
-artifact_path = "/Users/aryaveersingh/.gemini/antigravity-ide/brain/534992f3-aa80-47de-bf35-190f84414b21/PHASE_B3_FINAL_RESULTS.md"
+artifact_path = "/home/researcher/.gemini/antigravity-ide/brain/534992f3-aa80-47de-bf35-190f84414b21/PHASE_B3_FINAL_RESULTS.md"
 with open(artifact_path, "w") as f:
     f.write(results_md)
     

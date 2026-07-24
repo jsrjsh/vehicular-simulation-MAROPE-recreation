@@ -1,0 +1,16 @@
+{
+    "timestamp": "2026-07-23 11:47:39.065462",
+    "profile": "marope_unit_hypothesis_mbit",
+    "policy": "alloffload",
+    "metrics": {
+        "u_prr": 0.7869181716138198,
+        "u_otr": 0.7284412945229715,
+        "fleet_otr": 0.7385,
+        "latency_ms": 70.43080416666668,
+        "energy_j": 1.0387199999999999,
+        "prr": 0.9334229236361613,
+        "action_dist": {
+            "4": 1.0
+        }
+    }
+}

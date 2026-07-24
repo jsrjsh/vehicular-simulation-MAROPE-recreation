@@ -142,7 +142,7 @@ def main():
         axes[i].legend()
         
     plt.tight_layout()
-    plt.savefig("/Users/aryaveersingh/.gemini/antigravity-ide/brain/534992f3-aa80-47de-bf35-190f84414b21/queue_backlog_scenarios.png")
+    plt.savefig("/home/researcher/.gemini/antigravity-ide/brain/534992f3-aa80-47de-bf35-190f84414b21/queue_backlog_scenarios.png")
     
     # Plot Ti/Di for Always 5G in Scenario B
     fig, ax = plt.subplots(figsize=(8, 6))
@@ -156,7 +156,7 @@ def main():
     ax.set_ylabel("T_i / D_i")
     ax.axhline(1.0, color='r', linestyle='--', label='Deadline')
     ax.legend()
-    plt.savefig("/Users/aryaveersingh/.gemini/antigravity-ide/brain/534992f3-aa80-47de-bf35-190f84414b21/latency_deadline_ratio.png")
+    plt.savefig("/home/researcher/.gemini/antigravity-ide/brain/534992f3-aa80-47de-bf35-190f84414b21/latency_deadline_ratio.png")
     print("\nEvaluation complete. Plots and metrics saved.")
 
 if __name__ == "__main__":

@@ -27,4 +27,4 @@ def docx_to_txt(docx_path, txt_path):
         print(f"Error extracting text: {e}")
 
 if __name__ == "__main__":
-    docx_to_txt('/Users/aryaveersingh/Projects/Antrigravity_Projects/projects/vehicular-simulation-MAROPE-recreation/MA_ROPE_IEEE_Paper_v10_final2.docx', 'scripts/extracted_paper_text.txt')
+    docx_to_txt('/var/tmp/marope/MA_ROPE_IEEE_Paper_v10_final2.docx', 'scripts/extracted_paper_text.txt')

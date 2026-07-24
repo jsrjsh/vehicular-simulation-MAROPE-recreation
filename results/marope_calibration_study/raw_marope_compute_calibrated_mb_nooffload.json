@@ -1,0 +1,16 @@
+{
+    "timestamp": "2026-07-23 11:48:12.514014",
+    "profile": "marope_compute_calibrated_mb",
+    "policy": "nooffload",
+    "metrics": {
+        "u_prr": 0.6757667727014967,
+        "u_otr": 0.6757667727014967,
+        "fleet_otr": 1.0,
+        "latency_ms": 468.95,
+        "energy_j": 0.9379,
+        "prr": 1.0,
+        "action_dist": {
+            "0": 1.0
+        }
+    }
+}

@@ -12,9 +12,9 @@ from agents.d3qn.agent import D3QNAgent
 from agents.federated.coordinator_plus import FederatedCoordinatorPlus
 from scripts.train_b3_baselines import Evaluator
 
-def run_pilot(config_name, w_s, reward_type, seed, episodes=200):
+def run_pilot(agent_mode, config_name, w_s, w_t, w_e, reward_type, seed, episodes=200):
     env = V2XEnvPlus(n_vehicles=16, seed=seed, f_mec=0.316e9, bg_workload_enabled=True,
-                     w_s=w_s, reward_type=reward_type)
+                     w_s=w_s, w_t=w_t, w_e=w_e, reward_type=reward_type)
     evaluator = Evaluator(env)
     
     agents = {i: D3QNAgent(state_dim=20, action_dim=11, seed=seed + i) for i in range(16)}
@@ -41,7 +41,7 @@ def run_pilot(config_name, w_s, reward_type, seed, episodes=200):
                     
             obs = next_obs
             
-        if episode % 10 == 0:
+        if agent_mode == "fedavg" and episode % 10 == 0:
             agent_models = {i: agents[i].online_net.state_dict() for i in range(16)}
             global_state, report = coord.aggregate_and_broadcast(agent_models, infos)
             if report["round_executed"]:
@@ -52,21 +52,23 @@ def run_pilot(config_name, w_s, reward_type, seed, episodes=200):
                     agents[i].update_target_network()
                     
         if episode == episodes:
-            final_metrics = evaluator.evaluate(agents, "fedavg", num_eps=10) # 10 eps eval at end
+            final_metrics = evaluator.evaluate(agents, agent_mode, num_eps=10) # 10 eps eval at end
+            
+            # Save checkpoints
+            os.makedirs(f"checkpoints_b33b/{agent_mode}_{config_name}_seed_{seed}", exist_ok=True)
+            for i in range(16):
+                agents[i].save(f"checkpoints_b33b/{agent_mode}_{config_name}_seed_{seed}/agent_{i}.pt")
             
     return final_metrics
 
 if __name__ == "__main__":
     configs = [
-        {"name": "Baseline", "w_s": 0.4, "reward_type": "linear"},
-        {"name": "A0_w0.50", "w_s": 0.5, "reward_type": "linear"},
-        {"name": "A0_w0.75", "w_s": 0.75, "reward_type": "linear"},
-        {"name": "A0_w1.00", "w_s": 1.0, "reward_type": "linear"},
-        {"name": "A0_w1.25", "w_s": 1.25, "reward_type": "linear"},
-        {"name": "A0_w1.50", "w_s": 1.5, "reward_type": "linear"},
-        {"name": "A0_w2.00", "w_s": 2.0, "reward_type": "linear"},
-        {"name": "C_Sigmoid", "w_s": 0.4, "reward_type": "sigmoid"}
+        {"name": "Baseline", "w_s": 0.4, "w_t": 0.3, "w_e": 0.2, "reward_type": "linear"},
+        {"name": "Candidate_B", "w_s": 0.0, "w_t": 0.0, "w_e": 0.0, "reward_type": "piecewise"},
+        {"name": "Candidate_C", "w_s": 0.4, "w_t": 0.3, "w_e": 0.2, "reward_type": "sigmoid"}
     ]
+    
+    modes = ["independent", "fedavg"]
     
     seeds = [111, 222, 333]
     
@@ -75,22 +77,23 @@ if __name__ == "__main__":
     
     with open(out_file, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["Config", "Seed", "w_s", "RewardType", "5G_Ratio", "SLA_Success", "Energy", "Latency_ms"])
+        writer.writerow(["Mode", "Config", "Seed", "RewardType", "5G_Ratio", "SLA_Success", "Energy", "Latency_ms"])
         
-    for cfg in configs:
-        for seed in seeds:
-            print(f"Running {cfg['name']} (Seed {seed})...")
-            metrics = run_pilot(cfg["name"], cfg["w_s"], cfg["reward_type"], seed)
-            
-            ratio_5g = metrics["action_dist"].get(2, 0.0)
-            success = metrics["success_rate"]
-            energy = metrics["energy"]
-            latency = metrics["latency_all"] * 1000 # to ms
-            
-            with open(out_file, "a", newline="") as f:
-                writer = csv.writer(f)
-                writer.writerow([cfg["name"], seed, cfg["w_s"], cfg["reward_type"], ratio_5g, success, energy, latency])
-            
-            print(f"  -> 5G Ratio: {ratio_5g*100:.1f}% | SLA: {success*100:.1f}% | E: {energy:.2f}mJ")
+    for mode in modes:
+        for cfg in configs:
+            for seed in seeds:
+                print(f"Running {mode.upper()} - {cfg['name']} (Seed {seed})...")
+                metrics = run_pilot(mode, cfg["name"], cfg["w_s"], cfg["w_t"], cfg["w_e"], cfg["reward_type"], seed)
+                
+                ratio_5g = metrics["action_dist"].get(2, 0.0)
+                success = metrics["success_rate"]
+                energy = metrics["energy"]
+                latency = metrics["latency_all"] * 1000 # to ms
+                
+                with open(out_file, "a", newline="") as f:
+                    writer = csv.writer(f)
+                    writer.writerow([mode, cfg["name"], seed, cfg["reward_type"], ratio_5g, success, energy, latency])
+                
+                print(f"  -> 5G Ratio: {ratio_5g*100:.1f}% | SLA: {success*100:.1f}% | E: {energy:.2f}mJ")
             
     print(f"Sweep complete! Results saved to {out_file}")

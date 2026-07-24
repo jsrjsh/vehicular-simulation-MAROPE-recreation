@@ -12,7 +12,7 @@ METRICS = ["success_rate", "reward", "latency_success", "energy", "queue", "div_
 # Convergence Figure
 results_md = "# Phase B3 Final Results (5-Seed Averaged)\n\n"
 results_md += "## Learning Convergence\n"
-results_md += "![Learning Curves](/Users/aryaveersingh/.gemini/antigravity-ide/brain/534992f3-aa80-47de-bf35-190f84414b21/learning_curves.png)\n\n"
+results_md += "![Learning Curves](/home/researcher/.gemini/antigravity-ide/brain/534992f3-aa80-47de-bf35-190f84414b21/learning_curves.png)\n\n"
 
 # Aggregated Statistics Table
 results_md += "## Aggregated Statistical Report (Final Episode)\n"
@@ -147,7 +147,7 @@ plt.ylabel('Mean Reward')
 plt.legend()
 plt.grid(True, alpha=0.3)
 plt.tight_layout()
-plt.savefig('/Users/aryaveersingh/.gemini/antigravity-ide/brain/534992f3-aa80-47de-bf35-190f84414b21/learning_curves.png', dpi=150)
+plt.savefig('/home/researcher/.gemini/antigravity-ide/brain/534992f3-aa80-47de-bf35-190f84414b21/learning_curves.png', dpi=150)
 plt.close()
 
 # --- 3. Per-Seed Results Table ---
@@ -160,7 +160,7 @@ for row in sorted(per_seed_data, key=lambda x: (x["Policy"], x["Seed"])):
     results_md += f"| {row['Policy']} | {row['Seed']} | {row['Reward']:.3f} | {row['Success Rate']*100:.1f}% | {row['Latency (ms)']:.1f} | {row['Energy (mJ)']:.3f} | {row['Reward Disp']:.3f} | {div_str} | {actions_str} |\n"
 
 # Output to artifact path
-artifact_path = "/Users/aryaveersingh/.gemini/antigravity-ide/brain/534992f3-aa80-47de-bf35-190f84414b21/PHASE_B3_FINAL_RESULTS.md"
+artifact_path = "/home/researcher/.gemini/antigravity-ide/brain/534992f3-aa80-47de-bf35-190f84414b21/PHASE_B3_FINAL_RESULTS.md"
 with open(artifact_path, "w") as f:
     f.write(results_md)
     

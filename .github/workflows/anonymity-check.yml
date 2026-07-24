@@ -1,0 +1,8 @@
+name: Anonymity Check
+on: [push, pull_request]
+jobs:
+  anonymity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: python scripts/check_anonymity.py

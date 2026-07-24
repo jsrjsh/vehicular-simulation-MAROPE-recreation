@@ -1,0 +1,2 @@
+episode,reward,success_rate,latency_success,latency_all,energy,queue,epsilon,td_loss,avg_q,aggregation_round,eligible_fraction,uplink_bytes,downlink_bytes
+20,388.6497670265386,0.9991546914623838,0.002858482538071066,0.002857532341504649,0.009510594488588335,0.0,0.0,0.0,0.0,0,0.0,0,0

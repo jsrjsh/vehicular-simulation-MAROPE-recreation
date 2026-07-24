@@ -1,0 +1,19 @@
+{
+    "timestamp": "2026-07-22 17:38:26.009721",
+    "seed": 4,
+    "physics_mode": "ma_rope",
+    "policy": "nooffload",
+    "metrics": {
+        "u_prr": 0.783871914602116,
+        "u_otr": 0.783871914602116,
+        "fleet_otr": 1.0,
+        "latency_ms": 243.25,
+        "energy_j": 0.4865,
+        "prr": 1.0,
+        "queue_ms": 0.0,
+        "action_dist": {
+            "0": 1.0
+        }
+    },
+    "checkpoint": null
+}

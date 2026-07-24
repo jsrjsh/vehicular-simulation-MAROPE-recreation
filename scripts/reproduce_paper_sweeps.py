@@ -455,8 +455,8 @@ This document verifies the strict directory separation between `baseline_recreat
 ---
 
 ## 1. Directory Structure Layout
-* **Paper Reproduction Directory:** [`results/paper_reproduction/`](file:///Users/aryaveersingh/Projects/Antrigravity_Projects/projects/vehicular-simulation-MAROPE-recreation/results/paper_reproduction)
-* **Physically Corrected Directory:** [`results/physically_corrected/`](file:///Users/aryaveersingh/Projects/Antrigravity_Projects/projects/vehicular-simulation-MAROPE-recreation/results/physically_corrected)
+* **Paper Reproduction Directory:** [`results/paper_reproduction/`](file:///var/tmp/marope/results/paper_reproduction)
+* **Physically Corrected Directory:** [`results/physically_corrected/`](file:///var/tmp/marope/results/physically_corrected)
 
 ---
 

@@ -139,7 +139,7 @@ def run_diagnostics():
     plt.ylabel("Queue Backlog (Cycles)")
     plt.legend()
     plt.grid(True, alpha=0.3)
-    plt.savefig("/Users/aryaveersingh/.gemini/antigravity-ide/brain/534992f3-aa80-47de-bf35-190f84414b21/queue_backlog.png")
+    plt.savefig("/home/researcher/.gemini/antigravity-ide/brain/534992f3-aa80-47de-bf35-190f84414b21/queue_backlog.png")
     
     # Plot Action Dist for D3QN
     d3qn_dist = results["shared_d3qn"]["action_dist_by_class"]
@@ -162,7 +162,7 @@ def run_diagnostics():
     ax.set_xticklabels(labels)
     ax.legend()
     
-    plt.savefig("/Users/aryaveersingh/.gemini/antigravity-ide/brain/534992f3-aa80-47de-bf35-190f84414b21/action_distribution.png")
+    plt.savefig("/home/researcher/.gemini/antigravity-ide/brain/534992f3-aa80-47de-bf35-190f84414b21/action_distribution.png")
 
 if __name__ == "__main__":
     run_diagnostics()

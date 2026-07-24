@@ -1,0 +1,23 @@
+{
+    "timestamp": "2026-07-22 17:35:35.096266",
+    "seed": 3,
+    "physics_mode": "ma_rope",
+    "policy": "learned",
+    "metrics": {
+        "u_prr": 0.7845078800231734,
+        "u_otr": 0.7818294517878095,
+        "fleet_otr": 0.98525,
+        "latency_ms": 232.44953786400055,
+        "energy_j": 0.47568860104863314,
+        "prr": 0.9941780941178795,
+        "queue_ms": 3.5328125,
+        "action_dist": {
+            "0": 0.839125,
+            "1": 0.0035,
+            "2": 0.1305,
+            "3": 0.009375,
+            "4": 0.0175
+        }
+    },
+    "checkpoint": "results/marope_fasttrack_n8/checkpoints/ma_rope_seed3/"
+}

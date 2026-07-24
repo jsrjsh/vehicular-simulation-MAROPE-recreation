@@ -1,0 +1,20 @@
+experiment_id: main_n32_comparison
+purpose: Baseline comparison between MA-ROPE, independent DQN, and shared MADDPG under high vehicle density (N=32)
+configuration_file: configs/experiments/paper_main.yaml
+random_seeds: [42, 43, 44, 45, 46]
+number_of_vehicles: 32
+scenario: URLLCStress_sev3
+number_of_episodes: 200
+synchronization_settings:
+  fedavg_sync_interval: 10
+model_architecture: Dueling Double DQN (FedAvg & Independent), MADDPG (Shared)
+software_version: v1.0.0-paper-submission
+expected_runtime: 6 hours (CPU) / 2 hours (GPU)
+expected_outputs:
+  - results/reference/results_fedavg.csv
+  - results/reference/results_independent.csv
+  - results/reference/results_shared.csv
+source_table_or_figure_in_paper: Table IIIa, Fig 10, Fig 12
+reference_result: MA-ROPE 83.4% OTR, 1.15% Queue Loss
+acceptable_tolerance: +/- 1.5% due to floating point and hardware variance
+known_limitations: CPU parallelism scales poorly beyond 16 cores for this env.

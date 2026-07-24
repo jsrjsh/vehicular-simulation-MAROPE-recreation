@@ -1,0 +1,4 @@
+# Main configuration for N=32
+fleet_size: 32
+episodes: 200
+seeds: [42, 43, 44, 45, 46]
