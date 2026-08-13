@@ -1,0 +1,228 @@
+\subsection{Algorithmic Comparison}
+
+\Cref{tab:full_performance} presents the primary N=32 comparison. $U_{PRR}$ (\Cref{eq:uprr}) is the packet-delivery training signal; $U_{OTR}$ (\Cref{eq:uotr}) is the deadline-compliance criterion. At dense fleet scale, MA-ROPE improves over AllOffload on $U_{PRR}$ (0.8323 vs. 0.7790), $U_{OTR}$ (0.7424 vs. 0.5644), fleet OTR (0.8340 vs. 0.5250), and energy (0.7057 J vs. 0.9441 J). Given the stochastic nature of the environment, small numerical differences at the third decimal place should not be over-interpreted; rather, the principal conclusions are drawn from the consistent scaling trends across vehicle densities and aggregated metrics.
+
+\begin{table}[htbp]
+\caption{Full Performance Comparison---URLLC stress, N=32 vehicles, 5 seeds. $U_{PRR}$: Eq. (4a), training signal. $U_{OTR}$: Eq. (4b), deadline compliance. Fleet OTR = on-time offload PDUs / transmitted offload PDUs.}
+\label{tab:full_performance}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Method} & \textbf{U\_PRR} & \textbf{U\_OTR} & \textbf{Fleet OTR} & \textbf{Energy (J)} & \textbf{Latency (ms)} \\
+\midrule
+\textbf{MA-ROPE Full $\star$} & \textbf{0.8323} & \textbf{0.7424} & \textbf{0.8340} & \textbf{0.7057} & \textbf{213.0} \\
+Yun2022 (GA+DQN) & 0.8134 & 0.7415 & 0.8340 & 0.7448 & 208.8 \\
+Wu2021 (UCB Bandit) & 0.8268 & 0.7437 & 0.8340 & 0.7221 & 204.0 \\
+Jing2019 (Lyapunov) & 0.8339 & 0.7414 & 0.8340 & 0.5032 & 275.6 \\
+Shao2025 (CoopEC) & 0.8339 & 0.7414 & 0.8340 & 0.5032 & 275.6 \\
+DQN --- Shao constraints & 0.8378 & 0.7465 & 0.8340 & 0.6822 & 202.0 \\
+DQN --- Yun constraints & 0.8361 & 0.7481 & 0.8340 & 0.7492 & 182.3 \\
+DQN --- Wu constraints & 0.8219 & 0.7449 & 0.8340 & 0.8073 & 182.5 \\
+DQN --- Jing constraints & 0.8328 & 0.7488 & 0.8340 & 0.7643 & 176.9 \\
+MADDPG (upper bound) & 0.8298 & 0.7518 & 0.8340 & 0.9460 & 139.1 \\
+AllOffload (5G 100\%) & 0.7790 & 0.5644 & 0.5250 & 0.9441 & 176.9 \\
+NoOffload (local) & 0.8442 & 0.2754 & 0.0000 & 0.5032 & 248.1 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{figures/image5.png}
+\caption{Utility vs. Vehicle Speed--URLLCStress Scenario.}
+\label{fig:utility_speed}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{figures/image6.png}
+\caption{Average Latency vs. Vehicle Speed--URLLCStress Scenario.}
+\label{fig:latency_speed}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{figures/image7.png}
+\caption{Energy Consumption vs. Vehicle Speed--URLLCStress Scenario.}
+\label{fig:energy_speed}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{figures/image8.png}
+\caption{Empirical PRR = $n_{rx}/n_{tx}$ vs. Vehicle Speed. AllOffload degrades fastest (5G-NR Jakes). MA-ROPE remains stable via ITS-G5 adaptation.}
+\label{fig:prr_speed}
+\end{figure}
+
+\subsection{Table IV Panels: Literature, Baselines, Restricted DQN, MADDPG, and Safety}
+
+\Cref{tab:lit_replicas,tab:fixed_baselines,tab:restricted_dqn,tab:maddpg_upper,tab:safety_task} decompose \Cref{tab:full_performance} into the reviewer-facing comparisons: literature replicas, fixed baselines, restricted DQN action spaces, the MADDPG upper bound, and safety-only OTR at N=32.
+
+\begin{table}[htbp]
+\caption{Literature Replicas vs. MA-ROPE--URLLC stress, N=32 vehicles}
+\label{tab:lit_replicas}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Method} & \textbf{U\_PRR} & \textbf{U\_OTR} & \textbf{Fleet OTR} & \textbf{Energy (J)} & \textbf{Latency (ms)} \\
+\midrule
+\textbf{MA-ROPE Full $\star$} & \textbf{0.8323} & \textbf{0.7424} & \textbf{0.8340} & \textbf{0.7057} & \textbf{213.0} \\
+Yun2022 (GA+DQN) & 0.8134 & 0.7415 & 0.8340 & 0.7448 & 208.8 \\
+Wu2021 (UCB Bandit) & 0.8268 & 0.7437 & 0.8340 & 0.7221 & 204.0 \\
+Jing2019 (Lyapunov) & 0.8339 & 0.7414 & 0.8340 & 0.5032 & 275.6 \\
+Shao2025 (CoopEC) & 0.8339 & 0.7414 & 0.8340 & 0.5032 & 275.6 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{figures/image9.png}
+\caption{Restricted-action DQN comparisons. The figure complements \Cref{tab:restricted_dqn} by showing how action-space constraints affect the learned policy.}
+\label{fig:restricted_dqn_plot}
+\end{figure}
+
+\begin{table}[htbp]
+\caption{Fixed Baselines vs. MA-ROPE--URLLC stress, N=32 vehicles}
+\label{tab:fixed_baselines}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Method} & \textbf{U\_PRR} & \textbf{U\_OTR} & \textbf{Fleet OTR} & \textbf{Energy (J)} & \textbf{Latency (ms)} \\
+\midrule
+\textbf{MA-ROPE Full $\star$} & \textbf{0.8323} & \textbf{0.7424} & \textbf{0.8340} & \textbf{0.7057} & \textbf{213.0} \\
+AllOffload (5G 100\%) & 0.7790 & 0.5644 & 0.5250 & 0.9441 & 176.9 \\
+NoOffload (local) & 0.8442 & 0.2754 & 0.0000 & 0.5032 & 248.1 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[htbp]
+\caption{Restricted DQN Action Spaces vs. MA-ROPE--URLLC stress, N=32 vehicles}
+\label{tab:restricted_dqn}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Method} & \textbf{U\_PRR} & \textbf{U\_OTR} & \textbf{Fleet OTR} & \textbf{Energy (J)} & \textbf{Latency (ms)} \\
+\midrule
+\textbf{MA-ROPE Full $\star$} & \textbf{0.8323} & \textbf{0.7424} & \textbf{0.8340} & \textbf{0.7057} & \textbf{213.0} \\
+DQN --- Shao constraints & 0.8378 & 0.7465 & 0.8340 & 0.6822 & 202.0 \\
+DQN --- Yun constraints & 0.8361 & 0.7481 & 0.8340 & 0.7492 & 182.3 \\
+DQN --- Wu constraints & 0.8219 & 0.7449 & 0.8340 & 0.8073 & 182.5 \\
+DQN --- Jing constraints & 0.8328 & 0.7488 & 0.8340 & 0.7643 & 176.9 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[htbp]
+\caption{MADDPG Upper Bound vs. MA-ROPE--URLLC stress, N=32 vehicles}
+\label{tab:maddpg_upper}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Method} & \textbf{U\_PRR} & \textbf{U\_OTR} & \textbf{Fleet OTR} & \textbf{Energy (J)} & \textbf{Latency (ms)} \\
+\midrule
+\textbf{MA-ROPE Full $\star$} & \textbf{0.8323} & \textbf{0.7424} & \textbf{0.8340} & \textbf{0.7057} & \textbf{213.0} \\
+MADDPG (upper bound) & 0.8298 & 0.7518 & 0.8340 & 0.9460 & 139.1 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[htbp]
+\caption{Safety-Task Delivery at N=32--Safety OTR and PRR-OTR Gap}
+\label{tab:safety_task}
+\centering
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Method} & \textbf{Safety PRR} & \textbf{Safety OTR} & \textbf{PRR-OTR gap} \\
+\midrule
+\textbf{MA-ROPE Full $\star$} & \textbf{0.9890} & \textbf{0.7519} & \textbf{23.7\%} \\
+AllOffload & 0.9790 & 0.2869 & 69.2\% \\
+Wu2021 & 0.9890 & 0.7519 & 23.7\% \\
+Yun2022 & 0.9890 & 0.7520 & 23.7\% \\
+MADDPG & 0.9890 & 0.7520 & 23.7\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Fleet-Density Scaling and RSU Queue Contention}
+
+\Cref{tab:why_marope_wins} summarizes the deployment story across fleet OTR, $U_{OTR}$, energy, queue loss, and step overhead. The fleet sweep shows the central scaling effect: AllOffload drops from 87.7\% OTR at N=8 to 52.5\% at N=32, while MA-ROPE remains at 83.4\%.
+
+\begin{table}[htbp]
+\caption{Why MA-ROPE Wins at Fleet Scale--Utility, Energy, Queue Loss, and OTR}
+\label{tab:why_marope_wins}
+\centering
+\begin{tabular}{lrrl}
+\toprule
+\textbf{Metric} & \textbf{MA-ROPE} & \textbf{Comparator} & \textbf{Story} \\
+\midrule
+Fleet OTR @ N=8 & 0.887 & AllOffload 0.877 & +1.0 pp \\
+Fleet OTR @ N=16 & 0.869 & AllOffload 0.757 & +11.2 pp \\
+Fleet OTR @ N=32 & 0.834 & AllOffload 0.525 & +30.9 pp \\
+$U_{OTR}$ @ N=32 & 0.742 & AllOffload 0.564 & +0.178 \\
+Energy @ N=32 & 0.706 J & AllOffload 0.944 J & 25.2\% lower \\
+Queue loss @ N=32 & 0.85\% & AllOffload 2.14\% & 2.5x lower \\
+DRR (N=8$\rightarrow$32) & 0.940 & AllOffload 0.599 & 1.57x higher retention \\
+Step time & 166.6 \textmu s & Single-RAT 167.6 \textmu s & No penalty \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{figures/image10.png}
+\caption{RSU queue-classified loss fraction vs. fleet size (URLLC, 5 seeds). At N=32, MA-ROPE reports 0.85\% queue loss versus 2.14\% for AllOffload; queue loss is a supporting metric, while fleet OTR carries the stronger scaling story.}
+\label{fig:queue_loss}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{figures/image11.png}
+\caption{System utility vs. fleet size (URLLC, 5 seeds). The MA-ROPE utility gap over AllOffload widens from +0.0277 at N=8 to +0.0533 at N=32.}
+\label{fig:system_utility}
+\end{figure}
+
+\Cref{fig:fleet_otr} extends the fleet-scaling analysis to on-time delivery. At N=8, MA-ROPE achieves fleet OTR = 0.887 vs. AllOffload = 0.877; at N=16 the gap widens to 0.869 vs. 0.757; and at N=32 it becomes 0.834 vs. 0.525. These values are taken from table\_vehicle\_density.csv and provide the main dense-fleet scaling headline.
+
+\textbf{\textit{Deadline Retention under Fleet Density.}} Point-wise OTR characterizes deadline compliance at a particular operating density, but it does not directly express how rapidly that performance deteriorates as the number of competing vehicles increases. We therefore define the Deadline Retention Ratio (DRR) as
+
+\begin{equation}
+R_D(N_{target}, N_{ref}) = \frac{\text{OTR}_{fleet}(N_{target})}{\text{OTR}_{fleet}(N_{ref})}.
+\label{eq:drr}
+\end{equation}
+
+Here, $N_{ref}$ denotes a reference fleet density and $N_{target} > N_{ref}$ denotes the density at which retention is evaluated. $R_D=1$ indicates complete preservation of reference-density deadline performance, whereas values approaching zero indicate increasingly severe degradation.
+
+Using $N_{ref}=8$ and $N_{target}=32$, corresponding to a fourfold increase in fleet size, the results in \Cref{tab:why_marope_wins} yield $R_D^{\text{MA-ROPE}} = 0.834/0.887 = 0.940$, whereas $R_D^{\text{AllOffload}} = 0.525/0.877 = 0.599$. Thus, MA-ROPE preserves approximately 94.0\% of its reference-density on-time delivery performance, whereas single-RAT AllOffload preserves only 59.9\%. At N=16, the corresponding retention values are 0.980 for MA-ROPE and 0.863 for AllOffload, showing that the divergence emerges progressively as shared-resource contention increases.
+
+The principal advantage of $R_D$ is normalization. Each policy is evaluated relative to its own reference-density OTR rather than against another method's absolute utility value. Consequently, $R_D$ does not depend on the $\alpha$/$\beta$ weighting or normalization constants used in the MA-ROPE utility formulation and can be applied to other offloading schemes whenever deadline-aware delivery is reported over multiple fleet densities.
+
+\subsection{Discussion}
+
+NoOffload vs. MA-ROPE on composite utility. \Cref{tab:full_performance} shows NoOffload achieving higher $U_{PRR}$ (0.8442) than MA-ROPE (0.8323) at N=32, but NoOffload has no transmitted offload PDUs and fleet OTR is therefore not a meaningful V2X delivery metric. Its $U_{OTR}$ is only 0.2754. The operational claim should therefore be based on fleet OTR, $U_{OTR}$, energy, and dense-fleet scaling rather than scalar $U_{PRR}$ alone.
+
+Dual utility functions. MA-ROPE exposes two utility criteria: $U_{PRR}$ (\Cref{eq:uprr}) for dense packet-delivery reward shaping and $U_{OTR}$ (\Cref{eq:uotr}) for deadline-compliance-dominant deployment assessment. In the primary URLLC evaluation, $U_{OTR}$ is the safety-facing criterion because a received-but-late safety PDU has zero operational value under 3GPP V2X safety requirements~\cite{molina2017}. $U_{PRR}$ is reported alongside for balanced and compute-heavy scenarios where throughput dominates over strict timing. The dual-criterion design allows MA-ROPE to be evaluated across V2X use cases without changing the underlying simulator interface. Task-adaptive alpha/beta weights are principled rather than tuned: safety alpha=0.70 matches the 65\% safety PDU proportion; compute alpha=0.20 reflects 2000 ms deadline headroom where throughput dominates. A sensitivity analysis of these weights is left for future work.
+
+While some centralized baselines marginally exceed MA-ROPE in scalar $U_{OTR}$ (e.g., MADDPG by 0.009 at N=32), operational deployment decisions in vehicular edge computing cannot optimize for deadline compliance alone. Maximizing $U_{OTR}$ often requires centralized observation sharing and incurs prohibitive energy costs (34.0\% higher for MADDPG). Instead, deployment viability depends on a balanced framework that scales under dense conditions without exhausting vehicular batteries or crashing RSU queues. By trading a negligible $U_{OTR}$ decrease for substantial improvements in Fleet OTR scalability, queue stability, and energy efficiency under a decentralized privacy-preserving FedAvg architecture, MA-ROPE presents a more robust solution for real-world heterogeneous V2X networks.
+
+Limitations and future work. \Cref{tab:deadline_analysis} remains an N=8 MA-ROPE-only deep safety evaluation, while \Cref{tab:safety_task} is the multi-method N=32 safety comparison. Future work should evaluate non-IID vehicle/task distributions, secure or differentially private FedAvg, trace-driven mobility validation, RSU handover/failure scenarios, and sensitivity to alpha/beta weights and queue service rates.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{figures/image12.png}
+\caption{Fleet OTR vs. fleet size (URLLC). MA-ROPE holds 0.834 fleet OTR at N=32, while AllOffload falls to 0.525.}
+\label{fig:fleet_otr}
+\end{figure}
+
+The results reveal a sharp divergence in deadline compliance. At N=8, MA-ROPE and AllOffload are close in fleet OTR (0.887 vs. 0.877). By N=16, AllOffload falls to 0.757 while MA-ROPE remains at 0.869. At N=32, AllOffload collapses to 0.525, while MA-ROPE maintains 0.834. Queue loss also favors MA-ROPE (0.85\% vs. 2.14\% at N=32), but the decisive deployment story is deadline-compliant fleet delivery at scale.

@@ -1,0 +1,49 @@
+\section{Related Work}
+
+\textbf{\textit{A. TASK OFFLOADING IN VEHICULAR NETWORKS}}
+
+Existing V2X offloading approaches fall into three paradigms. Greedy/heuristic methods (CoopEC [3]) score offloading destinations using hand-crafted formulas but cannot adapt to channel dynamics or queue contention. Bandit/tabular methods (UCB [4]) treat offloading as a stateless multi-armed bandit, near-optimal for small stationary action spaces but degrading under channel-quality variation and RAT diversity. Deep RL methods [5]--[7] learn adaptive policies but typically assume single-RAT binary offloading and require centralized training data.
+
+Guo et al. [8] proposed DTOF/HIOA combining DDQN+LSTM with Nash equilibrium game theory in a three-tier cloud-edge-vehicle architecture over 5G-NR only, achieving strong delay performance (26.76 ms average). DTOF does not model multi-RAT heterogeneity, privacy-preserving cooperation, or shared queue contention across co-located vehicles. Yacheur et al. [9] developed DDQN-based RAT selection for hybrid ITS-G5/LTE-V2X networks, demonstrating PRR of 95--97\%. Their Table I provides per-RAT noise floors and SINR thresholds that ground our physical layer model, and Algorithm 2 (Division Mode) motivates our SINR-proportional partial offload ratio design.
+
+\textbf{\textit{B. RESEARCH GAP}}
+
+Table I summarizes positioning of MA-ROPE relative to related work. No existing paper addresses all six properties simultaneously: 4-RAT heterogeneous selection, SINR-proportional partial offload ratios, shared MEC queue contention, FedAvg privacy-preserving cooperation, Jakes Doppler fading, and Yacheur-grounded channel parameters.
+
+\begin{table}[htbp]
+\caption{Literature Comparison --- Feature Coverage}
+\label{tab:literature}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+\textbf{Paper} & \textbf{Multi-RAT} & \textbf{Partial $\rho$} & \textbf{Queue Cont.} & \textbf{FL Privacy} & \textbf{Jakes} & \textbf{Yacheur Ch.} \\
+\hline
+Guo 2026 [8] & $\times$ & Partial & Per-node & $\times$ & $\times$ & $\times$ \\
+Yacheur 2023 [9] & \checkmark ITS+LTE & $\times$ & $\times$ & $\times$ & \checkmark & \checkmark \\
+Shao 2025 [3] & $\times$ & $\times$ & $\times$ & \checkmark FedAvg & $\times$ & $\times$ \\
+Wu 2021 [4] & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ \\
+\textbf{MA-ROPE (ours)} & \textbf{\checkmark 4 RATs} & \textbf{\checkmark $\rho\in\{0..1\}$} & \textbf{\checkmark shared RSU} & \textbf{\checkmark FedAvg} & \textbf{\checkmark Jakes} & \textbf{\checkmark adopted} \\
+\hline
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Contribution Decomposition}
+
+Fig. 1 decomposes MA-ROPE utility into per-component contributions for the N=8 reference setting retained for v10 compatibility. Starting from AllOffload (U=0.8166), adding shared-queue awareness, multi-RAT selection, DRL policy, and FedAvg yields MA-ROPE (U=0.8443). The primary dense-fleet results are reported separately at N=32 in Table IV and Table V.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.45\textwidth]{example-image-a}
+\caption{Contribution waterfall (URLLC, N=8 reference). AllOffload baseline (U=0.8166) to MA-ROPE full (U=0.8443): each component contributes independently.}
+\label{fig:waterfall}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.45\textwidth]{example-image-b}
+\caption{Literature gap matrix. MA-ROPE (bottom row, blue highlight) is the only framework with all six properties: supported, partial, or not supported.}
+\label{fig:gap_matrix}
+\end{figure}
+

@@ -1,0 +1,14 @@
+\section{Introduction}
+In recent years, Vehicle-to-Everything (V2X) technology has emerged as a key enabler for intelligent transportation systems. By facilitating communication among vehicles (V2V), infrastructure (V2I), and networks (V2N), V2X supports safety-critical applications including cooperative perception, autonomous driving, and real-time hazard avoidance. These applications impose stringent demands on both latency and computational resources \[1\].
+
+Autonomous vehicles require processing massive sensor streams from cameras, radars, and LiDARs in real-time. On-board Electronic Control Units (ECUs) providing 2--5 TOPS are fundamentally insufficient, creating a resource gap that Vehicular Edge Computing (VEC) addresses by migrating computation to roadside MEC servers. Task offloading leverages heterogeneous resources, reduces computational burden, and decreases delay \[2\].
+
+Despite extensive prior work, three critical gaps remain unaddressed simultaneously: (1) heterogeneous RAT selection across LTE, ITS-G5, WiFi-6, and 5G-NR with physically grounded channel models; (2) shared MEC queue contention under multi-vehicle conditions, which invalidates single-vehicle baselines; and (3) privacy-preserving cooperative learning eliminating raw observation sharing required by centralized DRL approaches like MADDPG. The main contributions are:
+
+- \textbf{\textit{C1:}} MA-ROPE is the first V2X offloading framework combining   4-RAT heterogeneous selection, SINR-proportional partial offload   ratios, shared MEC queue contention, dual-criterion utility ($U_{PRR}$ /   $U_{OTR}$), and FedAvg privacy-preserving DRL in a unified system.
+
+- \textbf{\textit{C2:}} We adopt Yacheur-grounded per-RAT physical layer parameters   including Jakes Doppler fading for cellular RATs, per-RAT noise floors   (−90/−110 dBm), and RAT-specific path loss models (3GPP TR 36.885, TR   38.901, IEEE 802.11ax).
+
+- C3: A shared RSU queue contention model exposes dense-fleet   degradation in single-RAT offloading. At N=32 under URLLC stress,   AllOffload falls to 52.5% fleet OTR while MA-ROPE maintains 83.4%, and   MA-ROPE reduces energy from 0.944 J to 0.706 J.
+
+- C4: FedAvg cooperative learning avoids centralized raw-observation   sharing while remaining close to the MADDPG upper bound. At N=32,   MADDPG improves $U_{OTR}$ by 0.009 but consumes 34.0% more energy than   MA-ROPE and assumes centralized observations; MA-ROPE therefore   quantifies a practical privacy-performance-energy tradeoff.

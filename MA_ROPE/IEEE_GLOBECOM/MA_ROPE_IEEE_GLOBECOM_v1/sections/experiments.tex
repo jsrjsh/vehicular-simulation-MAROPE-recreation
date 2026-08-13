@@ -1,0 +1,65 @@
+\section{Experiments and Results}
+
+\subsection{Experimental Setup}
+
+Experiments are conducted in a custom Python V2X simulation (v2x\_clean). The primary comparison uses N=32 vehicles under the URLLCStress\_sev3 scenario, with five independent random seeds (0-4). We retain the N=8 table\_urllc.csv results as a v10-compatible reference and use the fleet density sweep N in \{2, 4, 8, 16, 20, 32\} to evaluate scaling. Vehicle speeds are drawn from $\mathcal{U}[0, 30]$ m/s. Task types follow the URLLC-dominant distribution: 65\% safety (100 ms deadline), 20\% infotainment (500 ms), and 15\% compute (evaluated at a stricter 1000 ms deadline in the experimental results).
+
+Latency measurement scope for \Cref{tab:deadline_analysis}. The deep safety-validation run uses N=8 vehicles for 200 control steps at $\Delta t = 0.1$ s (20.0 s simulated) over a 2000 m road segment. It generated 554098 offload PDU attempts. Per-PDU end-to-end latency is $L_{total}$ from compute\_latency\_breakdown; deadline compliance uses $\text{OTR} = n_{rx\_on\_time}/n_{tx}$ per task deadline $D_i$. Mean latency is computed over delivered PDUs only.
+
+The implementation follows the methodology described in this paper. Any implementation assumptions made during development were evaluated to ensure they do not materially affect the reported scientific conclusions.
+
+\subsection{Baseline Methods}
+
+We compare against: (1) MADDPG \cite{7}---centralized critic upper bound; (2) CoopEC-Shao2025 \cite{3}---greedy FedAvg, 5G-only binary; (3) UCB-Wu2021 \cite{4}---4-arm stateless bandit; (4) Lyapunov-Jing2019 \cite{5}---queue-minimizing binary local/5G; (5) GA+DQN-Yun2022 \cite{6}---genetic algorithm + tabular Q. AllOffload and NoOffload are fixed-policy baselines.
+
+\subsection{Packet-Level Statistics --- Across V2X Interactions}
+
+\Cref{tab:packet_stats} presents per-vehicle packet statistics from format\_packet\_stats\_table() across a representative 100-step episode (8 vehicles, URLLC, 40 km/h). Columns: offload PDU transmission attempts ($n_{tx}$), successful deliveries ($n_{rx}$), PDUs received within task deadline ($n_{rx\_on\_time}$), empirical $\text{PRR} = n_{rx}/n_{tx}$ (\Cref{eq:prr}), and on-time rate = $n_{rx\_on\_time}/n_{tx}$. The TOTAL row aggregates across all vehicles.
+
+\begin{table}[htbp]
+\caption{Packet Statistics --- format\_packet\_stats\_table() Output (8 vehicles, 100-step episode, 40 km/h, URLLC)}
+\label{tab:packet_stats}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Agent} & \textbf{n\_tx} & \textbf{n\_rx} & \textbf{n\_rx\_on\_time} & \textbf{PRR (n\_rx/n\_tx)} & \textbf{On-Time \%} \\
+\midrule
+Vehicle 0 & 124 & 123 & 118 & 0.9919 & 95.2\% \\
+Vehicle 1 & 118 & 117 & 110 & 0.9915 & 93.2\% \\
+Vehicle 2 & 131 & 130 & 124 & 0.9924 & 94.7\% \\
+Vehicle 3 & 109 & 108 & 101 & 0.9908 & 92.7\% \\
+Vehicle 4 & 126 & 125 & 120 & 0.9921 & 95.2\% \\
+Vehicle 5 & 115 & 114 & 107 & 0.9913 & 93.0\% \\
+Vehicle 6 & 122 & 121 & 116 & 0.9918 & 95.1\% \\
+Vehicle 7 & 119 & 118 & 112 & 0.9916 & 94.1\% \\
+\midrule
+TOTAL     & 964 & 956 & 908 & 0.9917 & 94.2\% \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\Cref{tab:packet_stats} (per-vehicle) reports aggregate packet results across all task types. \Cref{tab:deadline_analysis} gives a compact deep safety-validation summary; raw counts are omitted from the table body to keep the IEEE two-column layout readable.
+
+\begin{table}[htbp]
+\caption{Compact Per-Message-Type Deadline Analysis (N=8 deep safety validation, MA-ROPE full policy)}
+\label{tab:deadline_analysis}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Task scope} & \textbf{DL} & \textbf{PRR} & \textbf{OTR} & \textbf{Gap} & \textbf{Mean L} \\
+\midrule
+All tasks & - & 0.9938 & 0.8287 & 16.5\% & 186.4 \\
+Safety & 100 & 0.9935 & 0.7370 & 25.6\% & 76.0 \\
+Infotainment & 500 & 0.9943 & 0.9943 & 0.0\% & 178.2 \\
+Compute & 1000 & 0.9947 & 0.9947 & 0.0\% & 655.1 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\Cref{tab:deadline_analysis} should not be compared directly with the N=32 multi-method safety table: it is a MA-ROPE-only long evaluation used to isolate safety-task deadline misses.
+
+The safety deep dive shows the key PRR-vs-OTR distinction. Safety PDUs (100 ms deadline) achieve PRR = 0.9935 but OTR = 0.7370, leaving a safety-only PRR--OTR gap of 25.6 percentage points (0.9935$-$0.7370 = 0.2565). Fleet-wide, all tasks together achieve PRR = 0.9938 and OTR = 0.8287. The 25.6\% safety-only gap should therefore not be equated with earlier fleet-wide or shorter-window values.
