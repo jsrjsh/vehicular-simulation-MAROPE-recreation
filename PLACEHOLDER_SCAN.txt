@@ -1,0 +1,8 @@
+MA_ROPE_TVT_LATEX/main.tex:20: MATCH 'Anonymous Authors': \textbf{Anonymous Authors}
+MA_ROPE_TVT_LATEX/main.tex:475: MATCH 'sample': 9: sample minibatch; update Q\_online via (Eq. 7)
+MA_ROPE_TVT_LATEX/main.tex:1035: MATCH 'sample': 10-step warmup for inference and 500 samples for step overhead, using
+MA_ROPE_TVT_LATEX/main.tex:1140: MATCH 'sample': Fleet Size (50 samples)}
+MA_ROPE_TVT_LATEX/main.tex:1183: MATCH 'sample': \textbf{TABLE XI. Multi-RAT vs Single-RAT Step Overhead (500 samples,
+MA_ROPE_TVT_LATEX/main_author.tex:13: MATCH 'Original Authors': \author{Original Authors}
+MA_ROPE_TVT_LATEX/sections/abstract.tex:1: MATCH 'This is the abstract': \begin{abstract}This is the abstract.\end{abstract}
+MA_ROPE_TVT_LATEX/sections/results.tex:3: MATCH 'fig1': \includegraphics{figures/fig1.png}

@@ -1,0 +1,57 @@
+This is BibTeX, Version 0.99d (TeX Live 2022/dev/Debian)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+The style file: plain.bst
+Database file #1: references.bib
+Warning--to sort, need author or key in jnca2024fedoffload
+Warning--to sort, need author or key in hrlmultirat2024
+Warning--to sort, need author or key in uspatent_son
+Warning--to sort, need author or key in ldpvanet2023
+Warning--to sort, need author or key in uspatent_vehiclefl
+Warning--to sort, need author or key in pd3qn2024
+Warning--empty author in ldpvanet2023
+Warning--empty author in jnca2024fedoffload
+Warning--empty author in pd3qn2024
+Warning--empty author in hrlmultirat2024
+You've used 8 entries,
+            2118 wiz_defined-function locations,
+            532 strings with 5270 characters,
+and the built_in function-call counts, 1469 in all, are:
+= -- 139
+> -- 20
+< -- 0
++ -- 13
+- -- 4
+* -- 73
+:= -- 210
+add.period$ -- 21
+call.type$ -- 8
+change.case$ -- 26
+chr.to.int$ -- 0
+cite$ -- 18
+duplicate$ -- 75
+empty$ -- 169
+format.name$ -- 4
+if$ -- 328
+int.to.chr$ -- 0
+int.to.str$ -- 8
+missing$ -- 5
+newline$ -- 40
+num.names$ -- 4
+pop$ -- 48
+preamble$ -- 1
+purify$ -- 18
+quote$ -- 0
+skip$ -- 56
+stack$ -- 0
+substring$ -- 41
+swap$ -- 9
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 32
+warning$ -- 10
+while$ -- 4
+width$ -- 9
+write$ -- 76
+(There were 10 warnings)

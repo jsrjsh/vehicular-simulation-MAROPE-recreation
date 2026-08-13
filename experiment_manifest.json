@@ -1,0 +1,152 @@
+[
+    {
+        "mode": "shared",
+        "seed": 42,
+        "training_completed_successfully": true,
+        "episodes_completed": 200,
+        "csv_written": true,
+        "best_checkpoint_saved": true,
+        "csv_path": "results_shared_seed_42.csv",
+        "checkpoint_path": "checkpoints_shared/seed_42_best.pt"
+    },
+    {
+        "mode": "shared",
+        "seed": 43,
+        "training_completed_successfully": true,
+        "episodes_completed": 200,
+        "csv_written": true,
+        "best_checkpoint_saved": true,
+        "csv_path": "results_shared_seed_43.csv",
+        "checkpoint_path": "checkpoints_shared/seed_43_best.pt"
+    },
+    {
+        "mode": "shared",
+        "seed": 44,
+        "training_completed_successfully": true,
+        "episodes_completed": 200,
+        "csv_written": true,
+        "best_checkpoint_saved": true,
+        "csv_path": "results_shared_seed_44.csv",
+        "checkpoint_path": "checkpoints_shared/seed_44_best.pt"
+    },
+    {
+        "mode": "shared",
+        "seed": 45,
+        "training_completed_successfully": true,
+        "episodes_completed": 200,
+        "csv_written": true,
+        "best_checkpoint_saved": true,
+        "csv_path": "results_shared_seed_45.csv",
+        "checkpoint_path": "checkpoints_shared/seed_45_best.pt"
+    },
+    {
+        "mode": "shared",
+        "seed": 46,
+        "training_completed_successfully": true,
+        "episodes_completed": 200,
+        "csv_written": true,
+        "best_checkpoint_saved": true,
+        "csv_path": "results_shared_seed_46.csv",
+        "checkpoint_path": "checkpoints_shared/seed_46_best.pt"
+    },
+    {
+        "mode": "independent",
+        "seed": 42,
+        "training_completed_successfully": true,
+        "episodes_completed": 200,
+        "csv_written": true,
+        "best_checkpoint_saved": true,
+        "csv_path": "results_independent_seed_42.csv",
+        "checkpoint_path": "checkpoints_independent/seed_42_best.pt"
+    },
+    {
+        "mode": "independent",
+        "seed": 43,
+        "training_completed_successfully": true,
+        "episodes_completed": 200,
+        "csv_written": true,
+        "best_checkpoint_saved": true,
+        "csv_path": "results_independent_seed_43.csv",
+        "checkpoint_path": "checkpoints_independent/seed_43_best.pt"
+    },
+    {
+        "mode": "independent",
+        "seed": 44,
+        "training_completed_successfully": true,
+        "episodes_completed": 200,
+        "csv_written": true,
+        "best_checkpoint_saved": true,
+        "csv_path": "results_independent_seed_44.csv",
+        "checkpoint_path": "checkpoints_independent/seed_44_best.pt"
+    },
+    {
+        "mode": "independent",
+        "seed": 45,
+        "training_completed_successfully": true,
+        "episodes_completed": 200,
+        "csv_written": true,
+        "best_checkpoint_saved": true,
+        "csv_path": "results_independent_seed_45.csv",
+        "checkpoint_path": "checkpoints_independent/seed_45_best.pt"
+    },
+    {
+        "mode": "independent",
+        "seed": 46,
+        "training_completed_successfully": true,
+        "episodes_completed": 200,
+        "csv_written": true,
+        "best_checkpoint_saved": true,
+        "csv_path": "results_independent_seed_46.csv",
+        "checkpoint_path": "checkpoints_independent/seed_46_best.pt"
+    },
+    {
+        "mode": "fedavg",
+        "seed": 42,
+        "training_completed_successfully": true,
+        "episodes_completed": 200,
+        "csv_written": true,
+        "best_checkpoint_saved": true,
+        "csv_path": "results_fedavg_seed_42.csv",
+        "checkpoint_path": "checkpoints_fedavg/seed_42_best.pt"
+    },
+    {
+        "mode": "fedavg",
+        "seed": 43,
+        "training_completed_successfully": true,
+        "episodes_completed": 200,
+        "csv_written": true,
+        "best_checkpoint_saved": true,
+        "csv_path": "results_fedavg_seed_43.csv",
+        "checkpoint_path": "checkpoints_fedavg/seed_43_best.pt"
+    },
+    {
+        "mode": "fedavg",
+        "seed": 44,
+        "training_completed_successfully": true,
+        "episodes_completed": 200,
+        "csv_written": true,
+        "best_checkpoint_saved": true,
+        "csv_path": "results_fedavg_seed_44.csv",
+        "checkpoint_path": "checkpoints_fedavg/seed_44_best.pt"
+    },
+    {
+        "mode": "fedavg",
+        "seed": 45,
+        "training_completed_successfully": true,
+        "episodes_completed": 200,
+        "csv_written": true,
+        "best_checkpoint_saved": true,
+        "csv_path": "results_fedavg_seed_45.csv",
+        "checkpoint_path": "checkpoints_fedavg/seed_45_best.pt"
+    },
+    {
+        "mode": "fedavg",
+        "seed": 46,
+        "training_completed_successfully": true,
+        "episodes_completed": 200,
+        "csv_written": true,
+        "best_checkpoint_saved": true,
+        "csv_path": "results_fedavg_seed_46.csv",
+        "checkpoint_path": "checkpoints_fedavg/seed_46_best.pt"
+    }
+]

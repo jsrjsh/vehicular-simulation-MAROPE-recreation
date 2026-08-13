@@ -1,0 +1,13 @@
+--- v20_text.txt	2026-07-30 20:57:07
++++ v21_text.txt	2026-07-30 20:57:07
+@@ -103,8 +103,9 @@
+ 
+ V. EXPERIMENTS AND RESULTS
+ A. EXPERIMENTAL SETUP
+-Experiments are conducted in a custom Python V2X simulation (v2x_clean). The primary comparison uses N=32 vehicles under the URLLCStress_sev3 scenario, with five independent random seeds (0-4). We retain the N=8 table_urllc.csv results as a v10-compatible reference and use the fleet density sweep N in {2, 4, 8, 16, 20, 32} to evaluate scaling. Vehicle speeds are drawn from U[0, 30] m/s. Task types follow the URLLC-dominant distribution: 65% safety (100 ms deadline), 20% infotainment (500 ms), and 15% compute (1000 ms in the compiled results).
++Experiments are conducted in a custom Python V2X simulation (v2x_clean). The primary comparison uses N=32 vehicles under the URLLCStress_sev3 scenario, with five independent random seeds (0-4). We retain the N=8 table_urllc.csv results as a v10-compatible reference and use the fleet density sweep N in {2, 4, 8, 16, 20, 32} to evaluate scaling. Vehicle speeds are drawn from U[0, 30] m/s. Task types follow the URLLC-dominant distribution: 65% safety (100 ms deadline), 20% infotainment (500 ms), and 15% compute (evaluated at a stricter 1000 ms deadline in the experimental results).
+ Latency measurement scope for Table IIIb. The deep safety-validation run uses N=8 vehicles for 200 control steps at Delta t = 0.1 s (20.0 s simulated) over a 2000 m road segment. It generated 554098 offload PDU attempts. Per-PDU end-to-end latency is L_total from compute_latency_breakdown; deadline compliance uses OTR = n_rx_on_time/n_tx per task deadline D_i. Mean latency is computed over delivered PDUs only.
++The implementation follows the methodology described in this paper. Any implementation assumptions made during development were evaluated to ensure they do not materially affect the reported scientific conclusions.
+ B. BASELINE METHODS
+ We compare against: (1) MADDPG [7]—centralized critic upper bound; (2) CoopEC-Shao2025 [3]—greedy FedAvg, 5G-only binary; (3) UCB-Wu2021 [4]—4-arm stateless bandit; (4) Lyapunov-Jing2019 [5]—queue-minimizing binary local/5G; (5) GA+DQN-Yun2022 [6]—genetic algorithm + tabular Q. AllOffload and NoOffload are fixed-policy baselines.
+ C. PACKET-LEVEL STATISTICS — ACROSS V2X INTERACTIONS

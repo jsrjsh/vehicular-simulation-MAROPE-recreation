@@ -1,0 +1,151 @@
+--- Starting SHARED Baseline ---
+[Ep 20] Eval Success: 0.999 | Latency (succ): 0.0074s | Energy: 0.0090J
+         Act Dist: L=0.00, LTE=0.10, 5G=0.89
+         TD Loss: 0.1004 | Avg Q: 3.9356 | Eps: 0.050
+[Ep 40] Eval Success: 0.998 | Latency (succ): 0.0100s | Energy: 0.0089J
+         Act Dist: L=0.19, LTE=0.02, 5G=0.79
+         TD Loss: 0.0949 | Avg Q: 3.7338 | Eps: 0.050
+[Ep 60] Eval Success: 1.000 | Latency (succ): 0.0152s | Energy: 0.0055J
+         Act Dist: L=0.01, LTE=0.09, 5G=0.89
+         TD Loss: 0.0992 | Avg Q: 3.4894 | Eps: 0.050
+[Ep 80] Eval Success: 0.999 | Latency (succ): 0.0139s | Energy: 0.0076J
+         Act Dist: L=0.03, LTE=0.22, 5G=0.74
+         TD Loss: 0.1049 | Avg Q: 3.5238 | Eps: 0.050
+[Ep 100] Eval Success: 0.994 | Latency (succ): 0.0211s | Energy: 0.0039J
+         Act Dist: L=0.01, LTE=0.12, 5G=0.87
+         TD Loss: 0.1030 | Avg Q: 3.0121 | Eps: 0.050
+[Ep 120] Eval Success: 0.977 | Latency (succ): 0.0247s | Energy: 0.0028J
+         Act Dist: L=0.01, LTE=0.13, 5G=0.86
+         TD Loss: 0.0959 | Avg Q: 3.0057 | Eps: 0.050
+[Ep 140] Eval Success: 0.998 | Latency (succ): 0.0177s | Energy: 0.0039J
+         Act Dist: L=0.02, LTE=0.14, 5G=0.84
+         TD Loss: 0.1061 | Avg Q: 3.3355 | Eps: 0.050
+[Ep 160] Eval Success: 0.997 | Latency (succ): 0.0197s | Energy: 0.0036J
+         Act Dist: L=0.04, LTE=0.13, 5G=0.83
+         TD Loss: 0.1030 | Avg Q: 3.1352 | Eps: 0.050
+[Ep 180] Eval Success: 0.998 | Latency (succ): 0.0184s | Energy: 0.0063J
+         Act Dist: L=0.05, LTE=0.36, 5G=0.60
+         TD Loss: 0.1048 | Avg Q: 3.2849 | Eps: 0.050
+[Ep 200] Eval Success: 0.998 | Latency (succ): 0.0186s | Energy: 0.0060J
+         Act Dist: L=0.08, LTE=0.33, 5G=0.59
+         TD Loss: 0.0954 | Avg Q: 3.6305 | Eps: 0.050
+[Ep 220] Eval Success: 0.993 | Latency (succ): 0.0188s | Energy: 0.0055J
+         Act Dist: L=0.03, LTE=0.34, 5G=0.63
+         TD Loss: 0.1016 | Avg Q: 3.4287 | Eps: 0.050
+[Ep 240] Eval Success: 0.998 | Latency (succ): 0.0165s | Energy: 0.0062J
+         Act Dist: L=0.04, LTE=0.29, 5G=0.68
+         TD Loss: 0.1006 | Avg Q: 3.6518 | Eps: 0.050
+[Ep 260] Eval Success: 0.995 | Latency (succ): 0.0194s | Energy: 0.0045J
+         Act Dist: L=0.03, LTE=0.19, 5G=0.77
+         TD Loss: 0.1213 | Avg Q: 3.5813 | Eps: 0.050
+[Ep 280] Eval Success: 0.992 | Latency (succ): 0.0185s | Energy: 0.0040J
+         Act Dist: L=0.02, LTE=0.16, 5G=0.82
+         TD Loss: 0.1053 | Avg Q: 3.4378 | Eps: 0.050
+[Ep 300] Eval Success: 0.997 | Latency (succ): 0.0143s | Energy: 0.0059J
+         Act Dist: L=0.04, LTE=0.12, 5G=0.83
+         TD Loss: 0.1076 | Avg Q: 3.5666 | Eps: 0.050
+[Ep 320] Eval Success: 0.989 | Latency (succ): 0.0178s | Energy: 0.0044J
+         Act Dist: L=0.01, LTE=0.15, 5G=0.83
+         TD Loss: 0.1132 | Avg Q: 3.5314 | Eps: 0.050
+[Ep 340] Eval Success: 0.987 | Latency (succ): 0.0190s | Energy: 0.0042J
+         Act Dist: L=0.04, LTE=0.13, 5G=0.84
+         TD Loss: 0.0977 | Avg Q: 3.5424 | Eps: 0.050
+[Ep 360] Eval Success: 0.995 | Latency (succ): 0.0132s | Energy: 0.0069J
+         Act Dist: L=0.01, LTE=0.17, 5G=0.82
+         TD Loss: 0.1125 | Avg Q: 3.2586 | Eps: 0.050
+[Ep 380] Eval Success: 0.994 | Latency (succ): 0.0180s | Energy: 0.0050J
+         Act Dist: L=0.02, LTE=0.26, 5G=0.72
+         TD Loss: 0.1163 | Avg Q: 3.0829 | Eps: 0.050
+[Ep 400] Eval Success: 0.994 | Latency (succ): 0.0194s | Energy: 0.0049J
+         Act Dist: L=0.02, LTE=0.21, 5G=0.77
+         TD Loss: 0.1026 | Avg Q: 3.6819 | Eps: 0.050
+[Ep 420] Eval Success: 0.992 | Latency (succ): 0.0183s | Energy: 0.0038J
+         Act Dist: L=0.03, LTE=0.15, 5G=0.82
+         TD Loss: 0.1120 | Avg Q: 3.3053 | Eps: 0.050
+[Ep 440] Eval Success: 0.997 | Latency (succ): 0.0191s | Energy: 0.0043J
+         Act Dist: L=0.04, LTE=0.18, 5G=0.78
+         TD Loss: 0.1104 | Avg Q: 3.7974 | Eps: 0.050
+[Ep 460] Eval Success: 1.000 | Latency (succ): 0.0194s | Energy: 0.0039J
+         Act Dist: L=0.04, LTE=0.14, 5G=0.83
+         TD Loss: 0.1074 | Avg Q: 3.7998 | Eps: 0.050
+[Ep 480] Eval Success: 0.999 | Latency (succ): 0.0115s | Energy: 0.0089J
+         Act Dist: L=0.03, LTE=0.31, 5G=0.66
+         TD Loss: 0.1117 | Avg Q: 3.8805 | Eps: 0.050
+[Ep 500] Eval Success: 0.987 | Latency (succ): 0.0195s | Energy: 0.0039J
+         Act Dist: L=0.02, LTE=0.14, 5G=0.84
+         TD Loss: 0.1003 | Avg Q: 3.7778 | Eps: 0.050
+[Ep 520] Eval Success: 0.997 | Latency (succ): 0.0125s | Energy: 0.0074J
+         Act Dist: L=0.02, LTE=0.29, 5G=0.68
+         TD Loss: 0.1057 | Avg Q: 3.9730 | Eps: 0.050
+[Ep 540] Eval Success: 0.999 | Latency (succ): 0.0117s | Energy: 0.0073J
+         Act Dist: L=0.04, LTE=0.28, 5G=0.68
+         TD Loss: 0.1271 | Avg Q: 3.4505 | Eps: 0.050
+[Ep 560] Eval Success: 0.993 | Latency (succ): 0.0170s | Energy: 0.0046J
+         Act Dist: L=0.02, LTE=0.18, 5G=0.80
+         TD Loss: 0.0936 | Avg Q: 2.7801 | Eps: 0.050
+[Ep 580] Eval Success: 0.993 | Latency (succ): 0.0183s | Energy: 0.0048J
+         Act Dist: L=0.03, LTE=0.19, 5G=0.78
+         TD Loss: 0.1383 | Avg Q: 3.5808 | Eps: 0.050
+[Ep 600] Eval Success: 0.993 | Latency (succ): 0.0200s | Energy: 0.0048J
+         Act Dist: L=0.03, LTE=0.22, 5G=0.76
+         TD Loss: 0.1059 | Avg Q: 3.4611 | Eps: 0.050
+[Ep 620] Eval Success: 0.994 | Latency (succ): 0.0184s | Energy: 0.0048J
+         Act Dist: L=0.05, LTE=0.16, 5G=0.79
+         TD Loss: 0.1042 | Avg Q: 3.5906 | Eps: 0.050
+[Ep 640] Eval Success: 0.999 | Latency (succ): 0.0181s | Energy: 0.0038J
+         Act Dist: L=0.02, LTE=0.14, 5G=0.84
+         TD Loss: 0.0885 | Avg Q: 4.1154 | Eps: 0.050
+[Ep 660] Eval Success: 0.997 | Latency (succ): 0.0193s | Energy: 0.0036J
+         Act Dist: L=0.04, LTE=0.10, 5G=0.86
+         TD Loss: 0.0860 | Avg Q: 3.6931 | Eps: 0.050
+[Ep 680] Eval Success: 0.998 | Latency (succ): 0.0194s | Energy: 0.0036J
+         Act Dist: L=0.03, LTE=0.09, 5G=0.88
+         TD Loss: 0.0882 | Avg Q: 3.6339 | Eps: 0.050
+[Ep 700] Eval Success: 0.998 | Latency (succ): 0.0188s | Energy: 0.0041J
+         Act Dist: L=0.03, LTE=0.10, 5G=0.87
+         TD Loss: 0.1231 | Avg Q: 3.2957 | Eps: 0.050
+[Ep 720] Eval Success: 0.992 | Latency (succ): 0.0193s | Energy: 0.0038J
+         Act Dist: L=0.03, LTE=0.13, 5G=0.85
+         TD Loss: 0.1017 | Avg Q: 3.5576 | Eps: 0.050
+[Ep 740] Eval Success: 0.999 | Latency (succ): 0.0199s | Energy: 0.0037J
+         Act Dist: L=0.04, LTE=0.07, 5G=0.89
+         TD Loss: 0.1142 | Avg Q: 3.1440 | Eps: 0.050
+[Ep 760] Eval Success: 0.995 | Latency (succ): 0.0205s | Energy: 0.0037J
+         Act Dist: L=0.02, LTE=0.12, 5G=0.86
+         TD Loss: 0.1042 | Avg Q: 2.4877 | Eps: 0.050
+[Ep 780] Eval Success: 0.994 | Latency (succ): 0.0197s | Energy: 0.0033J
+         Act Dist: L=0.02, LTE=0.10, 5G=0.88
+         TD Loss: 0.1077 | Avg Q: 3.5996 | Eps: 0.050
+[Ep 800] Eval Success: 0.991 | Latency (succ): 0.0194s | Energy: 0.0033J
+         Act Dist: L=0.02, LTE=0.08, 5G=0.91
+         TD Loss: 0.1104 | Avg Q: 3.2602 | Eps: 0.050
+[Ep 820] Eval Success: 0.999 | Latency (succ): 0.0113s | Energy: 0.0092J
+         Act Dist: L=0.01, LTE=0.25, 5G=0.74
+         TD Loss: 0.9237 | Avg Q: -7.8927 | Eps: 0.050
+[Ep 840] Eval Success: 0.998 | Latency (succ): 0.0191s | Energy: 0.0034J
+         Act Dist: L=0.02, LTE=0.04, 5G=0.94
+         TD Loss: 0.0952 | Avg Q: 4.3109 | Eps: 0.050
+[Ep 860] Eval Success: 0.991 | Latency (succ): 0.0226s | Energy: 0.0032J
+         Act Dist: L=0.01, LTE=0.04, 5G=0.95
+         TD Loss: 0.1023 | Avg Q: 2.9788 | Eps: 0.050
+[Ep 880] Eval Success: 0.997 | Latency (succ): 0.0175s | Energy: 0.0043J
+         Act Dist: L=0.06, LTE=0.06, 5G=0.88
+         TD Loss: 0.0927 | Avg Q: 3.0742 | Eps: 0.050
+[Ep 900] Eval Success: 0.994 | Latency (succ): 0.0197s | Energy: 0.0036J
+         Act Dist: L=0.03, LTE=0.04, 5G=0.93
+         TD Loss: 0.1227 | Avg Q: 4.0532 | Eps: 0.050
+[Ep 920] Eval Success: 0.987 | Latency (succ): 0.0220s | Energy: 0.0029J
+         Act Dist: L=0.01, LTE=0.03, 5G=0.96
+         TD Loss: 0.1132 | Avg Q: 2.9420 | Eps: 0.050
+[Ep 940] Eval Success: 0.997 | Latency (succ): 0.0170s | Energy: 0.0045J
+         Act Dist: L=0.02, LTE=0.07, 5G=0.91
+         TD Loss: 0.1020 | Avg Q: 3.1407 | Eps: 0.050
+[Ep 960] Eval Success: 0.993 | Latency (succ): 0.0210s | Energy: 0.0031J
+         Act Dist: L=0.02, LTE=0.04, 5G=0.94
+         TD Loss: 0.1016 | Avg Q: 3.2230 | Eps: 0.050
+[Ep 980] Eval Success: 0.995 | Latency (succ): 0.0200s | Energy: 0.0032J
+         Act Dist: L=0.01, LTE=0.03, 5G=0.95
+         TD Loss: 0.1072 | Avg Q: 3.1858 | Eps: 0.050
+[Ep 1000] Eval Success: 0.992 | Latency (succ): 0.0214s | Energy: 0.0031J
+         Act Dist: L=0.02, LTE=0.04, 5G=0.94
+         TD Loss: 0.0973 | Avg Q: 3.2489 | Eps: 0.050

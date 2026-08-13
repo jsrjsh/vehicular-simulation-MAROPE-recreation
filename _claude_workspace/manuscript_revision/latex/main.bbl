@@ -1,0 +1,47 @@
+\begin{thebibliography}{1}
+
+\bibitem{uspatent_vehiclefl}
+Systems and methods for vehicular-network-assisted federated machine learning,
+  2022.
+\newblock US Patent Application US20220250656A1.
+
+\bibitem{ldpvanet2023}
+A secure and privacy preserved infrastructure for vanets based on federated
+  learning with local differential privacy.
+\newblock {\em Journal of Information Sciences (ScienceDirect)}, 2023.
+\newblock doi:10.1016/j.ins.2023.S0020025523013026.
+
+\bibitem{jnca2024fedoffload}
+Federated deep reinforcement learning for task offloading and resource
+  allocation in mobile edge computing-assisted vehicular networks.
+\newblock {\em Journal of Network and Computer Applications}, 2024.
+\newblock doi:10.1016/j.jnca.2024.103941.
+
+\bibitem{pd3qn2024}
+Task offloading via prioritized experience-based double dueling dqn in
+  edge-assisted iiot.
+\newblock In {\em IEEE Xplore}, 2024.
+\newblock Document 10660558.
+
+\bibitem{hrlmultirat2024}
+Traffic steering for 5g multi-rat deployments using deep reinforcement
+  learning.
+\newblock {\em arXiv preprint arXiv:2301.05316}, 2024.
+
+\bibitem{uspatent_son}
+Son assisted optimized rat selection for ue in a virtualized ran environment,
+  2025.
+\newblock US Patent US12445926.
+
+\bibitem{fedmags2026}
+Anonymous.
+\newblock Heterogeneous tasks offloading in vehicular edge computing: A
+  federated meta deep reinforcement learning approach.
+\newblock {\em arXiv preprint arXiv:2605.18437}, 2026.
+
+\bibitem{uspatent_verizon}
+{Verizon Patent and Licensing Inc.}
+\newblock Method and system for rat selection in a multi-rat network, 2020.
+\newblock US Patent US10616830B2 (continuation US11330516B2).
+
+\end{thebibliography}

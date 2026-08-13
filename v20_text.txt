@@ -1,0 +1,199 @@
+
+MA-ROPE: Privacy-Preserving Multi-RAT Federated Deep Reinforcement Learning for Heterogeneous Task Offloading in V2X Networks
+Anonymous Authors
+Submitted for anonymous peer review
+
+ABSTRACT  Dense vehicular edge offloading can overload single-RAT V2X systems as vehicle density increases. We propose MA-ROPE--Multi-RAT Privacy-Preserving Federated Deep Reinforcement Learning for V2X Task Offloading--which selects among LTE, ITS-G5, WiFi-6, and 5G-NR and applies SINR-proportional partial offload ratios using Dueling Double DQN with FedAvg cooperative learning. Under URLLC stress at N=32 vehicles and five seeds, MA-ROPE achieves 83.4% fleet on-time delivery versus 52.5% for the single-RAT AllOffload baseline, improves deadline-compliance utility U_OTR by 0.178, and reduces energy by 25.2% (0.706 J vs. 0.944 J). The same setting gives 1.15% RSU queue-classified loss for MA-ROPE versus 2.14% for AllOffload. The multi-RAT controller adds no measurable simulator-step overhead relative to single-RAT offload (166.6 us vs. 167.6 us), and DQN inference remains 59.83 us per agent. Centralized MADDPG attains a slightly higher U_OTR but assumes centralized observation sharing and uses substantially more energy. To our knowledge, MA-ROPE is the first V2X framework to combine multi-RAT selection, SINR-proportional partial offload, shared MEC queue contention, dual PRR/OTR utility reporting, and federated DRL in one simulation framework.
+
+INDEX TERMS  Task offloading, V2X, VEC, federated deep reinforcement learning, multi-RAT, heterogeneous networks, edge computing, autonomous driving, privacy-preserving, Jakes fading.
+
+I. INTRODUCTION
+In recent years, Vehicle-to-Everything (V2X) technology has emerged as a key enabler for intelligent transportation systems. By facilitating communication among vehicles (V2V), infrastructure (V2I), and networks (V2N), V2X supports safety-critical applications including cooperative perception, autonomous driving, and real-time hazard avoidance. These applications impose stringent demands on both latency and computational resources [1].
+Autonomous vehicles require processing massive sensor streams from cameras, radars, and LiDARs in real-time. On-board Electronic Control Units (ECUs) providing 2–5 TOPS are fundamentally insufficient, creating a resource gap that Vehicular Edge Computing (VEC) addresses by migrating computation to roadside MEC servers. Task offloading leverages heterogeneous resources, reduces computational burden, and decreases delay [2].
+Despite extensive prior work, three critical gaps remain unaddressed simultaneously: (1) heterogeneous RAT selection across LTE, ITS-G5, WiFi-6, and 5G-NR with physically grounded channel models; (2) shared MEC queue contention under multi-vehicle conditions, which invalidates single-vehicle baselines; and (3) privacy-preserving cooperative learning eliminating raw observation sharing required by centralized DRL approaches like MADDPG. The main contributions are:
+C1: MA-ROPE is the first V2X offloading framework combining 4-RAT heterogeneous selection, SINR-proportional partial offload ratios, shared MEC queue contention, dual-criterion utility (U_PRR / U_OTR), and FedAvg privacy-preserving DRL in a unified system.
+C2: We adopt Yacheur-grounded per-RAT physical layer parameters including Jakes Doppler fading for cellular RATs, per-RAT noise floors (−90/−110 dBm), and RAT-specific path loss models (3GPP TR 36.885, TR 38.901, IEEE 802.11ax).
+C3: A shared RSU queue contention model exposes dense-fleet degradation in single-RAT offloading. At N=32 under URLLC stress, AllOffload falls to 52.5% fleet OTR while MA-ROPE maintains 83.4%, and MA-ROPE reduces energy from 0.944 J to 0.706 J.
+C4: FedAvg cooperative learning avoids centralized raw-observation sharing while remaining close to the MADDPG upper bound. At N=32, MADDPG improves U_OTR by 0.009 but consumes 34.0% more energy than MA-ROPE and assumes centralized observations; MA-ROPE therefore quantifies a practical privacy-performance-energy tradeoff.
+
+II. RELATED WORK
+A. TASK OFFLOADING IN VEHICULAR NETWORKS
+Existing V2X offloading approaches fall into three paradigms. Greedy/heuristic methods (CoopEC [3]) score offloading destinations using hand-crafted formulas but cannot adapt to channel dynamics or queue contention. Bandit/tabular methods (UCB [4]) treat offloading as a stateless multi-armed bandit, near-optimal for small stationary action spaces but degrading under channel-quality variation and RAT diversity. Deep RL methods [5]–[7] learn adaptive policies but typically assume single-RAT binary offloading and require centralized training data.
+Guo et al. [8] proposed DTOF/HIOA combining DDQN+LSTM with Nash equilibrium game theory in a three-tier cloud-edge-vehicle architecture over 5G-NR only, achieving strong delay performance (26.76 ms average). DTOF does not model multi-RAT heterogeneity, privacy-preserving cooperation, or shared queue contention across co-located vehicles. Yacheur et al. [9] developed DDQN-based RAT selection for hybrid ITS-G5/LTE-V2X networks, demonstrating PRR of 95–97%. Their Table I provides per-RAT noise floors and SINR thresholds that ground our physical layer model, and Algorithm 2 (Division Mode) motivates our SINR-proportional partial offload ratio design.
+B. RESEARCH GAP
+Table I summarizes positioning of MA-ROPE relative to related work. No existing paper addresses all six properties simultaneously: 4-RAT heterogeneous selection, SINR-proportional partial offload ratios, shared MEC queue contention, FedAvg privacy-preserving cooperation, Jakes Doppler fading, and Yacheur-grounded channel parameters.
+
+TABLE I.  Literature Comparison — Feature Coverage
+
+C. CONTRIBUTION DECOMPOSITION
+Fig. 1 decomposes MA-ROPE utility into per-component contributions for the N=8 reference setting retained for v10 compatibility. Starting from AllOffload (U=0.8166), adding shared-queue awareness, multi-RAT selection, DRL policy, and FedAvg yields MA-ROPE (U=0.8443). The primary dense-fleet results are reported separately at N=32 in Table IV and Table V.
+
+Fig. 1.  Contribution waterfall (URLLC, N=8 reference). AllOffload baseline (U=0.8166) to MA-ROPE full (U=0.8443): each component contributes independently.
+Fig. 2.  Literature gap matrix. MA-ROPE (bottom row, blue highlight) is the only framework with all six properties: supported, partial, or not supported.
+
+III. SYSTEM MODEL AND PROBLEM FORMULATION
+A. NETWORK ARCHITECTURE
+We consider a two-tier V2X network comprising N vehicles, R roadside units (RSUs) each co-located with a MEC server, and a base station (BS) providing wide-area LTE and 5G-NR coverage. Each vehicle has an on-board ECU (2-5 TOPS) and a multi-RAT module supporting LTE, ITS-G5, WiFi-6, and 5G-NR simultaneously. Fig. 3 illustrates the system architecture.
+
+
+Fig. 3.  MA-ROPE System Architecture--two-tier V2X with 4-RAT heterogeneous access and FedAvg coordination.
+B. RAT PHYSICAL LAYER MODEL
+Following Yacheur et al. [9] Table I, we assign per-RAT physical parameters as in Table II. LTE and 5G-NR operate at -110 dBm noise floor; ITS-G5 and WiFi-6 at -90 dBm. Cellular RATs experience Jakes Doppler fading at vehicular speeds; ITS-G5 and WiFi-6 use the Constant Speed propagation model, as analyzed in Fig. 14.
+
+TABLE II.  RAT Physical Parameters (Yacheur 2023 + 3GPP Standards)
+
+The SINR for RAT r at distance d with vehicle speed v governs per-PDU delivery probability:
+SINR_r(d,v) = P_tx − PL_r(d) − N_r − Sh_r − F_r(v)	(1)
+where PL_r(d) is RAT-specific path loss, N_r is noise floor, Sh_r ~ N(0,σ²_r) is shadowing, and F_r(v) is Jakes fading loss. SINR drives a per-PDU Bernoulli draw with p_link = σ(SINR_r − θ_r) but is NOT the reported PRR metric. Packet Reception Ratio is defined empirically from actual packet counters:
+PRR = n_rx / n_tx	(2)
+where n_tx is the number of offload PDU transmission attempts and n_rx is PDUs successfully delivered. This separates the physical link model from the reported metric: PRR reflects real packet outcomes, not a smoothed SINR function. Per-RAT empirical PRR fills observation slots obs[4:8]; slots default to 0.5 (unknown) before any attempt on that RAT. The raw link delivery probability p_link is separately tracked in infos["link_delivery_prob"] for PHY-curve versus measured-PRR comparison.
+C. TASK MODEL
+Each vehicle generates task τ_i = (C_i, D_i, L_i, T_i) where C_i is computational workload (CPU cycles), D_i is data volume (MB), L_i is maximum tolerable delay (ms), and T_i ∈ {safety, infotainment, compute} determines deadline: safety tasks require L_i = 100 ms (SAE J3016 Level 4), infotainment 500 ms, compute 2000 ms.
+D. END-TO-END LATENCY MODEL
+End-to-end task latency is the primary measurable QoS quantity in this work. For each offload PDU attempt at step t, the total latency decomposes into four additive components:
+L_total = L_prop + L_tx + L_remote + L_queue	(3a)
+where L_prop = d/(2c/3) is propagation delay over vehicle-to-RSU distance d at 2/3 speed of light; L_tx = D_i/BW_r is transmission delay for data volume D_i (MB) over RAT bandwidth BW_r; L_remote = C_i/f_MEC is remote compute delay for workload C_i (CPU cycles) at MEC frequency f_MEC; and L_queue = 1/(μ_k − λ_k) is the M/M/1 queuing delay at the shared RSU, where μ_k is the server service rate and λ_k is the total vehicle arrival rate across all co-located vehicles. The L_queue term is the critical shared-resource term — it couples all vehicles’ decisions through the common RSU queue and is responsible for the AllOffload collapse observed in Section V.
+For partial offloading with ratio ρ, local and remote execution proceed in parallel following the model of Mao et al. [14]. The realized end-to-end delay is:
+L_total = L_prop + rho*L_tx + max(rho*L_remote, (1-rho)*L_local) + L_queue	(3b)
+where rho in {0.25, 0.50, 0.75, 1.0} is the partial offload ratio, rho*L_tx captures the transmitted data fraction, and L_local = C_i/f_ECU is local ECU compute time. When rho = 0 (pure local execution), L_total = L_local and no PDU is transmitted over the radio; such steps are excluded from latency QoS accounting since no V2X packet is at risk.
+Deadline classification. Each offload PDU outcome is classified into one of three measurable QoS categories relative to the task-type deadline D_i: (1) delivered_on_time: link success AND L_total ≤ D_i — a useful delivery; (2) delivered_late: link success AND L_total > D_i — received but stale, wasted transmission; (3) not_delivered: link failure (Bernoulli draw on p_link) — channel loss. The on-time delivery rate is:
+OTR = n_rx_on_time / n_tx	(3c)
+Note that OTR ≤ PRR always, since PRR counts all link-successful receptions regardless of deadline. The gap (PRR − OTR) is the latency-induced deadline violation rate — packets the channel delivered, but the application could not use. This is the quantity MA-ROPE directly minimises via the exp(−L/D) term in the utility reward (Eq. 4).
+E. ENERGY AND UTILITY
+Total energy consumption is E_total = P_tx*L_tx + epsilon_r*rho*D_i, where P_tx*L_tx captures radio transmit energy over the realized transmission duration and epsilon_r (J/MB) is the RAT-specific processing or transfer energy cost. MA-ROPE defines two complementary utility functions, each optimized for a different deployment criterion (Yacheur et al. [9] Eq. (2) extended):
+U_PRR = alpha*PRR + (beta/Z)[(1/2)*exp(-L/D) + (1/2)*exp(-E/3) + (1/4)*DeltaCBR]    (4a)  U_OTR = alpha*OTR + (beta/Z)[(1/2)*exp(-L/D) + (1/2)*exp(-E/3) + (1/4)*DeltaCBR]    (4b), Z = 1.25	(4)
+U_PRR (Eq. 4a) uses empirical PRR = n_rx/n_tx as the reliability term and provides dense reward feedback during DQN training. U_OTR (Eq. 4b) replaces PRR with OTR = n_rx_on_time/n_tx, the fraction of PDUs delivered within deadline, and is the primary deployment criterion for safety-critical SAE J3016 workloads. The normalization constant Z makes the auxiliary latency, energy, and CBR block sum to beta; alpha + beta = 1. Task-adaptive weights are grounded in the task-mix prior: safety alpha=0.70, infotainment alpha=0.40, and compute alpha=0.20. The DeltaCBR term remains an early-warning congestion signal orthogonal to the explicit queue model.
+TABLE IIb.  Dual Utility Criteria in MA-ROPE (Eqs. 4a and 4b)
+IV. MA-ROPE: ALGORITHM DESIGN
+Fig. 4 summarizes the MA-ROPE MDP formulation.
+
+
+Fig. 4.  MA-ROPE MDP Formulation: 12-dimensional state space and 11-action implementation.
+A. STATE AND ACTION SPACE
+Following Yacheur et al. [9], each agent observes a 12-dimensional state vector with per-RAT channel quality plus MEC context (Eq. 5). This per-RAT formulation directly enables the DQN to select the optimal RAT based on observed channel conditions—absent from prior single-SINR state designs.
+s = [SINR_LTE, SINR_ITS, SINR_WiFi, SINR_5G, PRR_LTE, PRR_ITS, PRR_WiFi, PRR_5G, Q, D, L, B]	(5)
+Each agent selects from 11 implemented discrete actions spanning local execution and selected RAT-rho pairs across LTE, ITS-G5, WiFi-6, and 5G-NR. The nominal rho is modulated by channel quality following Yacheur Division Mode [9] Algorithm 2:
+ρ_final = base_ρ · (0.5 + SINR_lin[r] / Σ SINR_lin[all])	(6)
+B. DUELING DOUBLE DQN
+The Q-value is decomposed as Q(s,a) = V(s) + A(s,a) − mean_{a'} A(s,a') where V(s) is state value and A(s,a) is advantage. Double DQN decouples action selection from target evaluation:
+y = r + γ · Q_tgt(s', argmax_{a'} Q_online(s', a'))	(7)
+Architecture: Linear(12->256)->ReLU->Linear(256->256)->ReLU, split into value head Linear(256->128->1) and advantage head Linear(256->128->11) for the implemented action set.
+C. FEDAVG COOPERATIVE LEARNING
+At the end of each episode, each agent i uploads local model weights w_i. The global model is aggregated as:
+w_global = Σ_i (n_i / N) · w_i,   participation ≥ 70%	(8)
+Privacy analysis: FedAvg shares model weights instead of raw vehicle observations. This reduces data exposure relative to centralized MADDPG, but model updates can still leak information under gradient-inversion or membership-inference attacks. Production deployments should pair FedAvg with secure aggregation, access control, and/or differential privacy; in this paper MADDPG is treated as a performance upper bound with stronger data-sharing assumptions.
+
+Algorithm 1: MA-ROPE Training with FedAvg
+Require: N agents, episodes E, participation threshold τ=0.70
+1: Initialize w_i for each agent i, replay buffers B_i
+2: for episode e = 1 to E do
+3:   for each step t do
+4:     s_t ← observe()  // 12-dim per-RAT state (Eq. 5)
+5:     a_t ← ε-greedy(Q_online(s_t))
+6:     apply SINR-proportional ρ (Eq. 6)
+7:     execute a_t; receive r_t=U(Eq.4), s_{t+1}
+8:     store (s_t, a_t, r_t, s_{t+1}) in B_i
+9:     sample minibatch; update Q_online via (Eq. 7)
+10:  end for
+11:  if |participants|/N ≥ τ then  // FedAvg aggregation
+12:    w_global ← Σ (n_i/N)·w_i   // Eq. 8
+13:    broadcast w_global → all agents
+14:  end if
+15: end for
+
+V. EXPERIMENTS AND RESULTS
+A. EXPERIMENTAL SETUP
+Experiments are conducted in a custom Python V2X simulation (v2x_clean). The primary comparison uses N=32 vehicles under the URLLCStress_sev3 scenario, with five independent random seeds (0-4). We retain the N=8 table_urllc.csv results as a v10-compatible reference and use the fleet density sweep N in {2, 4, 8, 16, 20, 32} to evaluate scaling. Vehicle speeds are drawn from U[0, 30] m/s. Task types follow the URLLC-dominant distribution: 65% safety (100 ms deadline), 20% infotainment (500 ms), and 15% compute (1000 ms in the compiled results).
+Latency measurement scope for Table IIIb. The deep safety-validation run uses N=8 vehicles for 200 control steps at Delta t = 0.1 s (20.0 s simulated) over a 2000 m road segment. It generated 554098 offload PDU attempts. Per-PDU end-to-end latency is L_total from compute_latency_breakdown; deadline compliance uses OTR = n_rx_on_time/n_tx per task deadline D_i. Mean latency is computed over delivered PDUs only.
+B. BASELINE METHODS
+We compare against: (1) MADDPG [7]—centralized critic upper bound; (2) CoopEC-Shao2025 [3]—greedy FedAvg, 5G-only binary; (3) UCB-Wu2021 [4]—4-arm stateless bandit; (4) Lyapunov-Jing2019 [5]—queue-minimizing binary local/5G; (5) GA+DQN-Yun2022 [6]—genetic algorithm + tabular Q. AllOffload and NoOffload are fixed-policy baselines.
+C. PACKET-LEVEL STATISTICS — ACROSS V2X INTERACTIONS
+Table III presents per-vehicle packet statistics from format_packet_stats_table() across a representative 100-step episode (8 vehicles, URLLC, 40 km/h). Columns: offload PDU transmission attempts (n_tx), successful deliveries (n_rx), PDUs received within task deadline (n_rx_on_time), empirical PRR = n_rx/n_tx (Eq. 2), and on-time rate = n_rx_on_time/n_tx. The TOTAL row aggregates across all vehicles.
+
+TABLE III.  Packet Statistics — format_packet_stats_table() Output (8 vehicles, 100-step episode, 40 km/h, URLLC)
+
+Table III (per-vehicle) reports aggregate packet results across all task types. Table IIIb gives a compact deep safety-validation summary; raw counts are omitted from the table body to keep the IEEE two-column layout readable.
+TABLE IIIb.  Compact Per-Message-Type Deadline Analysis (N=8 deep safety validation, MA-ROPE full policy)
+Table IIIb should not be compared directly with the N=32 multi-method safety table: it is a MA-ROPE-only long evaluation used to isolate safety-task deadline misses.
+The safety deep dive shows the key PRR-vs-OTR distinction. Safety PDUs (100 ms deadline) achieve PRR = 0.9935 but OTR = 0.7370, leaving a safety-only PRR–OTR gap of 25.6 percentage points (0.9935−0.7370 = 0.2565). Fleet-wide, all tasks together achieve PRR = 0.9938 and OTR = 0.8287. The 25.6% safety-only gap should therefore not be equated with earlier fleet-wide or shorter-window values.
+
+D. ALGORITHMIC COMPARISON
+Table IV presents the primary N=32 comparison. U_PRR (Eq. 4a) is the packet-delivery training signal; U_OTR (Eq. 4b) is the deadline-compliance criterion. At dense fleet scale, MA-ROPE improves over AllOffload on U_PRR (0.8323 vs. 0.7790), U_OTR (0.7424 vs. 0.5644), fleet OTR (0.8340 vs. 0.5250), and energy (0.7057 J vs. 0.9441 J).
+
+TABLE IV.  Full Performance Comparison--URLLC stress, N=32 vehicles, 5 seeds. U_PRR: Eq. (4a), training signal. U_OTR: Eq. (4b), deadline compliance. Fleet OTR = on-time offload PDUs / transmitted offload PDUs.
+
+
+Fig. 5.  Utility vs. Vehicle Speed--URLLCStress Scenario.
+
+Fig. 6.  Average Latency vs. Vehicle Speed--URLLCStress Scenario.
+
+Fig. 7.  Energy Consumption vs. Vehicle Speed--URLLCStress Scenario.
+
+Fig. 8.  Empirical PRR = n_rx/n_tx vs. Vehicle Speed. AllOffload degrades fastest (5G-NR Jakes). MA-ROPE remains stable via ITS-G5 adaptation.
+E. TABLE IV PANELS: LITERATURE, BASELINES, RESTRICTED DQN, MADDPG, AND SAFETY
+Tables IVa-IVe decompose Table IV into the reviewer-facing comparisons: literature replicas, fixed baselines, restricted DQN action spaces, the MADDPG upper bound, and safety-only OTR at N=32.
+
+TABLE IVa.  Literature Replicas vs. MA-ROPE--URLLC stress, N=32 vehicles
+
+
+Fig. 9.  Restricted-action DQN comparisons. The figure complements Table IVc by showing how action-space constraints affect the learned policy.
+TABLE IVb.  Fixed Baselines vs. MA-ROPE--URLLC stress, N=32 vehicles
+TABLE IVc.  Restricted DQN Action Spaces vs. MA-ROPE--URLLC stress, N=32 vehicles
+TABLE IVd.  MADDPG Upper Bound vs. MA-ROPE--URLLC stress, N=32 vehicles
+TABLE IVe.  Safety-Task Delivery at N=32--Safety OTR and PRR-OTR Gap
+F. FLEET-DENSITY SCALING AND RSU QUEUE CONTENTION
+Table V summarizes the deployment story across fleet OTR, U_OTR, energy, queue loss, and step overhead. The fleet sweep shows the central scaling effect: AllOffload drops from 87.7% OTR at N=8 to 52.5% at N=32, while MA-ROPE remains at 83.4%.
+TABLE V.  Why MA-ROPE Wins at Fleet Scale--Utility, Energy, Queue Loss, and OTR
+
+Fig. 10.  RSU queue-classified loss fraction vs. fleet size (URLLC, 5 seeds). At N=32, MA-ROPE reports 1.15% queue loss versus 2.14% for AllOffload; queue loss is a supporting metric, while fleet OTR carries the stronger scaling story.
+
+Fig. 11.  System utility vs. fleet size (URLLC, 5 seeds). The MA-ROPE utility gap over AllOffload widens from +0.0277 at N=8 to +0.0533 at N=32.
+Fig. 12 extends the fleet-scaling analysis to on-time delivery. At N=8, MA-ROPE achieves fleet OTR = 0.887 vs. AllOffload = 0.877; at N=16 the gap widens to 0.869 vs. 0.757; and at N=32 it becomes 0.834 vs. 0.525. These values are taken from table_vehicle_density.csv and provide the main dense-fleet scaling headline.
+
+G. DISCUSSION
+NoOffload vs. MA-ROPE on composite utility. Table IV shows NoOffload achieving higher U_PRR (0.8442) than MA-ROPE (0.8323) at N=32, but NoOffload has no transmitted offload PDUs and fleet OTR is therefore not a meaningful V2X delivery metric. Its U_OTR is only 0.2754. The operational claim should therefore be based on fleet OTR, U_OTR, energy, and dense-fleet scaling rather than scalar U_PRR alone.
+Dual utility functions. MA-ROPE exposes two utility criteria: U_PRR (Eq. 4a) for dense packet-delivery reward shaping and U_OTR (Eq. 4b) for deadline-compliance-dominant deployment assessment. In the primary URLLC evaluation, U_OTR is the safety-facing criterion because a received-but-late safety PDU has zero operational value under SAE J3016. U_PRR is reported alongside for balanced and compute-heavy scenarios where throughput dominates over strict timing. The dual-criterion design allows MA-ROPE to be evaluated across V2X use cases without changing the underlying simulator interface. Task-adaptive alpha/beta weights are principled rather than tuned: safety alpha=0.70 matches the 65% safety PDU proportion; compute alpha=0.20 reflects 2000 ms deadline headroom where throughput dominates. A sensitivity analysis of these weights is left for future work.
+Limitations and future work. Table IIIb remains an N=8 MA-ROPE-only deep safety evaluation, while Table IVe is the multi-method N=32 safety comparison. Future work should evaluate non-IID vehicle/task distributions, secure or differentially private FedAvg, trace-driven mobility validation, RSU handover/failure scenarios, and sensitivity to alpha/beta weights and queue service rates.
+Fig. 12.  Fleet OTR vs. fleet size (URLLC). MA-ROPE holds 0.834 fleet OTR at N=32, while AllOffload falls to 0.525.
+The results reveal a sharp divergence in deadline compliance. At N=8, MA-ROPE and AllOffload are close in fleet OTR (0.887 vs. 0.877). By N=16, AllOffload falls to 0.757 while MA-ROPE remains at 0.869. At N=32, AllOffload collapses to 0.525, while MA-ROPE maintains 0.834. Queue loss also favors MA-ROPE (1.15% vs. 2.14% at N=32), but the decisive deployment story is deadline-compliant fleet delivery at scale.
+H. QUEUE CONTENTION AND KEY FINDINGS
+Fig. 13 demonstrates the MEC queue contention effect (Finding F3). In the controlled ablation (no-queue model vs. shared-queue model), AllOffload drops from U=0.916 under the idealized single-vehicle no-queue assumption to U=0.676 under shared RSU contention with 8 vehicles. MA-ROPE remains stable in the N=8 reference setting (U=0.8443) and carries the same queue-aware multi-RAT advantage into the N=32 results summarized in Table IV and Table V.
+
+Fig. 13.  MEC Queue Contention: AllOffload Collapse vs. MA-ROPE Stability (Finding F3).
+
+Fig. 14.  Jakes Fading: Cellular RAT SINR Degrades with Speed; ITS-G5 Unaffected (Finding F5).
+
+Fig. 15.  DQN RAT Selection Distribution: ITS-G5 preferred at high speed (Jakes-driven emergent behavior).
+
+Fig. 16.  Training Convergence Across 5 Seeds with +/-1 sigma band.
+F1--Fleet OTR scaling headline: at N=32, MA-ROPE achieves 83.4% fleet OTR versus 52.5% for AllOffload (+30.9 percentage points). F2--Deadline utility: U_OTR improves by 0.178 over AllOffload at N=32. F3--Energy: MA-ROPE uses 0.706 J versus 0.944 J for AllOffload, a 25.2% reduction. F4--Queue loss: MA-ROPE reports 1.15% queue-classified loss versus 2.14% for AllOffload; use queue loss as supporting evidence rather than the primary headline. F5--MADDPG upper bound: MADDPG improves U_OTR by 0.009 and latency by 73.9 ms, but consumes 34.0% more energy and assumes centralized observation sharing. F6--No measurable multi-RAT simulator-step overhead: 166.6 us versus 167.6 us for single-RAT offload. F7--Safety: at N=32, AllOffload safety OTR falls to 0.287 versus 0.752 for MA-ROPE.
+I. COMPUTATIONAL COMPLEXITY AND RUNTIME OVERHEAD
+A deployable V2X controller must make decisions within the 100 ms safety control interval. This section quantifies the four runtime overhead components of MA-ROPE: DQN inference latency, action space growth with RAT count, environment step cost as fleet size scales, and the marginal cost of multi-RAT selection vs single-RAT offload. All measurements are wall-clock on CPU (Apple M-series arm64), averaged over 200 repeats with 10-step warmup for inference and 500 samples for step overhead, using time.perf_counter(). No GPU acceleration is assumed, consistent with a V2X RSU edge deployment target.
+DQN inference latency (Table VIII). Per-agent forward pass latency is 59.83 us (std 145.62 us) across fleet sizes N ∈ {2, 4, 8, 16, 20, 32}. Fleet-level inference cost scales linearly with N--agents run independently with no cross-agent communication during inference--giving a total of 478.64 us for N = 8 vehicles. This is 4.8% of the 10 ms URLLC control interval and 0.48% of the 100 ms safety deadline, confirming that DQN inference contributes negligible latency to the decision loop at all evaluated fleet sizes.
+TABLE VIII.  DQN Inference Latency vs Fleet Size (200 repeats, 10-step warmup, CPU)
+Action space complexity (Table IX). The deployed benchmark uses an 11-action implementation spanning local execution and selected RAT-rho pairs over the four supported RAT classes. For reference, Table IX shows how a full Cartesian RAT-ratio action set would scale as |A| = n_RATs x n_rho + 1. Only the DQN advantage-head output layer scales with |A|; even the full 4-RAT, 4-rho extension would require 2176 advantage-head parameters (17 actions x 128 hidden units), which remains small relative to the approximately 50k-parameter network.
+TABLE IX.  Action Space Size and Output Layer Parameters vs RAT Count
+Env step and state space overhead (Table X). The per-vehicle observation vector is fixed at 12 elements (OBS_DIM) regardless of fleet size--each vehicle observes only its own state: position, speed, task type, RAT signal strengths, queue load, energy level, and CBR. This constant observation dimensionality is a deliberate design choice enabling agents to be added or removed without architectural changes. Environment step cost scales linearly with N: from 41.5 us at N = 2 to 165.7 us at N = 8, approximately 20.8 us per additional vehicle. At N = 8, the combined env step (165.7 us) plus fleet inference (478.64 us) totals 644.3 us--well within the 10 ms control interval, leaving 93.6% of the budget for communication and actuation.
+TABLE X.  Per-Vehicle Observation Dimension and Env Step Cost vs Fleet Size (50 samples)
+Multi-RAT selection overhead (Table XI). The most important overhead result is in Table XI: the marginal simulator-step cost of multi-RAT selection over single-RAT offload is not measurable within timing noise. Mean step time for multi-RAT (implemented |A| = 11) is 166.6 us vs. 167.6 us for single-RAT--a difference of -0.9 us, within measurement noise (std approximately 12-14 us). Both offload modes add approximately 28 us over pure local execution (138.6 us), attributable to RAT link-model evaluation, SINR computation, and L_queue update that local steps bypass.
+TABLE XI.  Multi-RAT vs Single-RAT Step Overhead (500 samples, 10-step warmup)
+Summary. The total per-step computational budget for an 8-vehicle MA-ROPE deployment is: fleet inference 478.64 us + env step 165.7 us = 644.3 us, representing 6.4% of the 10 ms control interval. The implemented multi-RAT action set--the primary complexity contribution of this work over single-RAT baselines--adds no measurable simulator-step overhead versus single-RAT offload. The constant OBS_DIM = 12 observation vector ensures the architecture scales to larger fleets without redesign. These results confirm that MA-ROPE is computationally viable for deployment on a commodity V2X RSU edge processor.
+VI. CONCLUSION
+This paper presented MA-ROPE, a V2X offloading framework that combines multi-RAT heterogeneous selection, SINR-proportional partial offload, shared MEC queue contention, dual PRR/OTR utility reporting, and federated DRL. At N=32 under URLLC stress, MA-ROPE achieves 83.4% fleet on-time delivery versus 52.5% for single-RAT AllOffload, improves U_OTR by 0.178, and reduces energy by 25.2%. Safety-only analysis shows MA-ROPE preserves 0.752 safety OTR at N=32, while AllOffload falls to 0.287. MADDPG remains a centralized upper bound with slightly higher U_OTR and lower latency, but it assumes centralized observations and consumes substantially more energy. These results position MA-ROPE as a practical privacy-preserving, multi-RAT, queue-aware controller for dense V2X offloading.
+
+REFERENCES
+[1] J. Bo and X. Zhao, "Vehicle edge computing task offloading strategy based on multi-agent deep reinforcement learning," J. Grid Comput., vol. 23, no. 2, 2025, Art. no. 13.
+[2] S. Syed Abuthahir et al., "Novel multi-dimensional task offloading techniques for vehicular edge computing networks," Int. J. Syst. Assur. Eng. Manag., vol. 16, no. 1, pp. 59–72, 2025.
+[3] C. Shao et al., "CoopEC: Cooperative edge computing with federated reinforcement learning for V2X networks," IEEE Trans. Veh. Technol., vol. 74, 2025.
+[4] Y. Wu, F. Liu, and Z. Chen, "UCB-based task offloading for vehicular edge computing," IEEE Internet Things J., vol. 8, no. 15, 2021.
+[5] J. Jing, M. Chen, and Y. Zhang, "Lyapunov-based task offloading with queue stability for vehicular networks," IEEE Wireless Commun. Lett., vol. 8, no. 2, 2019.
+[6] H. Yun, S. Kim, and J. Park, "GA-DQN: Genetic algorithm enhanced DQN for vehicular edge offloading," IEEE Access, vol. 10, 2022.
+[7] R. Lowe et al., "Multi-agent actor-critic for mixed cooperative-competitive environments," in Proc. NeurIPS, 2017, pp. 6379–6390.
+[8] F. Guo, X. Luo, and X. Liu, "Hybrid cloud-edge-vehicle collaborative task offloading in VEC based on reinforcement learning and game theory," IEEE Open J. Veh. Technol., vol. 7, pp. 290–305, 2026.
+[9] B. Y. Yacheur, T. Ahmed, and M. Mosbah, "Efficient DRL-based selection strategy in hybrid vehicular networks," IEEE Trans. Netw. Service Manag., vol. 20, no. 3, 2023. DOI: 10.1109/TNSM.2023.3300653
+[10] H. B. McMahan et al., "Communication-efficient learning of deep networks from decentralized data," in Proc. AISTATS, 2017, pp. 1273–1282.
+[11] K. Luo et al., "Collaborative integration of vehicle and roadside infrastructure sensor for task offloading in the Internet of Vehicles," Int. J. Intell. Syst., 2025.
+[12] IEEE Std 802.11ax-2021, "IEEE Standard for Wireless LAN MAC and Physical Layer Specifications," 2021.
+[13] 3GPP TR 38.901 V17.0.0, "Study on channel model for frequencies from 0.5 to 100 GHz," 2022.
+[14] X. Mao et al., "iMEC: Mobile edge computing with adaptive parallelism control," in Proc. IEEE INFOCOM, 2017, pp. 1–9.
+[15] B. Molina-Masegosa and J. Gozalvez, "LTE-V for sidelink 5G V2X vehicular communications," IEEE Veh. Technol. Mag., vol. 12, no. 4, pp. 30–39, 2017.

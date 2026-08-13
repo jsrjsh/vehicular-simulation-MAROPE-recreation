@@ -1,0 +1,251 @@
+--- Starting FEDAVG Baseline ---
+[Ep 10] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 16.0187 | Div After: 0.0000
+[Ep 20] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.9047 | Div After: 0.0000
+[Ep 20] Eval Success: 0.965 | Latency (succ): 0.0318s | Energy: 0.0082J
+         Act Dist: L=0.01, LTE=0.97, 5G=0.03
+         TD Loss: 0.0428 | Avg Q: 2.4841 | Eps: 0.403
+[Ep 30] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 1.0336 | Div After: 0.0000
+[Ep 40] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.8274 | Div After: 0.0000
+[Ep 40] Eval Success: 0.969 | Latency (succ): 0.0241s | Energy: 0.0020J
+         Act Dist: L=0.01, LTE=0.01, 5G=0.98
+         TD Loss: 0.1072 | Avg Q: 3.4245 | Eps: 0.165
+[Ep 50] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.8000 | Div After: 0.0000
+[Ep 60] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.7156 | Div After: 0.0000
+[Ep 60] Eval Success: 0.966 | Latency (succ): 0.0261s | Energy: 0.0019J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.1133 | Avg Q: 3.5552 | Eps: 0.069
+[Ep 70] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.6613 | Div After: 0.0000
+[Ep 80] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.6653 | Div After: 0.0000
+[Ep 80] Eval Success: 0.971 | Latency (succ): 0.0238s | Energy: 0.0020J
+         Act Dist: L=0.01, LTE=0.02, 5G=0.98
+         TD Loss: 0.1131 | Avg Q: 3.6047 | Eps: 0.050
+[Ep 90] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5574 | Div After: 0.0000
+[Ep 100] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5257 | Div After: 0.0000
+[Ep 100] Eval Success: 0.941 | Latency (succ): 0.0302s | Energy: 0.0020J
+         Act Dist: L=0.01, LTE=0.01, 5G=0.98
+         TD Loss: 0.1182 | Avg Q: 3.5421 | Eps: 0.050
+[Ep 110] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5088 | Div After: 0.0000
+[Ep 120] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5220 | Div After: 0.0000
+[Ep 120] Eval Success: 0.957 | Latency (succ): 0.0262s | Energy: 0.0020J
+         Act Dist: L=0.01, LTE=0.01, 5G=0.98
+         TD Loss: 0.1111 | Avg Q: 3.4620 | Eps: 0.050
+[Ep 130] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4865 | Div After: 0.0000
+[Ep 140] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4717 | Div After: 0.0000
+[Ep 140] Eval Success: 0.971 | Latency (succ): 0.0254s | Energy: 0.0021J
+         Act Dist: L=0.01, LTE=0.02, 5G=0.97
+         TD Loss: 0.1199 | Avg Q: 3.5702 | Eps: 0.050
+[Ep 150] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4912 | Div After: 0.0000
+[Ep 160] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4384 | Div After: 0.0000
+[Ep 160] Eval Success: 0.969 | Latency (succ): 0.0254s | Energy: 0.0019J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.1117 | Avg Q: 3.5099 | Eps: 0.050
+[Ep 170] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4284 | Div After: 0.0000
+[Ep 180] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4307 | Div After: 0.0000
+[Ep 180] Eval Success: 0.970 | Latency (succ): 0.0265s | Energy: 0.0020J
+         Act Dist: L=0.01, LTE=0.02, 5G=0.98
+         TD Loss: 0.1073 | Avg Q: 3.4608 | Eps: 0.050
+[Ep 190] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4249 | Div After: 0.0000
+[Ep 200] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.3905 | Div After: 0.0000
+[Ep 200] Eval Success: 0.957 | Latency (succ): 0.0263s | Energy: 0.0020J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.1124 | Avg Q: 3.4717 | Eps: 0.050
+[Ep 210] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4320 | Div After: 0.0000
+[Ep 220] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4660 | Div After: 0.0000
+[Ep 220] Eval Success: 0.962 | Latency (succ): 0.0260s | Energy: 0.0021J
+         Act Dist: L=0.01, LTE=0.02, 5G=0.98
+         TD Loss: 0.1075 | Avg Q: 3.4354 | Eps: 0.050
+[Ep 230] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5763 | Div After: 0.0000
+[Ep 240] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5055 | Div After: 0.0000
+[Ep 240] Eval Success: 0.964 | Latency (succ): 0.0262s | Energy: 0.0021J
+         Act Dist: L=0.01, LTE=0.01, 5G=0.98
+         TD Loss: 0.0968 | Avg Q: 3.4045 | Eps: 0.050
+[Ep 250] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5040 | Div After: 0.0000
+[Ep 260] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5047 | Div After: 0.0000
+[Ep 260] Eval Success: 0.973 | Latency (succ): 0.0263s | Energy: 0.0019J
+         Act Dist: L=0.01, LTE=0.01, 5G=0.98
+         TD Loss: 0.1041 | Avg Q: 3.4999 | Eps: 0.050
+[Ep 270] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4784 | Div After: 0.0000
+[Ep 280] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4949 | Div After: 0.0000
+[Ep 280] Eval Success: 0.971 | Latency (succ): 0.0255s | Energy: 0.0020J
+         Act Dist: L=0.01, LTE=0.01, 5G=0.98
+         TD Loss: 0.1054 | Avg Q: 3.5872 | Eps: 0.050
+[Ep 290] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4899 | Div After: 0.0000
+[Ep 300] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4696 | Div After: 0.0000
+[Ep 300] Eval Success: 0.951 | Latency (succ): 0.0287s | Energy: 0.0020J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.1009 | Avg Q: 3.6017 | Eps: 0.050
+[Ep 310] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5215 | Div After: 0.0000
+[Ep 320] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5677 | Div After: 0.0000
+[Ep 320] Eval Success: 0.978 | Latency (succ): 0.0226s | Energy: 0.0019J
+         Act Dist: L=0.01, LTE=0.01, 5G=0.98
+         TD Loss: 0.1042 | Avg Q: 3.7355 | Eps: 0.050
+[Ep 330] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5444 | Div After: 0.0000
+[Ep 340] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5339 | Div After: 0.0000
+[Ep 340] Eval Success: 0.975 | Latency (succ): 0.0229s | Energy: 0.0019J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.1049 | Avg Q: 3.8365 | Eps: 0.050
+[Ep 350] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5043 | Div After: 0.0000
+[Ep 360] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4738 | Div After: 0.0000
+[Ep 360] Eval Success: 0.957 | Latency (succ): 0.0285s | Energy: 0.0020J
+         Act Dist: L=0.01, LTE=0.01, 5G=0.98
+         TD Loss: 0.1071 | Avg Q: 3.8960 | Eps: 0.050
+[Ep 370] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5442 | Div After: 0.0000
+[Ep 380] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4803 | Div After: 0.0000
+[Ep 380] Eval Success: 0.972 | Latency (succ): 0.0249s | Energy: 0.0020J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.1018 | Avg Q: 3.9229 | Eps: 0.050
+[Ep 390] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4887 | Div After: 0.0000
+[Ep 400] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5015 | Div After: 0.0000
+[Ep 400] Eval Success: 0.968 | Latency (succ): 0.0273s | Energy: 0.0020J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.1009 | Avg Q: 3.9314 | Eps: 0.050
+[Ep 410] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4705 | Div After: 0.0000
+[Ep 420] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4756 | Div After: 0.0000
+[Ep 420] Eval Success: 0.980 | Latency (succ): 0.0236s | Energy: 0.0021J
+         Act Dist: L=0.01, LTE=0.02, 5G=0.97
+         TD Loss: 0.1047 | Avg Q: 3.9882 | Eps: 0.050
+[Ep 430] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4672 | Div After: 0.0000
+[Ep 440] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4688 | Div After: 0.0000
+[Ep 440] Eval Success: 0.968 | Latency (succ): 0.0248s | Energy: 0.0019J
+         Act Dist: L=0.00, LTE=0.01, 5G=0.98
+         TD Loss: 0.0992 | Avg Q: 3.9698 | Eps: 0.050
+[Ep 450] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4415 | Div After: 0.0000
+[Ep 460] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4281 | Div After: 0.0000
+[Ep 460] Eval Success: 0.956 | Latency (succ): 0.0280s | Energy: 0.0020J
+         Act Dist: L=0.00, LTE=0.01, 5G=0.98
+         TD Loss: 0.1053 | Avg Q: 4.0671 | Eps: 0.050
+[Ep 470] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.3955 | Div After: 0.0000
+[Ep 480] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4298 | Div After: 0.0000
+[Ep 480] Eval Success: 0.969 | Latency (succ): 0.0268s | Energy: 0.0019J
+         Act Dist: L=0.01, LTE=0.02, 5G=0.98
+         TD Loss: 0.0987 | Avg Q: 4.0809 | Eps: 0.050
+[Ep 490] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4546 | Div After: 0.0000
+[Ep 500] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4476 | Div After: 0.0000
+[Ep 500] Eval Success: 0.969 | Latency (succ): 0.0235s | Energy: 0.0020J
+         Act Dist: L=0.01, LTE=0.02, 5G=0.98
+         TD Loss: 0.0995 | Avg Q: 4.1003 | Eps: 0.050
+[Ep 510] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4077 | Div After: 0.0000
+[Ep 520] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4139 | Div After: 0.0000
+[Ep 520] Eval Success: 0.963 | Latency (succ): 0.0282s | Energy: 0.0020J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.1013 | Avg Q: 4.1912 | Eps: 0.050
+[Ep 530] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4332 | Div After: 0.0000
+[Ep 540] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4697 | Div After: 0.0000
+[Ep 540] Eval Success: 0.976 | Latency (succ): 0.0234s | Energy: 0.0020J
+         Act Dist: L=0.00, LTE=0.01, 5G=0.98
+         TD Loss: 0.1032 | Avg Q: 4.2378 | Eps: 0.050
+[Ep 550] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4290 | Div After: 0.0000
+[Ep 560] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4478 | Div After: 0.0000
+[Ep 560] Eval Success: 0.964 | Latency (succ): 0.0262s | Energy: 0.0020J
+         Act Dist: L=0.00, LTE=0.01, 5G=0.98
+         TD Loss: 0.1011 | Avg Q: 4.3581 | Eps: 0.050
+[Ep 570] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4236 | Div After: 0.0000
+[Ep 580] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4359 | Div After: 0.0000
+[Ep 580] Eval Success: 0.973 | Latency (succ): 0.0266s | Energy: 0.0021J
+         Act Dist: L=0.01, LTE=0.02, 5G=0.98
+         TD Loss: 0.1019 | Avg Q: 4.3738 | Eps: 0.050
+[Ep 590] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4189 | Div After: 0.0000
+[Ep 600] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4093 | Div After: 0.0000
+[Ep 600] Eval Success: 0.962 | Latency (succ): 0.0280s | Energy: 0.0021J
+         Act Dist: L=0.01, LTE=0.02, 5G=0.98
+         TD Loss: 0.1023 | Avg Q: 4.4235 | Eps: 0.050
+[Ep 610] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.3979 | Div After: 0.0000
+[Ep 620] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5880 | Div After: 0.0000
+[Ep 620] Eval Success: 0.970 | Latency (succ): 0.0258s | Energy: 0.0021J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.1001 | Avg Q: 4.4493 | Eps: 0.050
+[Ep 630] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4309 | Div After: 0.0000
+[Ep 640] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4264 | Div After: 0.0000
+[Ep 640] Eval Success: 0.947 | Latency (succ): 0.0297s | Energy: 0.0020J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.1041 | Avg Q: 4.5485 | Eps: 0.050
+[Ep 650] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4546 | Div After: 0.0000
+[Ep 660] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5075 | Div After: 0.0000
+[Ep 660] Eval Success: 0.981 | Latency (succ): 0.0234s | Energy: 0.0019J
+         Act Dist: L=0.01, LTE=0.02, 5G=0.98
+         TD Loss: 0.0988 | Avg Q: 4.5862 | Eps: 0.050
+[Ep 670] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4634 | Div After: 0.0000
+[Ep 680] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5178 | Div After: 0.0000
+[Ep 680] Eval Success: 0.957 | Latency (succ): 0.0274s | Energy: 0.0020J
+         Act Dist: L=0.01, LTE=0.02, 5G=0.98
+         TD Loss: 0.1030 | Avg Q: 4.6332 | Eps: 0.050
+[Ep 690] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4617 | Div After: 0.0000
+[Ep 700] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4494 | Div After: 0.0000
+[Ep 700] Eval Success: 0.970 | Latency (succ): 0.0250s | Energy: 0.0020J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.1014 | Avg Q: 4.6249 | Eps: 0.050
+[Ep 710] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4657 | Div After: 0.0000
+[Ep 720] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4426 | Div After: 0.0000
+[Ep 720] Eval Success: 0.964 | Latency (succ): 0.0267s | Energy: 0.0019J
+         Act Dist: L=0.00, LTE=0.01, 5G=0.98
+         TD Loss: 0.0935 | Avg Q: 4.7091 | Eps: 0.050
+[Ep 730] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4968 | Div After: 0.0000
+[Ep 740] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5173 | Div After: 0.0000
+[Ep 740] Eval Success: 0.964 | Latency (succ): 0.0273s | Energy: 0.0020J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.0941 | Avg Q: 4.7824 | Eps: 0.050
+[Ep 750] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.5179 | Div After: 0.0000
+[Ep 760] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4511 | Div After: 0.0000
+[Ep 760] Eval Success: 0.961 | Latency (succ): 0.0278s | Energy: 0.0020J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.0943 | Avg Q: 4.9131 | Eps: 0.050
+[Ep 770] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4404 | Div After: 0.0000
+[Ep 780] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4881 | Div After: 0.0000
+[Ep 780] Eval Success: 0.958 | Latency (succ): 0.0272s | Energy: 0.0020J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.0966 | Avg Q: 5.0218 | Eps: 0.050
+[Ep 790] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4441 | Div After: 0.0000
+[Ep 800] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4601 | Div After: 0.0000
+[Ep 800] Eval Success: 0.954 | Latency (succ): 0.0278s | Energy: 0.0021J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.0919 | Avg Q: 5.0936 | Eps: 0.050
+[Ep 810] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4207 | Div After: 0.0000
+[Ep 820] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4655 | Div After: 0.0000
+[Ep 820] Eval Success: 0.973 | Latency (succ): 0.0238s | Energy: 0.0021J
+         Act Dist: L=0.01, LTE=0.02, 5G=0.97
+         TD Loss: 0.0934 | Avg Q: 5.2225 | Eps: 0.050
+[Ep 830] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4392 | Div After: 0.0000
+[Ep 840] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4749 | Div After: 0.0000
+[Ep 840] Eval Success: 0.965 | Latency (succ): 0.0263s | Energy: 0.0020J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.0991 | Avg Q: 5.3841 | Eps: 0.050
+[Ep 850] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4061 | Div After: 0.0000
+[Ep 860] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4297 | Div After: 0.0000
+[Ep 860] Eval Success: 0.966 | Latency (succ): 0.0276s | Energy: 0.0021J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.0923 | Avg Q: 5.4585 | Eps: 0.050
+[Ep 870] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.3872 | Div After: 0.0000
+[Ep 880] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.3752 | Div After: 0.0000
+[Ep 880] Eval Success: 0.971 | Latency (succ): 0.0257s | Energy: 0.0022J
+         Act Dist: L=0.01, LTE=0.02, 5G=0.97
+         TD Loss: 0.0933 | Avg Q: 5.5721 | Eps: 0.050
+[Ep 890] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4306 | Div After: 0.0000
+[Ep 900] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4133 | Div After: 0.0000
+[Ep 900] Eval Success: 0.974 | Latency (succ): 0.0248s | Energy: 0.0021J
+         Act Dist: L=0.01, LTE=0.02, 5G=0.98
+         TD Loss: 0.0907 | Avg Q: 5.7214 | Eps: 0.050
+[Ep 910] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4006 | Div After: 0.0000
+[Ep 920] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.3895 | Div After: 0.0000
+[Ep 920] Eval Success: 0.961 | Latency (succ): 0.0273s | Energy: 0.0020J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.0957 | Avg Q: 5.9363 | Eps: 0.050
+[Ep 930] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.3706 | Div After: 0.0000
+[Ep 940] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.3535 | Div After: 0.0000
+[Ep 940] Eval Success: 0.968 | Latency (succ): 0.0257s | Energy: 0.0021J
+         Act Dist: L=0.01, LTE=0.01, 5G=0.98
+         TD Loss: 0.0908 | Avg Q: 6.0451 | Eps: 0.050
+[Ep 950] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.3654 | Div After: 0.0000
+[Ep 960] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.3900 | Div After: 0.0000
+[Ep 960] Eval Success: 0.968 | Latency (succ): 0.0252s | Energy: 0.0020J
+         Act Dist: L=0.01, LTE=0.02, 5G=0.97
+         TD Loss: 0.0952 | Avg Q: 6.1373 | Eps: 0.050
+[Ep 970] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.3904 | Div After: 0.0000
+[Ep 980] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4156 | Div After: 0.0000
+[Ep 980] Eval Success: 0.974 | Latency (succ): 0.0254s | Energy: 0.0021J
+         Act Dist: L=0.01, LTE=0.01, 5G=0.98
+         TD Loss: 0.0904 | Avg Q: 6.2809 | Eps: 0.050
+[Ep 990] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.4085 | Div After: 0.0000
+[Ep 1000] FedAvg Round: SUCCEEDED | Eligible: 100.0% | Div Before: 0.3975 | Div After: 0.0000
+[Ep 1000] Eval Success: 0.969 | Latency (succ): 0.0261s | Energy: 0.0021J
+         Act Dist: L=0.00, LTE=0.02, 5G=0.98
+         TD Loss: 0.0944 | Avg Q: 6.4126 | Eps: 0.050
