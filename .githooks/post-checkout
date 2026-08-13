@@ -1,0 +1,32 @@
+#!/bin/bash
+# Prints the current branch's purpose after every branch switch.
+# Args: $1=prev HEAD  $2=new HEAD  $3=1 if branch checkout, 0 if file checkout
+[ "$3" = "1" ] || exit 0
+
+branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+
+case "$branch" in
+  main|chore/post-init-restructure)
+    purpose="STABLE / FACULTY-FACING LINE -- the 'prof way'. Never do experimental or moonshot work here directly." ;;
+  commitment/announced-future-work)
+    purpose="Commitment branch -- the 5 future-work goals already announced in the paper's Conclusion (non-IID robustness, DP/secure FedAvg, SUMO trace validation, RSU handover/failure, alpha/beta sensitivity). Promote each to main as it succeeds." ;;
+  experiment/ris-integration)
+    purpose="Moonshot -- RIS-assisted channel control. Purely technical for now." ;;
+  experiment/ntn-backhaul)
+    purpose="Moonshot -- NTN/satellite backhaul for RSU connectivity. Purely technical for now." ;;
+  experiment/city-scale)
+    purpose="Moonshot -- city-scale evaluation (N>32, hierarchical FedAvg). Purely technical for now." ;;
+  experiment/govt-funding-track)
+    purpose="Moonshot -- govt recognition / funding-oriented innovation track. Success = external validation, not a fixed technical KPI." ;;
+  research/expansion)
+    purpose="Integration branch -- merge validated wins from commitment/experiment branches here for cross-testing before proposing to main." ;;
+  *)
+    purpose="(no registered purpose for this branch)" ;;
+esac
+
+echo ""
+echo "================================================================"
+echo " Now on branch: $branch"
+echo " Purpose: $purpose"
+echo "================================================================"
+echo ""

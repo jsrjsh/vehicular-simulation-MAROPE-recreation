@@ -1,0 +1,24 @@
+#!/bin/bash
+# Blocks direct commits to the protected "prof way" line so experimental/code
+# work can't accidentally land where faculty will see it.
+# Deliberate override: ALLOW_MAIN_COMMIT=1 git commit ...  (e.g. when promoting
+# validated work from an experiment/commitment branch)
+
+PROTECTED_BRANCHES="main chore/post-init-restructure"
+current_branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+
+for b in $PROTECTED_BRANCHES; do
+  if [ "$current_branch" = "$b" ] && [ -z "$ALLOW_MAIN_COMMIT" ]; then
+    echo ""
+    echo "BLOCKED: you're about to commit directly to '$current_branch'."
+    echo "This is the faculty/publication line -- experimental or code work"
+    echo "should happen on a commitment/ or experiment/ branch instead."
+    echo ""
+    echo "  Switch branches:   git checkout <branch-name>"
+    echo "  Intentional here?  ALLOW_MAIN_COMMIT=1 git commit ..."
+    echo ""
+    exit 1
+  fi
+done
+
+exit 0
