@@ -16,6 +16,8 @@ case "$branch" in
     purpose="Moonshot -- NTN/satellite backhaul for RSU connectivity. Purely technical for now." ;;
   experiment/city-scale)
     purpose="Moonshot -- city-scale evaluation (N>32, hierarchical FedAvg). Purely technical for now." ;;
+  experiment/semantic-vsafety-comm)
+    purpose="Moonshot -- semantic/priority-aware V2X message compression (task-criticality-based, not just RAT/offload-ratio). Purely technical for now." ;;
   experiment/govt-funding-track)
     purpose="Moonshot -- govt recognition / funding-oriented innovation track. Success = external validation, not a fixed technical KPI." ;;
   research/expansion)
