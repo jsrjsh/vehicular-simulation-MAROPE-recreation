@@ -1,0 +1,10 @@
+# Dev/experimental config for the SUMO + ns-3 co-simulation environment
+# (experiment/city-scale branch). Deliberately kept separate from
+# paper_main.yaml: env_type is not currently consumed by any script, and
+# paper_main.yaml must stay dedicated to the validated Python-simulator
+# paper-reproduction pipeline (CAMPAIGN_CORRECTED_20260803) so this
+# experimental line can never accidentally redirect it.
+fleet_size: 32
+episodes: 200
+seeds: [42, 43, 44, 45, 46]
+env_type: "ns3_sumo"

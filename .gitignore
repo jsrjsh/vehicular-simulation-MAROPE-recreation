@@ -28,6 +28,11 @@ htmlcov/
 .env
 .venv
 
+# ns-3 engine (third-party build dependency, fetched/built locally --
+# never committed; see NS3_SUMO_STATUS.md for setup instructions)
+vehicular-simulation/ns-3/
+ns3-sumo-version/
+
 # macOS
 .DS_Store
 

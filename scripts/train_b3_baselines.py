@@ -8,6 +8,7 @@ import torch
 import torch.optim as optim
 from collections import deque
 from env.environment_plus import V2XEnvPlus
+from env.ns3_sumo_env import Ns3SumoV2XEnv
 from agents.d3qn.agent import D3QNAgent
 from agents.federated.coordinator_plus import FederatedCoordinatorPlus
 
@@ -19,6 +20,7 @@ def get_args():
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--eval_interval", type=int, default=20)
     parser.add_argument("--eval_eps", type=int, default=5)
+    parser.add_argument("--environment-mode", type=str, choices=["default", "ns3_sumo"], default="default")
     return parser.parse_args()
 
 class Evaluator:
@@ -131,14 +133,17 @@ def train():
                          "aggregation_round", "eligible_fraction", "uplink_bytes", "downlink_bytes",
                          "div_before", "div_after", "success_disp", "reward_disp"])
     
-    env = V2XEnvPlus(n_vehicles=args.n_vehicles, seed=args.seed, f_mec=0.316e9, bg_workload_enabled=True)
+    if args.environment_mode == "ns3_sumo":
+        env = Ns3SumoV2XEnv(n_vehicles=args.n_vehicles, max_steps=100)
+    else:
+        env = V2XEnvPlus(n_vehicles=args.n_vehicles, seed=args.seed, f_mec=0.316e9, bg_workload_enabled=True)
     evaluator = Evaluator(env)
     
     # Initialize agents
-    if args.mode in ["shared"]:
-        agents = {0: D3QNAgent(state_dim=20, action_dim=11, seed=args.seed)}
-    elif args.mode in ["independent", "fedavg"]:
-        agents = {i: D3QNAgent(state_dim=20, action_dim=11, seed=args.seed + i) for i in range(args.n_vehicles)}
+    if args.mode == 'independent' or args.mode == 'fedavg':
+        agents = {i: D3QNAgent(action_dim=11, seed=args.seed + i) for i in range(args.n_vehicles)}
+    elif args.mode == 'shared':
+        agents = {0: D3QNAgent(action_dim=11, seed=args.seed)}
     else:
         agents = {}
         

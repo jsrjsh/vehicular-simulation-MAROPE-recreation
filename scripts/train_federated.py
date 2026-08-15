@@ -13,6 +13,7 @@ import math
 import numpy as np
 import torch
 from env.environment import V2XEnv
+from env.ns3_sumo_env import Ns3SumoV2XEnv
 from agents.federated.coordinator import FederatedCoordinator
 from agents.d3qn.agent import D3QNAgent
 
@@ -82,7 +83,7 @@ def run_controlled_fixture():
 
 def main():
     parser = argparse.ArgumentParser(description="MA-ROPE Synchronous FedAvg Trainer")
-    parser.add_argument("--environment-mode", type=str, choices=["baseline_recreation", "physically_corrected"],
+    parser.add_argument("--environment-mode", type=str, choices=["baseline_recreation", "physically_corrected", "ns3_sumo"],
                         default="physically_corrected", help="Simulation mode")
     parser.add_argument("--replay-mode", type=str, choices=["uniform", "prioritized"],
                         default="uniform", help="Experience replay mode")
@@ -134,13 +135,19 @@ def main():
     print("==================================================")
 
     # Initialize environment
-    env = V2XEnv(
-        n_vehicles=args.n_agents,
-        scenario="urllc",
-        max_steps=100,
-        seed=args.seed,
-        mode=args.environment_mode
-    )
+    if args.environment_mode == "ns3_sumo":
+        env = Ns3SumoV2XEnv(
+            n_vehicles=args.n_agents,
+            max_steps=100
+        )
+    else:
+        env = V2XEnv(
+            n_vehicles=args.n_agents,
+            scenario="urllc",
+            max_steps=100,
+            seed=args.seed,
+            mode=args.environment_mode
+        )
 
     # Initialize coordinator
     coordinator = FederatedCoordinator(
@@ -209,7 +216,7 @@ def main():
                 
                 agent = coordinator.agents[i]
                 agent.replay_buffer.add(state, action, reward, next_state, v_done)
-                loss = agent.learn()
+                loss, _ = agent.learn()
                 if loss > 0.0:
                     losses[i].append(loss)
                     
