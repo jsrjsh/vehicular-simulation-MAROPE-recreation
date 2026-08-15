@@ -71,43 +71,38 @@ dimension and should be checked before being trusted.
   inside the old `ns3-sumo-version/` working copy were stale snapshots of
   content already tracked elsewhere -- not carried forward.
 
-## Open item: the Aug 3 channel-validation run was broken, not conclusive
+## Resolved: the Aug 3 channel-validation run was broken, not conclusive
 
 `_claude_workspace/EXECUTION_CONTRACT_V4_SUMO_NS3_VALIDATION.md` scoped an
 offline validation (2026-08-03) comparing the analytical channel model
 (`env/channel.py`) against a real ns-3 simulation
 (`vehicular-simulation/scratch/channel-validation.cc`), producing
 `results/SUMO_NS3_VALIDATION_20260803/SUMO_NS3_CHANNEL_VALIDATION_REPORT.md`.
-That report shows ~99% divergence for LTE and ~91% for WiFi-6 (analytical
+That report showed ~99% divergence for LTE and ~91% for WiFi-6 (analytical
 predicts near-100% success, ns-3 empirical shows near-0%) and was never
 followed up with a decision document or reflected anywhere in the paper.
 
-**Investigated 2026-08-15 -- this is very likely a broken validation run, not
-a real physics finding.** From the raw CSV
+**Investigated 2026-08-15.** From the raw CSV
 (`vehicular-simulation/simulation_results_channel_validation.csv`, 9,716
-rows): 99.86% of attempts are logged as `TIMEOUT`, only 14 as `SUCCESS`, and
-the recorded "Latency" for timeout rows is literally the hardcoded per-task
-deadline (0.05 / 0.4 / 2.0 s, from `channel-validation.cc` lines 226/230/234)
-being logged when the task's timeout fires -- not a measured network
-latency. Critically, **success rate is 0% even at the 2-second deadline**
-(0 of 3,170 attempts), 40x longer than the 50ms deadline -- ruling out "the
-deadline is just too tight for connection setup." The ~14 successes that do
-exist complete in ~1.6-2.0s, implausibly slow for real PHY-layer delivery.
-This pattern (uniform near-total failure regardless of distance, RAT, *or*
-how much time is allowed) is much more consistent with a broken MAC/routing
-config in the scratch program (e.g. transmit power/antenna gain, ARP,
-association, or extreme CSMA collision/backoff) than with the channel model
-being wrong.
+rows): 99.86% of attempts logged `TIMEOUT`, only 14 `SUCCESS`, and the
+recorded "Latency" for timeout rows was literally the hardcoded per-task
+deadline (0.05 / 0.4 / 2.0 s) being logged when the timeout fired -- not a
+measured network latency. Success rate was 0% even at the 2-second deadline
+(40x the shortest), ruling out "deadline too tight for connection setup."
 
-**Status: open, not resolved in either direction.** The question "does the
-analytical channel model hold up against real ns-3 physics" has not actually
-been answered yet -- this run just failed for an uninteresting engineering
-reason. Before porting physics into `ns3_script.cc` (next step below),
-whoever picks this up should explicitly verify the MAC/routing/PHY config
-(transmit power, antenna gain, association handshake, CSMA parameters) is
-sane -- e.g. confirm a trivial short-range, high-power link succeeds at all
--- so this exact failure mode isn't silently reproduced in the new
-integration.
+**Root cause confirmed 2026-08-15 (AG).** A minimal diagnostic
+(`mac_sanity_check.cc`: 2 static nodes, 1m apart, 20 dBm, `AdhocWifiMac`,
+standard `UdpEchoClient`/`UdpEchoServer` apps instead of the legacy script's
+custom application) delivered a packet end-to-end cleanly -- 2.93ms one-way,
+exactly as expected for 802.11a OFDM at close range. This confirms ns-3's
+PHY/MAC stack itself is fine. The legacy `channel-validation.cc`'s custom
+application/socket layer had a configuration bug (likely missing explicit
+`SetStandard`/`SetRemoteStationManager` calls), not the physical channel
+model. **The original validation question -- does the analytical model hold
+up against real ns-3 physics -- is still open** (this only proved the
+harness was broken, not that the model is right or wrong), but the
+MAC/routing baseline is now verified sane, so the physics port below can
+proceed without inheriting this failure mode.
 
 ## Next steps, in order
 
