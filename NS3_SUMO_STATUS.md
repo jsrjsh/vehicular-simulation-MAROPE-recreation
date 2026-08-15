@@ -71,6 +71,44 @@ dimension and should be checked before being trusted.
   inside the old `ns3-sumo-version/` working copy were stale snapshots of
   content already tracked elsewhere -- not carried forward.
 
+## Open item: the Aug 3 channel-validation run was broken, not conclusive
+
+`_claude_workspace/EXECUTION_CONTRACT_V4_SUMO_NS3_VALIDATION.md` scoped an
+offline validation (2026-08-03) comparing the analytical channel model
+(`env/channel.py`) against a real ns-3 simulation
+(`vehicular-simulation/scratch/channel-validation.cc`), producing
+`results/SUMO_NS3_VALIDATION_20260803/SUMO_NS3_CHANNEL_VALIDATION_REPORT.md`.
+That report shows ~99% divergence for LTE and ~91% for WiFi-6 (analytical
+predicts near-100% success, ns-3 empirical shows near-0%) and was never
+followed up with a decision document or reflected anywhere in the paper.
+
+**Investigated 2026-08-15 -- this is very likely a broken validation run, not
+a real physics finding.** From the raw CSV
+(`vehicular-simulation/simulation_results_channel_validation.csv`, 9,716
+rows): 99.86% of attempts are logged as `TIMEOUT`, only 14 as `SUCCESS`, and
+the recorded "Latency" for timeout rows is literally the hardcoded per-task
+deadline (0.05 / 0.4 / 2.0 s, from `channel-validation.cc` lines 226/230/234)
+being logged when the task's timeout fires -- not a measured network
+latency. Critically, **success rate is 0% even at the 2-second deadline**
+(0 of 3,170 attempts), 40x longer than the 50ms deadline -- ruling out "the
+deadline is just too tight for connection setup." The ~14 successes that do
+exist complete in ~1.6-2.0s, implausibly slow for real PHY-layer delivery.
+This pattern (uniform near-total failure regardless of distance, RAT, *or*
+how much time is allowed) is much more consistent with a broken MAC/routing
+config in the scratch program (e.g. transmit power/antenna gain, ARP,
+association, or extreme CSMA collision/backoff) than with the channel model
+being wrong.
+
+**Status: open, not resolved in either direction.** The question "does the
+analytical channel model hold up against real ns-3 physics" has not actually
+been answered yet -- this run just failed for an uninteresting engineering
+reason. Before porting physics into `ns3_script.cc` (next step below),
+whoever picks this up should explicitly verify the MAC/routing/PHY config
+(transmit power, antenna gain, association handshake, CSMA parameters) is
+sane -- e.g. confirm a trivial short-range, high-power link succeeds at all
+-- so this exact failure mode isn't silently reproduced in the new
+integration.
+
 ## Next steps, in order
 
 1. **Port the physical-layer formulas** from `env/channel.py` /
@@ -78,7 +116,9 @@ dimension and should be checked before being trusted.
    `ns3_script.cc`. Build in boundary assertions while doing this (energy
    \>= 0, probabilities in [0,1]) -- this is exactly the class of bug the
    Python simulator had (see `_claude_workspace/ENERGY_METRIC_DECISION.md`)
-   and it should not be repeated on the ns-3 side.
+   and it should not be repeated on the ns-3 side. While doing this, sanity
+   check against the open item above -- confirm a trivial link succeeds
+   before trusting any distance/RAT-dependent numbers.
 2. **Wire SUMO mobility into ns-3** via `Ns2MobilityHelper`, consuming a
    `sumo_trace.xml` export instead of the current basic mobility model.
 3. Once both land: run the same N=8/16/32 density sweep used for
