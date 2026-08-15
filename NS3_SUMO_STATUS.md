@@ -29,11 +29,56 @@ reported anywhere.
   `--environment-mode ns3_sumo` and will instantiate `Ns3SumoV2XEnv`.
 - Verified 2026-08-15: 5-episode smoke tests of both scripts connect over the
   ZeroMQ/OpenGym bridge and complete without crashing.
+- `src/maro_pe/simulation/channel_model.h` -- line-for-line C++ translation of
+  `env/channel.py` (path loss, Jakes fading, SINR, link-success sigmoid) plus
+  the channel-relevant fields of `env/config.py::RAT_SPECS`. Verified
+  2026-08-15 against golden values computed from the real Python functions
+  (`scripts/compute_channel_model_golden_values.py` +
+  `channel_model_golden_test.cc`, 5 test cases across all 4 non-Local RATs,
+  both modes, all passing to 1e-9). **Not yet called from `ns3_script.cc`'s
+  OpenGym callbacks** -- it's a standalone, independently-tested module ready
+  to be wired in, not integrated yet. Energy is deliberately excluded from
+  this port -- see the file's header comment for why.
 
-**That's it.** No SINR/path-loss/energy formulas have been ported into the C++
-side, and SUMO traces aren't driving node mobility yet. Nothing produced by
-this pipeline so far constitutes a network-fidelity result -- it only proves
-the wiring works. Do not cite these runs as validating anything physical.
+**That's it, plus the untested `channel_model.h` module above.** SUMO traces
+aren't driving node mobility yet, and nothing in `ns3_script.cc` calls the
+new physics functions yet. Nothing produced by the OpenGym pipeline so far
+constitutes a network-fidelity result -- it only proves the wiring works. Do
+not cite these runs as validating anything physical.
+
+## Finding, needs a decision: Jakes fading is numerically negligible in baseline_recreation mode
+
+While generating the golden values above, `compute_jakes_fading()` returned
+~1e-7 dB even for LTE/5G-NR at 20-30 m/s under `mode="baseline_recreation"`
+-- the mode that produced every one of v25's validated numbers. Root cause:
+the baseline_recreation branch uses the RAT's `freq_ghz` value (e.g. 1.8 for
+LTE) directly in the Doppler-shift formula without converting it to Hz
+(`f_D = speed * freq_ghz / c`), unlike the `physically_corrected` branch
+which does convert (`freq_ghz * 1e9`). That makes `f_D` about 9 orders of
+magnitude too small, which makes the coherence time `T_c` enormous, which
+makes the fading term collapse to ~0 regardless of speed. Confirmed
+side-by-side: identical inputs (300m, 20 m/s) give 0.0000000646 dB under
+baseline_recreation vs. 2.05 dB under physically_corrected -- the corrected
+formula is the one producing a physically sensible fading magnitude.
+
+**This means Fig. 12 in the paper ("Jakes Fading: Cellular RAT SINR
+Degrades with Speed") and the "Jakes" checkmark MA-ROPE claims in Table I's
+feature-coverage matrix may not reflect what the validated campaign
+actually modeled** -- if baseline_recreation's Jakes term is always
+negligible, cellular RAT SINR in the validated results doesn't meaningfully
+degrade with speed via fading at all; whatever speed-dependence exists in
+the reported figures would have to come from elsewhere. This is a new
+finding, not yet root-caused all the way to "does it change any reported
+number," and not yet reflected anywhere in the paper. Flagging here rather
+than silently working around it in the ns-3 port, since the physics port
+needs an explicit decision: replicate baseline_recreation's Jakes formula
+faithfully (matching v25 exactly, negligible fading and all), or use the
+physically_corrected formula (physically sensible, but then results won't
+match v25 and that mismatch needs to be understood before comparing).
+Recommend faithful replication for the first N=8/16/32 comparison against
+v25 (next steps below), with the units question raised as its own separate
+decision afterward -- don't conflate "port the model" with "fix the model"
+in the same pass.
 
 ## State dimension -- resolved 2026-08-15
 
@@ -106,19 +151,28 @@ proceed without inheriting this failure mode.
 
 ## Next steps, in order
 
-1. **Port the physical-layer formulas** from `env/channel.py` /
-   `env/environment.py` (SINR, path loss per RAT, the energy model) into
-   `ns3_script.cc`. Build in boundary assertions while doing this (energy
-   \>= 0, probabilities in [0,1]) -- this is exactly the class of bug the
-   Python simulator had (see `_claude_workspace/ENERGY_METRIC_DECISION.md`)
-   and it should not be repeated on the ns-3 side. While doing this, sanity
-   check against the open item above -- confirm a trivial link succeeds
-   before trusting any distance/RAT-dependent numbers.
+1. ~~Port the physical-layer formulas from `env/channel.py` into C++~~ --
+   **done 2026-08-15**, see `channel_model.h` above. Remaining sub-steps:
+   - **Wire `channel_model.h` into `ns3_script.cc`'s OpenGym callbacks**
+     (`MyGetObservation`, `MyExecuteActions`, `MyGetReward` currently return
+     mocked/constant values -- replace with real calls into
+     `ComputeSinrDb`/`ComputeLinkSuccess`, drawing random samples from ns-3's
+     own RNG at the call site, matching `channel_model.h`'s dependency-injection
+     design).
+   - Port `env/environment.py`'s task generation, RSU queue model, deadline
+     classification (on-time/late/failed), and 12-dim observation assembly
+     (including the 0.5 "unknown RAT" default from two conversations ago) --
+     not yet started, this is the bulk of remaining `env/` logic beyond the
+     channel model itself.
+   - Energy is explicitly NOT in scope (see `channel_model.h` header) --
+     v25 doesn't report it either, for the same reason (the implemented
+     formula is invalid; see `ENERGY_METRIC_DECISION.md`).
 2. **Wire SUMO mobility into ns-3** via `Ns2MobilityHelper`, consuming a
    `sumo_trace.xml` export instead of the current basic mobility model.
 3. Once both land: run the same N=8/16/32 density sweep used for
    `CAMPAIGN_CORRECTED_20260803` and compare Fleet OTR / DRR against v25's
    numbers directly. Large deviations need root-causing before being reported,
-   not averaging away.
+   not averaging away. Use `mode=baseline_recreation` for this comparison
+   (see the Jakes-fading finding above on why mode choice matters here).
 4. Only after step 3 passes a real audit does this environment become a
    legitimate replacement to reference in the paper or announced future work.
