@@ -72,16 +72,18 @@ struct RatSpec {
   double freq_ghz;
   double tx_power_dbm;
   PathLossModel path_loss_model;
+  double latency_ms;
+  double throughput_mbps;
 };
 
 // clang-format off
 inline const RatSpec& GetRatSpec(int rat_idx) {
   static const RatSpec kSpecs[5] = {
-      /* 0 Local  */ {"Local", 0.0, 0.0, 0.0, Fading::kNone, 0.0, 0.0, PathLossModel::kNone},
-      /* 1 LTE    */ {"LTE",   -110.0, 4.0, 4.0, Fading::kJakes,    1.8, 23.0, PathLossModel::k3gppV2x},
-      /* 2 ITS_G5 */ {"ITS_G5",-90.0,  4.0, 4.0, Fading::kConstant, 5.9, 23.0, PathLossModel::k3gppV2x},
-      /* 3 WiFi6  */ {"WiFi6", -90.0,  3.0, 5.0, Fading::kConstant, 5.0, 20.0, PathLossModel::kWifiAx},
-      /* 4 5GNR   */ {"5GNR",  -110.0, 4.0, 4.0, Fading::kJakes,    3.5, 23.0, PathLossModel::k5gUmi},
+      /* 0 Local  */ {"Local", 0.0, 0.0, 0.0, Fading::kNone, 0.0, 0.0, PathLossModel::kNone, 0.0, 0.0},
+      /* 1 LTE    */ {"LTE",   -110.0, 4.0, 4.0, Fading::kJakes,    1.8, 23.0, PathLossModel::k3gppV2x, 20.0, 50.0},
+      /* 2 ITS_G5 */ {"ITS_G5",-90.0,  4.0, 4.0, Fading::kConstant, 5.9, 23.0, PathLossModel::k3gppV2x, 10.0, 27.0},
+      /* 3 WiFi6  */ {"WiFi6", -90.0,  3.0, 5.0, Fading::kConstant, 5.0, 20.0, PathLossModel::kWifiAx, 5.0, 600.0},
+      /* 4 5GNR   */ {"5GNR",  -110.0, 4.0, 4.0, Fading::kJakes,    3.5, 23.0, PathLossModel::k5gUmi, 1.0, 1000.0},
   };
   // clang-format on
   if (rat_idx < 0 || rat_idx > 4) {

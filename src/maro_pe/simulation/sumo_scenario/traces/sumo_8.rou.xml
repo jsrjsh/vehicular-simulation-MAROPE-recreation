@@ -1,0 +1,4 @@
+<routes>
+    <vType id="car" accel="2.6" decel="4.5" sigma="0.5" length="5" maxSpeed="38.0" />
+    <route id="r0" edges="A0B0" />
+<vehicle id="veh_0" type="car" route="r0" depart="0.0" departSpeed="max" departPos="random" /><vehicle id="veh_1" type="car" route="r0" depart="0.0" departSpeed="max" departPos="random" /><vehicle id="veh_2" type="car" route="r0" depart="0.0" departSpeed="max" departPos="random" /><vehicle id="veh_3" type="car" route="r0" depart="0.0" departSpeed="max" departPos="random" /><vehicle id="veh_4" type="car" route="r0" depart="0.0" departSpeed="max" departPos="random" /><vehicle id="veh_5" type="car" route="r0" depart="0.0" departSpeed="max" departPos="random" /><vehicle id="veh_6" type="car" route="r0" depart="0.0" departSpeed="max" departPos="random" /><vehicle id="veh_7" type="car" route="r0" depart="0.0" departSpeed="max" departPos="random" /></routes>
