@@ -93,6 +93,7 @@ struct VehicleState {
   bool last_transmission_success;
   double last_adapted_rho;
   double last_u_otr;
+  double last_u_prr;
   int last_chosen_rat;
   double last_chosen_rho;
 };
@@ -329,9 +330,15 @@ public:
                + (task.beta / 2.0) * std::exp(-l_ratio)
                + (task.beta / 2.0) * std::exp(-e_ratio)
                + (task.beta / 4.0) * delta_cbr;
+      
+      double u_prr_val = task.alpha * prr_val
+                       + (task.beta / 2.0) * std::exp(-l_ratio)
+                       + (task.beta / 2.0) * std::exp(-e_ratio)
+                       + (task.beta / 4.0) * delta_cbr;
 
       out_rewards[i] = (float)std::max(0.0, std::min(1.0, u));
       m_vehicles[i].last_u_otr = out_rewards[i]; // Roughly the same logic for info dict
+      m_vehicles[i].last_u_prr = (double)std::max(0.0, std::min(1.0, u_prr_val));
     }
 
     // 6. Update Mobility (removed, handled by ns-3 Ns2MobilityHelper)
@@ -361,6 +368,7 @@ public:
       oss << "\"chosen_rho\": " << m_vehicles[i].last_chosen_rho << ", ";
       oss << "\"adapted_rho\": " << m_vehicles[i].last_adapted_rho << ", ";
       oss << "\"u_otr\": " << m_vehicles[i].last_u_otr << ", ";
+      oss << "\"u_prr\": " << m_vehicles[i].last_u_prr << ", ";
       double prr = (m_vehicles[i].last_chosen_rat > 0) ? GetEmpiricalPrr(i, m_vehicles[i].last_chosen_rat) : 1.0;
       oss << "\"empirical_prr\": " << prr << ", ";
       int rsu_idx = GetNearestRsu(m_vehicles[i].pos);

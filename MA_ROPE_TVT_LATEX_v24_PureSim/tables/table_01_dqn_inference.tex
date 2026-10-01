@@ -1,0 +1,20 @@
+\begin{table}[h!]
+\caption{D3QN Inference Latency vs Fleet Size (200 repeats, 10-step warmup, CPU)}
+\label{tab:dqn_inference}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{|l|r|r|r|}
+\hline
+\textbf{N vehicles} & \textbf{Mean/agent (\textmu s)} & \textbf{Std (\textmu s)} & \textbf{Fleet total/step (\textmu s)} \\
+\hline
+2 & 59.83 & 145.62 & 119.66 \\
+4 & 59.83 & 145.62 & 239.32 \\
+6 & 59.83 & 145.62 & 358.98 \\
+8 & 59.83 & 145.62 & 478.64 \\
+16 & 59.83 & 145.62 & 957.28 \\
+20 & 59.83 & 145.62 & 1196.60 \\
+32 & 59.83 & 145.62 & 1914.56 \\
+\hline
+\end{tabular}%
+}
+\end{table}

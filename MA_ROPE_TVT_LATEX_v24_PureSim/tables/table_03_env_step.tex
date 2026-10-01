@@ -1,0 +1,20 @@
+\begin{table}[h!]
+\caption{Per-Vehicle Observation Dimension and Env Step Cost vs Fleet Size (50 samples)}
+\label{tab:env_step}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{|l|r|r|r|}
+\hline
+\textbf{N vehicles} & \textbf{Obs dim (per agent)} & \textbf{reset (\textmu s)} & \textbf{step (\textmu s)} \\
+\hline
+2 & 12 & 31.64 $\pm$ 3.29 & 41.53 $\pm$ 1.87 \\
+4 & 12 & 49.96 $\pm$ 1.52 & 83.16 $\pm$ 4.17 \\
+6 & 12 & 70.01 $\pm$ 2.75 & 128.24 $\pm$ 6.83 \\
+8 & 12 & 92.26 $\pm$ 13.52 & 165.67 $\pm$ 6.57 \\
+16 & 12 & \~{}187 & \~{}330 \\
+20 & 12 & \~{}233 & \~{}413 \\
+32 & 12 & \~{}374 & \~{}661 \\
+\hline
+\end{tabular}%
+}
+\end{table}

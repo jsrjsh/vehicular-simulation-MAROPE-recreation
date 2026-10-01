@@ -134,7 +134,7 @@ def main():
 
     env.close()
 
-    out_path = f"../results/ns3_eval_n{args.n_vehicles}_seed{args.seed}.csv"
+    out_path = f"results/ns3_eval_n{args.n_vehicles}_seed{args.seed}.csv"
     with open(os.path.join(os.path.dirname(__file__), "..", "_claude_workspace", out_path), "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["episode", "fleet_otr", "prr", "u_otr_active"])
         writer.writeheader()

@@ -1,0 +1,59 @@
+\section{Related Work}
+
+\subsection{Task Offloading in Vehicular Networks}
+
+Existing V2X offloading approaches broadly include heuristic, optimization-based, and learning-based methods. Greedy and heuristic schemes select offloading destinations using predefined decision rules, but their ability to adapt to rapidly varying channel conditions and shared-resource contention is limited. Bandit and tabular approaches such as UCB~\cite{wu2021} introduce online adaptation but are better suited to relatively small and stationary decision spaces. Control-theoretic methods based on Lyapunov optimization~\cite{jing2019} explicitly address queue stability, but generally optimize time-averaged objectives rather than task-specific deadline compliance. Deep Reinforcement Learning (DRL) approaches~\cite{jing2019,yun2022,lowe2017} provide greater adaptability, although many existing formulations simplify either the communication interface or the computation decision through single-RAT operation or binary local/offload actions.
+
+Guo et al.~\cite{guo2026} proposed DTOF/HIOA, combining a Double DQN with a Long Short-Term Memory (LSTM) network and Nash-equilibrium-based optimization in a three-tier cloud-edge-vehicle architecture over 5G-NR. Although the framework achieves strong delay performance, it does not jointly consider heterogeneous RAT selection, federated cooperation, and shared RSU queue contention across co-located vehicles.
+
+A complementary line of work considers partial offloading, where a task is divided between local and MEC execution rather than being processed entirely at one location. Parallel local and remote execution can reduce completion time by exploiting both computing resources simultaneously. Prior work has established such parallel-execution models~\cite{mao2017}, including formulations in which total completion delay is governed by the slower of the local and remote processing branches. In most such approaches, however, the offload ratio is optimized independently of heterogeneous radio selection. MA-ROPE instead couples these decisions: the amount of computation transmitted and the RAT used for transmission are jointly determined, with the realized offload ratio adapting to the SINR of the selected interface.
+
+\subsection{Multi-RAT and Heterogeneous Access Selection}
+
+Heterogeneous V2X access has traditionally been studied primarily as a communication-selection problem. Yacheur et al.~\cite{yacheur2023} developed Double DQN based selection between ITS-G5 and LTE-V2X, demonstrating the benefit of adapting RAT choice to channel conditions. Their physical-layer parameters and SINR-based Division Mode motivate elements of the heterogeneous channel and partial-offloading models adopted in MA-ROPE.
+
+More recent work has expanded heterogeneous access beyond two interfaces, with studies considering multi-RAT assignment and heterogeneous V2X resource allocation across combinations such as Dedicated Short-Range Communications (DSRC), cellular V2X, and millimeter-wave (mmWave) links. Mirza et al.~\cite{mirza2023} proposed the Mobility, Contact, and computational Load-Aware (MCLA) task offloading framework for heterogeneous 5G-NR-V2X edge networks, incorporating mobility, contact duration, MEC load awareness, and task partitioning. Their scheme supports load-aware server selection and partial execution, but uses model-based decision logic rather than a learned federated joint RAT-offload policy.
+
+These studies establish the value of heterogeneous access, but their decision structures remain different from the problem addressed here. RAT-selection methods generally determine the interface over which an already-defined workload is transmitted, whereas computation offloading must additionally determine how much workload should be transmitted. The two decisions interact directly because the selected RAT affects transmission latency and reliability, while the offloaded fraction determines transmission duration, energy consumption, local computation demand, and MEC load.
+
+MA-ROPE therefore represents RAT identity and workload partitioning within a common decision process rather than optimizing them as separate stages.
+
+\subsection{Federated and Privacy-Preserving Learning for VEC}
+
+Cooperative learning has increasingly been applied to vehicular edge resource management. Centralized multi-agent approaches such as Multi-Agent Deep Deterministic Policy Gradient (MADDPG)~\cite{lowe2017} can exploit joint agent information during training and provide strong coordination, but require centralized access to information that remains local under a federated formulation.
+
+Federated learning offers an alternative by aggregating model parameters rather than centrally collecting each vehicle's training observations. Moon and Lim~\cite{moonlim2022} proposed federated Deep Deterministic Policy Gradient (DDPG) learning for vehicular edge task offloading and power control, combining local actor-critic learning with periodic model aggregation. Their formulation incorporates queue information and power control, but does not perform heterogeneous RAT selection or explicit partial-offload-ratio selection. Other recent federated VEC approaches employ Double Deep Q-Network (DDQN) methods or multi-agent DRL with FedAvg for collaborative offloading, but similarly focus on destination or mode selection rather than a joint RAT-partial-offload action.
+
+Accordingly, the contribution of MA-ROPE is not simply the combination of federated learning and multi-RAT access. Rather, FedAvg is applied to a policy whose decision space jointly captures heterogeneous RAT selection, workload partitioning, and queue-aware offloading.
+
+The privacy benefit should also be interpreted carefully. FedAvg avoids centralized pooling of raw observations, but exchanging model updates does not itself provide formal privacy guarantees because trained parameters may remain vulnerable to inference attacks~\cite{zhu2019}. Secure aggregation and differential privacy are therefore complementary mechanisms for production deployment.
+
+\subsection{Research Gap and Positioning}
+
+The literature demonstrates substantial progress in each component of vehicular edge offloading, but these components are predominantly addressed in isolation. We position MA-ROPE against the most closely related recent works across several dimensions. Federated multi-agent DRL for VEC has been proposed for task offloading, combining local actor-critic learning with periodic model aggregation~\cite{zhao2024}. However, such formulations often do not perform heterogeneous RAT selection or model explicit partial-offload-ratio choice. Similarly, combining federated DDPG with queue information~\cite{moonlim2022} lacks optimization over heterogeneous RATs or joint RAT-$\rho$ decisions.
+
+Multi-RAT offloading under distributed learning has also been explored, such as 5G URLLC/eMBB with distributed DRL~\cite{yun2022} or cloud-edge-vehicle offloading with game theory~\cite{guo2026}. While these address RAT diversity, they typically optimize RAT choice and offload destination separately, without jointly learning $\rho$. Additionally, they evaluate at a single or limited set of fleet densities and do not quantify how performance scales.
+
+Density-aware network selection using bandit-based and heuristic approaches~\cite{wu2021,haq2026} adapts network selection to vehicle density, but operates in a lower-complexity decision space and typically assumes fixed offload destinations. Task splitting and fairness constraints have been modeled by optimization-based approaches~\cite{jing2019}, but these rely on analytical solutions rather than learning from channel variability, and do not address the adaptive multi-RAT selection problem.
+
+MA-ROPE differs from each of these in that it (1) jointly optimizes RAT selection and partial offload ratio within a unified MDP, (2) explicitly models shared RSU queue contention in the agent state to avoid naive all-offload policies, and (3) introduces and evaluates the Deadline Retention Ratio across multiple fleet densities—a metric absent from prior work. Table I summarizes the positioning of MA-ROPE relative to representative prior approaches.
+
+\input{tables/table_08_literature}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.45\textwidth]{figures/image1.png}
+\caption{Literature gap matrix. MA-ROPE (bottom row, blue highlight) is the only framework with all six properties: supported, partial, or not supported.}
+\label{fig:gap_matrix}
+\end{figure}
+
+\subsection{Contribution Decomposition}
+
+Fig. 2 decomposes MA-ROPE's utility into per-component contributions at the reference fleet size of N=8. This ablation predates the local-latency and Jakes-fading corrections described in Section V and has not been rerun under the corrected physics; each of its five stages (AllOffload, adding shared-queue awareness, multi-RAT selection, the DRL policy, and FedAvg) would require training a separate intermediate model variant to reproduce, which is left for future work. It is reported here as a historical, reference-only illustration of how each design component contributes incrementally, not as part of the corrected primary campaign, and its absolute utility values should not be compared against Section V's results. The primary dense-fleet results, at the higher N=32 density central to this paper's claims and computed entirely from the corrected campaign, are reported separately in Section V.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.45\textwidth]{figures/image2.png}
+\caption{Contribution waterfall (URLLC, N=8 reference, historical pre-correction ablation, not part of the corrected primary campaign). AllOffload baseline (U=0.8166) to MA-ROPE full (U=0.8443): each component contributes independently.}
+\label{fig:waterfall}
+\end{figure}

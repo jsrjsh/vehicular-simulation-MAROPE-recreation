@@ -51,8 +51,13 @@ void ExpectBool(const char* label, bool actual, bool expected) {
 
 int main() {
   // Values below are copied from `python3 scripts/compute_channel_model_golden_values.py`
-  // (run 2026-08-15). Re-run that script and update here if channel_model.h
-  // or env/channel.py ever change.
+  // (re-run 2026-08-18 after the Jakes-fading GHz->Hz unit fix -- see
+  // ComputeJakesFadingDb's header comment; only lte_300m_20mps_baseline's
+  // jakes_fading_db/sinr_db changed, the other four cases are unaffected
+  // because they're either speed<0.1, a non-Jakes RAT, or a fixed golden
+  // (z1,z2) pair that still clamps to the same value pre/post fix).
+  // Re-run that script and update here if channel_model.h or env/channel.py
+  // ever change again.
 
   {
     std::printf("lte_300m_20mps_baseline:\n");
@@ -62,9 +67,9 @@ int main() {
     ExpectNear("path_loss_db", ComputePathLossDb(rat, dist), 62.671212547197);
     ExpectNear("jakes_fading_db",
                ComputeJakesFadingDb(rat, speed, jz1, jz2, Mode::kBaselineRecreation),
-               0.000000064623, 1e-9);
+               2.050157098193);
     const double sinr = ComputeSinrDb(rat, dist, speed, sz, jz1, jz2, Mode::kBaselineRecreation);
-    ExpectNear("sinr_db", sinr, 74.328787388181);
+    ExpectNear("sinr_db", sinr, 72.278630354610);
     ExpectBool("link_success", ComputeLinkSuccess(rat, sinr, u, Mode::kBaselineRecreation).success,
                true);
   }

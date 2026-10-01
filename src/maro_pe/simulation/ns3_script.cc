@@ -105,10 +105,12 @@ int main(int argc, char *argv[])
   cmd.AddValue ("traceFile", "ns2 mobility trace file", traceFile);
   cmd.Parse (argc, argv);
 
+  ns3::RngSeedManager::SetSeed(simSeed);
+
   NodeContainer ues;
   ues.Create(g_n_vehicles);
 
-  g_v2xEnv = new marope::V2XEnvironment(g_n_vehicles, 42, &ues);
+  g_v2xEnv = new marope::V2XEnvironment(g_n_vehicles, simSeed, &ues);
 
   Ptr<OpenGymInterface> openGym = CreateObject<OpenGymInterface> (openGymPort);
   openGym->SetGetActionSpaceCb( MakeCallback (&MyGetActionSpace) );

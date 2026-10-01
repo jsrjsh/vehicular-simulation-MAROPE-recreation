@@ -16,50 +16,77 @@ class Ns3SumoV2XEnv:
                  sumo_cfg: str = "src/maro_pe/simulation/sumo_scenario/sumo.sumocfg",
                  ns3_script: str = "marope_ns3_script",
                  ns3_port: int = 0,
-                 start_sim: bool = True):
+                 start_sim: bool = True,
+                 seed: int = 42):
         self.n_vehicles = n_vehicles
         self.max_steps = max_steps
         self.sumo_cfg = sumo_cfg
         self.ns3_script = ns3_script
         self.ns3_port = ns3_port
         self.start_sim = start_sim
-        
+        self.seed = seed
+
         self.agents = list(range(self.n_vehicles))
         self.episode_step = 0
         self.active_tasks = {i: {"type": "safety"} for i in self.agents}
         self.env = None
-        
+
         try:
             from ns3gym import ns3env
+            self._ns3env_module = ns3env
             self.use_ns3gym = True
-            
-            env_dir = os.path.dirname(os.path.abspath(__file__))
-            trace_file_path = os.path.abspath(os.path.join(env_dir, "..", "simulation", "sumo_scenario", "traces", f"ns2mobility_{self.n_vehicles}.tcl"))
-            sim_args = {
-                "--n_vehicles": self.n_vehicles,
-                "--traceFile": trace_file_path
-            }
-            
-            # Usually we pass startSim=True and simArgs to ns3env. 
-            # We assume ns3 script will be built and placed as an executable or run via waf/ns3
-            self.env = ns3env.Ns3Env(port=self.ns3_port, stepTime=0.1, startSim=int(self.start_sim), simSeed=42, simArgs=sim_args, debug=True)
-            print(f"[INFO] Connected to ns-3 OpenGym interface on port {self.ns3_port}.")
         except ImportError:
             self.use_ns3gym = False
             print("[WARN] ns3gym not found. Using mocked OpenGym interface.")
-            
+            return
+
+        self._connect(self.seed)
+
+    def _connect(self, seed):
+        # ns3gym only accepts simSeed at Ns3Env construction (its own reset()
+        # tears down and relaunches the ns-3 process, but reuses whatever
+        # simSeed was passed here for the lifetime of that Ns3Env object --
+        # see ns3gym/ns3env.py's Ns3ZmqBridge). The C++ side additionally used
+        # to ignore --simSeed entirely (fixed 2026-08-18 in
+        # marope_ns3_script.cc, now calls RngSeedManager::SetSeed(simSeed)).
+        # A value of exactly 0 is also special-cased by ns3gym as "randomize
+        # via unseeded numpy" -- callers must not pass 0.
+        assert seed != 0, "ns3gym treats simSeed=0 as 'randomize', not 'seed 0' -- pass a nonzero value"
+        self.seed = seed
+        if self.env is not None:
+            self.env.close()
+
+        env_dir = os.path.dirname(os.path.abspath(__file__))
+        trace_file_path = os.path.abspath(os.path.join(env_dir, "..", "simulation", "sumo_scenario", "traces", f"ns2mobility_{self.n_vehicles}.tcl"))
+        sim_args = {
+            "--n_vehicles": self.n_vehicles,
+            "--traceFile": trace_file_path
+        }
+        self.env = self._ns3env_module.Ns3Env(port=self.ns3_port, stepTime=0.1, startSim=int(self.start_sim), simSeed=self.seed, simArgs=sim_args, debug=True)
+        print(f"[INFO] Connected to ns-3 OpenGym interface on port {self.ns3_port} (simSeed={self.seed}).")
+
     def reset(self, seed=None):
         self.episode_step = 0
         if self.use_ns3gym and self.env is not None:
+            # ns3gym's own reset() would just tear down and relaunch using
+            # the SAME simSeed the Ns3Env was constructed with (see
+            # _connect's docstring) -- for genuinely independent episodes, a
+            # fresh seed means a fresh ns-3 process. _connect() constructs a
+            # brand-new Ns3Env, whose __init__ already fetches the first
+            # observation and leaves envDirty=False -- the .reset() call
+            # below then just cheaply returns that observation (ns3gym's own
+            # `if not self.envDirty: return self.ns3ZmqBridge.get_obs()`
+            # fast path) rather than restarting a second time.
+            if seed is not None and seed != self.seed:
+                self._connect(seed)
             obs_box = self.env.reset()
             # ns3 env returns a flattened array. Reshape it to (N, 12)
             obs_box = np.array(obs_box).reshape(self.n_vehicles, 12)
-            print(f"[DEBUG] obs_box type: {type(obs_box)}, shape: {getattr(obs_box, 'shape', None)}")
             obs = {}
             for i in self.agents:
                 obs[i] = np.array(obs_box[i], dtype=np.float32)
             return obs
-        
+
         return {i: np.zeros(12) for i in self.agents}
         
     def step(self, actions: Dict[int, Any]):

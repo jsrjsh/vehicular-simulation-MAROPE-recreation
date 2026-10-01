@@ -126,18 +126,20 @@ inline double ComputeJakesFadingDb(int rat_idx, double speed_mps, double z1, dou
     return 0.0;
   }
 
-  const double freq_ghz = spec.freq_ghz;
-  double f_d;
-  if (mode == Mode::kBaselineRecreation) {
-    // Literal unscaled formula -- freq_ghz used as-is, NOT converted to Hz.
-    // This is what produced v25's numbers. Do not "fix" this to the
-    // physically-corrected formula below without an explicit decision to
-    // regenerate the whole campaign -- see file header.
-    f_d = (speed_mps * freq_ghz) / kSpeedOfLightMps;
-  } else {
-    // physically_corrected: freq_ghz -> Hz
-    f_d = (speed_mps * (freq_ghz * 1e9)) / kSpeedOfLightMps;
-  }
+  // ISOLATED FIX (2026-08-18), mirrored from env/channel.py: freq_ghz was
+  // previously left unconverted in the kBaselineRecreation branch -- a units
+  // bug, not a legitimate literal-guide reading (unlike energy or the
+  // pre-fix latency formula). At realistic vehicle speeds this clamped f_d
+  // below the 1e-6 floor below, pinning fading to ~1e-7 dB every draw, so
+  // v25 and CAMPAIGN_LATENCY_FIX_20260815 both ran LTE/5G-NR with no
+  // meaningful multipath fading despite Table I's "Jakes (check)" claim.
+  // Both branches now use the same correct Hz-converted formula; `mode` is
+  // kept in the signature (unused here) only so a future genuinely-divergent
+  // baseline_recreation formula could be reintroduced without touching call
+  // sites -- mirrors env/channel.py's identical rationale.
+  (void)mode;
+  const double freq_hz = spec.freq_ghz * 1e9;
+  const double f_d = (speed_mps * freq_hz) / kSpeedOfLightMps;
 
   const double t_c = 0.423 / std::max(f_d, 1e-6);
   const double delta_t = 0.1;

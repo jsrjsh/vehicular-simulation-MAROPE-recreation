@@ -1,0 +1,17 @@
+\begin{table}[h!]
+\caption{Compact Per-Message-Type Deadline Analysis (N=8, corrected physics, MA-ROPE full policy, 5 seeds)}
+\label{tab:deadline_analysis}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{|l|r|r|r|r|r|}
+\hline
+\textbf{Task scope} & \textbf{DL} & \textbf{PRR} & \textbf{OTR} & \textbf{Gap} & \textbf{Mean L} \\
+\hline
+All tasks & - & 0.9415 & 0.8529 & 8.9\% & 214.5 \\
+Safety & 100 & 0.9435 & 0.8243 & 11.9\% & 107.4 \\
+Infotainment & 500 & 0.9317 & 0.8752 & 5.7\% & 229.8 \\
+Compute & 1000 & 0.9431 & 0.9431 & 0.0\% & 665.6 \\
+\hline
+\end{tabular}%
+}
+\end{table}

@@ -1,0 +1,11 @@
+\section{Conclusion}
+
+MA-ROPE addresses the challenge of preserving deadline-compliant task delivery in dense vehicular edge computing (VEC) networks by jointly optimizing RAT selection, partial computation offloading, shared RSU queue contention, and federated cooperative learning. 
+
+By evaluating policies across multiple fleet densities, we demonstrate that single-RAT baseline policies suffer catastrophic latency collapse as shared MEC queues saturate. To quantify this, we introduced the Deadline Retention Ratio (DRR). MA-ROPE achieves a DRR near 1.0, preserving nearly all of its reference-density performance under dense contention, whereas baseline methods lose substantial efficacy. Independent ns-3 co-simulation confirms that these results are not artifacts of the analytical model.
+
+While MA-ROPE increases the per-attempt link failure rate slightly by opportunistically using less reliable RATs, its fleet-wide failure rate is substantially lower due to fewer transmission attempts. The joint decision space adds no meaningful runtime penalty.
+
+Several limitations remain for future work. The energy model and centralized MADDPG upper bounds require further validation and are left for future research. The N=8 ablation study in Section II serves as a historical reference, predating our final physics corrections. Future extensions should incorporate trace-driven mobility, non-IID task distributions, RSU handovers, and formal differential privacy guarantees beyond FedAvg.
+
+Ultimately, heterogeneous RAT selection, partial offloading, and shared MEC contention must be optimized jointly to satisfy strict V2X deadlines. Density-aware scaling metrics like DRR provide a direct and essential measure of a policy's real-world viability.

@@ -1,0 +1,75 @@
+
+
+\section{MA-ROPE: Algorithm Design}
+
+\Cref{fig:overall_system_model} summarizes the MA-ROPE Markov Decision Process (MDP) formulation.
+
+\subsection{State and Action Space}
+
+Following Yacheur et al. \cite{yacheur2023}, each agent observes a 12-dimensional state vector with per-RAT channel quality plus MEC context (\Cref{eq:state}). This per-RAT formulation directly enables the D3QN to select the optimal RAT based on observed channel conditions, which prior single-SINR state designs cannot do.
+
+\begin{equation}
+\label{eq:state}
+s = [\text{SINR}_{LTE}, \text{SINR}_{ITS}, \text{SINR}_{WiFi}, \text{SINR}_{5G}, \text{PRR}_{LTE}, \text{PRR}_{ITS}, \text{PRR}_{WiFi}, \text{PRR}_{5G}, Q, D, L, B]
+\end{equation}
+
+Each agent selects from 11 implemented discrete actions spanning local execution and selected RAT-$\rho$ pairs across LTE, ITS-G5, WiFi-6, and 5G-NR. The nominal $\rho$ is modulated by channel quality following Yacheur Division Mode \cite{yacheur2023} Algorithm 2:
+
+\begin{equation}
+\label{eq:rho_final}
+\rho_{final} = \text{base\_}\rho \cdot \left(0.5 + \frac{\text{SINR\_lin}[r]}{\sum \text{SINR\_lin}[\text{all}]}\right)
+\end{equation}
+
+\subsection{D3QN Architecture}
+
+The Q-value is decomposed as $Q(s,a) = V(s) + A(s,a) - \text{mean}_{a'} A(s,a')$ where $V(s)$ is state value and $A(s,a)$ is advantage; this dueling decomposition is combined with the standard Double DQN technique, which decouples action selection from target evaluation:
+
+\begin{equation}
+\label{eq:ddqn}
+y = r + \gamma \cdot Q_{tgt}(s', \text{argmax}_{a'} Q_{online}(s', a'))
+\end{equation}
+
+Architecture: Linear(12$\rightarrow$256)$\rightarrow$ReLU$\rightarrow$Linear(256$\rightarrow$256)$\rightarrow$ReLU, split into value head Linear(256$\rightarrow$128$\rightarrow$1) and advantage head Linear(256$\rightarrow$128$\rightarrow$11) for the implemented action set.
+
+\subsection{FedAvg Cooperative Learning}
+
+At the end of each episode, each agent i uploads local model weights $w_i$. The global model is aggregated as:
+
+\begin{equation}
+\label{eq:fedavg}
+w_{global} = \sum_i \frac{n_i}{N} \cdot w_i, \text{ participation } \geq 70\%
+\end{equation}
+
+Privacy analysis: FedAvg shares model weights instead of raw vehicle observations. This reduces data exposure relative to a centralized approach such as MADDPG, which requires pooling raw observations across agents during training, but model updates can still leak information under gradient-inversion or membership-inference attacks. Production deployments should pair FedAvg with secure aggregation, access control, and/or differential privacy. A validated centralized (MADDPG-style) performance upper bound is not reported in this paper's results (Section V); see the Conclusion for the disclosed reason and future-work scope.
+
+
+
+
+\subsection{Baseline Methods}
+
+We compare against four baselines, all independently executed against the same environment, checkpointing, and validation pipeline as MA-ROPE: (1) AllOffload, a fixed policy that always offloads 100\% via 5G-NR; (2) NoOffload, a fixed policy that always computes locally; (3) UCB-RAT, a stateless Upper Confidence Bound (UCB1) bandit over four discrete actions (local execution plus 5G-NR at 25/50/100\% offload), inspired by the decision principles reported in Wu2021 \cite{wu2021}; (4) CoopEC-RAT, a hand-crafted deadline-threshold rule of our own design that offloads fully via 5G-NR when local compute latency would exceed half the task deadline and otherwise computes locally. UCB-RAT is evaluated within the same environment and experimental protocol as MA-ROPE but is not intended as an exact reproduction of the cited Wu2021 implementation, for which sufficient implementation detail was unavailable; CoopEC-RAT is our own deadline-threshold heuristic and is not attributed to any prior publication. A centralized MADDPG \cite{lowe2017} upper bound and reproductions of Lyapunov-Jing2019 \cite{jing2019} and GA+DQN-Yun2022 \cite{yun2022} were also attempted; comparators for which a reproducible implementation could not be established were excluded from the reported evaluation, and reintroducing validated versions is left for future work.
+
+
+
+\begin{algorithm}[t]
+\caption{MA-ROPE Training with FedAvg}
+\label{alg:ma_rope}
+\begin{algorithmic}[1]
+\REQUIRE $N$ agents, episodes $E$, participation threshold $\tau=0.70$
+\STATE Initialize $w_i$ for each agent $i$, replay buffers $B_i$
+\FOR{episode $e = 1$ to $E$}
+    \FOR{each step $t$}
+        \STATE $s_t \leftarrow \text{observe}()$ \COMMENT{12-dim per-RAT state (\Cref{eq:state})}
+        \STATE $a_t \leftarrow \varepsilon\text{-greedy}(Q_{online}(s_t))$
+        \STATE apply SINR-proportional $\rho$ (\Cref{eq:rho_final})
+        \STATE execute $a_t$; receive $r_t = U (\text{\Cref{eq:utility_all}}), s_{t+1}$
+        \STATE store $(s_t, a_t, r_t, s_{t+1})$ in $B_i$
+        \STATE sample minibatch; update $Q_{online}$ via (\Cref{eq:ddqn})
+    \ENDFOR
+    \IF{$|\text{participants}| / N \geq \tau$}
+        \STATE $w_{global} \leftarrow \sum \frac{n_i}{N} \cdot w_i$ \COMMENT{FedAvg aggregation (\Cref{eq:fedavg})}
+        \STATE broadcast $w_{global} \rightarrow \text{all agents}$
+    \ENDIF
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}

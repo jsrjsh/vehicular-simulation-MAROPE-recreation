@@ -1,0 +1,29 @@
+\section{Experiments and Results}
+
+\subsection{Experimental Setup}
+Although standard network simulators such as ns-3, Veins, or SUMO (Simulation of Urban MObility) provide comprehensive full-stack emulation, evaluating federated multi-agent reinforcement learning across heterogeneous RATs requires tight, synchronous coupling between the physical environment and the distributed training loop. We therefore implemented a custom Python-based V2X simulator tailored for algorithmic evaluation and fast DRL inference. To ensure fidelity, the physical-layer behavior rigorously follows established standards, including 3GPP TR 38.901 for cellular fading and IEEE 802.11ax for WiFi. This design choice emphasizes the validation of the multi-agent decision surface and offloading orchestration rather than introducing a new generalized network simulator.
+
+
+
+Experiments are conducted in a custom Python V2X simulator. The primary comparison uses N=32 vehicles under a URLLC stress scenario, with five independent random seeds. We retain N=8 results from an earlier controlled evaluation as a reference point and use the fleet density sweep N in \{2, 4, 8, 16, 20, 32\} to evaluate scaling. Vehicle speeds are drawn from $\mathcal{U}[0, 30]$ m/s. Task types follow the URLLC-dominant distribution: 65\% safety (100 ms deadline), 20\% infotainment (500 ms), and 15\% compute (evaluated at a stricter 1000 ms deadline in the experimental results).
+
+Latency measurement scope for \Cref{tab:deadline_analysis}. The per-task-type deadline analysis uses the same N=8, 5-seed, 5-episode protocol and corrected-physics checkpoints as the rest of this evaluation. Per-PDU end-to-end latency is $L_{total}$ computed according to the model in Section III-D; deadline compliance uses $\text{OTR} = n_{rx\_on\_time}/n_{tx}$ per task deadline $D_i$. Mean latency is computed over delivered PDUs only.
+
+
+\subsection{Performance Metrics and Baseline Comparison}
+
+The performance metrics focus on deadline compliance and reliability compared against standard baselines.
+
+\subsection{Packet-Level Statistics Across V2X Interactions}
+
+\Cref{tab:packet_stats} presents per-vehicle packet statistics for a representative 100-step episode (8 vehicles, URLLC, 40 km/h). Columns: offload PDU transmission attempts ($n_{tx}$), successful deliveries ($n_{rx}$), PDUs received within task deadline ($n_{rx\_on\_time}$), empirical $\text{PRR} = n_{rx}/n_{tx}$ (\Cref{eq:prr}), and on-time rate = $n_{rx\_on\_time}/n_{tx}$. The TOTAL row aggregates across all vehicles.
+
+\input{tables/table_13_packet_stats}
+
+\Cref{tab:packet_stats} (per-vehicle) reports aggregate packet results across all task types. \Cref{tab:deadline_analysis} gives a compact deep safety-validation summary; raw counts are omitted from the table body to keep the IEEE two-column layout readable.
+
+\input{tables/table_14_deadline_analysis}
+
+\Cref{tab:deadline_analysis} should not be compared directly with the N=32 multi-method safety table: it is a MA-ROPE-only, N=8 evaluation used to isolate deadline misses by task type.
+
+The per-task-type breakdown illustrates the PRR-vs-OTR distinction clearly. Safety PDUs (100 ms deadline) achieve PRR = 0.9435 but OTR = 0.8243, leaving a safety-only PRR-OTR gap of 11.9 percentage points. Infotainment PDUs (500 ms deadline) show a smaller gap (5.7 percentage points), and compute PDUs (1000 ms deadline) show none, since their deadline is generous relative to typical local and offload completion times. Fleet-wide, all tasks together achieve PRR = 0.9415 and OTR = 0.8529, an 8.9 percentage point gap. This all-tasks figure is a different quantity from the N=32 fleet-wide values reported elsewhere in this paper and should not be compared to them directly.
