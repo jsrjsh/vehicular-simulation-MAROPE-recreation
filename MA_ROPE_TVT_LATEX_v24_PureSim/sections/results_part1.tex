@@ -4,19 +4,9 @@
 
 \input{tables/table_05_full_performance}
 
-\begin{figure*}[htbp]
-\centering
-\includegraphics[width=\textwidth]{figures/image5_6_combined.png}
-\caption{(a) Deadline utility ($U_{OTR}$, active tasks) and (b) average latency vs. vehicle speed, URLLC scenario, N=8 reference fleet, 5 seeds. MA-ROPE and NoOffload substantially outperform AllOffload on deadline utility across the full 20--60 km/h range, with no strong speed-dependent trend at this fleet size; error bars in (b) show cross-seed standard deviation.}
-\label{fig:utility_speed}
-\end{figure*}
+\input{figures/fig_utility_speed}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\columnwidth]{figures/image8.png}
-\caption{Empirical PRR = $n_{rx}/n_{tx}$ vs. vehicle speed, URLLC scenario, N=8 reference fleet, 5 seeds. All three methods remain above 0.92 across the evaluated speed range.}
-\label{fig:prr_speed}
-\end{figure}
+\input{figures/fig_prr_speed}
 
 \subsection{Safety-Critical Task Delivery}
 
@@ -32,19 +22,9 @@ At N=32, AllOffload's mean active-task latency (830.0 ms, \Cref{tab:full_perform
 
 \input{tables/table_07_why_marope_wins}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\columnwidth]{figures/image10.png}
-\caption{Link failure rate vs. fleet size (URLLC, 5 seeds). (a) Per-attempt failure rate: MA-ROPE's rate is higher than AllOffload's at every density, because MA-ROPE occasionally uses the less reliable WiFi6 link. (b) Fleet-wide failure rate (failures per vehicle-step regardless of whether a transmission was attempted): MA-ROPE remains an order of magnitude below AllOffload at every density, because it transmits far less often. Both metrics are genuine and neither should be read in isolation; see discussion below.}
-\label{fig:queue_loss}
-\end{figure}
+\input{figures/fig_queue_loss}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\columnwidth]{figures/image11.png}
-\caption{Deadline utility ($U_{OTR}$, active tasks) vs. fleet size (URLLC, 5 seeds). The MA-ROPE-AllOffload utility gap widens from +0.224 at N=8 to +0.396 at N=32.}
-\label{fig:system_utility}
-\end{figure}
+\input{figures/fig_system_utility}
 
 \Cref{fig:fleet_otr} extends the fleet-scaling analysis to on-time delivery. At N=8, MA-ROPE achieves fleet OTR $=0.849$ vs. AllOffload $=0.335$; at N=16 MA-ROPE rises slightly to $0.861$ while AllOffload falls further to $0.263$; and at N=32 MA-ROPE settles at $0.827$ while AllOffload falls to $0.123$. MA-ROPE's density curve is not strictly monotonic: N=16 is marginally higher than N=8, likely within seed-to-seed noise. The overall N=8-to-N=32 trend is a mild decline, and MA-ROPE's degradation is far gentler than AllOffload's at every step.
 
@@ -73,11 +53,6 @@ By trading a higher per-attempt link failure rate for substantially fewer total 
 
 Limitations and future work. \Cref{tab:deadline_analysis} is computed under the same corrected physics as the rest of this section, but at a different fleet size (N=8) and evaluation protocol than \Cref{tab:full_performance} or \Cref{tab:safety_task}, so its absolute figures should not be compared against them directly. The Contribution Decomposition ablation in Section II remains a historical, pre-correction reference and is explicitly disclosed as such where it is presented. \Cref{tab:safety_task} is a two-method N=32 safety comparison (MA-ROPE and AllOffload only); extending it to UCB-RAT and CoopEC-RAT, and reintroducing a validated centralized (MADDPG-style) upper bound, are left for future work. Future work should also evaluate non-IID vehicle/task distributions, secure or differentially private FedAvg, and sensitivity to alpha/beta weights and queue service rates.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\columnwidth]{figures/image12.png}
-\caption{Fleet OTR vs. fleet size (URLLC, 5 seeds). MA-ROPE holds 0.827--0.861 fleet OTR across N=8/16/32, while AllOffload falls from 0.335 at N=8 to 0.123 at N=32.}
-\label{fig:fleet_otr}
-\end{figure}
+\input{figures/fig_fleet_otr}
 
 The divergence in deadline compliance is large and consistent at every evaluated density, not only at high fleet size. At N=8, MA-ROPE already leads AllOffload by 51.3 percentage points in fleet OTR (0.849 vs. 0.335); by N=16 the gap widens further as AllOffload continues to decline while MA-ROPE holds essentially flat (0.861 vs. 0.263); and at N=32, AllOffload falls to 0.123 while MA-ROPE remains at 0.827. The DRR analysis above points to the same conclusion: MA-ROPE keeps deadline-compliant delivery working at scale, where AllOffload does not.

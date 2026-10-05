@@ -84,7 +84,7 @@ where $N_{\text{ref}}$ is the reference (smaller) fleet size and $N_{\text{test}
 \State $\text{OTR}_{\text{ref}} \gets \frac{\text{completed\_on\_time}_{\text{ref}}}{\text{total\_tasks}_{\text{ref}}}$
 \State [Repeat for $N_{\text{test}}$ scenario to compute $\text{OTR}_{\text{test}}$]
 \State $R_D \gets \frac{\text{OTR}_{\text{test}}}{\text{OTR}_{\text{ref}}}$
-\State \Return $R_D$
+\STATE \textbf{return} $R_D$
 \end{algorithmic}
 \end{algorithm}
 
@@ -134,9 +134,4 @@ Here, $T_{\text{prop}}$ is the propagation delay, $T_{\text{tx}}$ is the uplink 
 To ensure reproducibility, experiments utilize 5 independent random seeds for all training and evaluation runs. Each run comprises 100 training episodes per vehicle per density, with the evaluation window defined as the final 5 episodes post-convergence. The code repository, configuration YAML files, checkpoint weights, and raw evaluation logs are made available in the supplementary materials.
 
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\linewidth,keepaspectratio]{figures/real_fig2a.png}
-\caption{Overall System Model showing task offloading flow, MDP state and action space, and end-to-end latency components.}
-\label{fig:overall_system_model}
-\end{figure*}
+\input{figures/fig_overall_system_model}

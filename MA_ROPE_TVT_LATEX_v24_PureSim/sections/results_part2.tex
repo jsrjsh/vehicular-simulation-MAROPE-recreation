@@ -2,33 +2,13 @@
 
 \Cref{fig:queue_contention} demonstrates the MEC queue contention effect. In the controlled ablation (no-queue model vs. shared-queue model), AllOffload drops from U=0.916 under the idealized single-vehicle no-queue assumption to U=0.676 under shared RSU contention with 8 vehicles. MA-ROPE remains stable in the N=8 reference setting (U=0.8443) and carries the same queue-aware multi-RAT advantage into the N=32 results summarized in \Cref{tab:full_performance} and \Cref{tab:why_marope_wins}.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\columnwidth]{figures/image13.png}
-\caption{MEC Queue Contention: AllOffload Collapse vs. MA-ROPE Stability.}
-\label{fig:queue_contention}
-\end{figure}
+\input{figures/fig_queue_contention}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\columnwidth]{figures/image14.png}
-\caption{Jakes Fading: Cellular RAT SINR Degrades with Speed; ITS-G5 Unaffected.}
-\label{fig:jakes_fading}
-\end{figure}
+\input{figures/fig_jakes_fading}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\columnwidth]{figures/image15.png}
-\caption{D3QN RAT Selection Distribution: ITS-G5 preferred at high speed (Jakes-driven emergent behavior).}
-\label{fig:dqn_rat_dist}
-\end{figure}
+\input{figures/fig_dqn_rat_dist}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\columnwidth]{figures/image16.png}
-\caption{Training Convergence Across 5 Seeds, Mean $\pm$ One Standard Deviation. MADDPG, UCB-RAT, and CoopEC-RAT are single exploratory runs shown for context only, not validated comparators; MA-ROPE is the only curve in this paper's validated evaluation (Section V).}
-\label{fig:training_convergence}
-\end{figure}
+\input{figures/fig_training_convergence}
 
 Taken together, the results above show a consistent picture: MA-ROPE's fleet OTR and deadline-utility advantage over AllOffload holds at every evaluated density, its higher per-attempt link failure rate is offset by a much lower fleet-wide failure rate since it transmits less often overall, and this advantage costs no measurable simulator-step overhead relative to single-RAT offloading. Energy consumption and a centralized MADDPG upper bound are not reported in this evaluation; see the Discussion and Conclusion for the reasons and future-work scope.
 
