@@ -4,7 +4,8 @@ One file, newest first. Each row of the change tables was verified by searching 
 
 | Version | Built | Pages | What it is | PDF / TeX |
 |---|---|---|---|---|
-| **V3** | 14 Oct 2026, 09:25 | 15 | Reward and utility text now matches the code | `MA_ROPE_TVT_v24_PureSim_20261014-0925_LATEST.pdf` / `.tex` |
+| **V4** | 14 Oct 2026, 12:23 | 15 | Fixes for the independent AI review: verified references, narrowed novelty, figures and tables regenerated from one results file, ns-3 claim removed, exploration disclosure | `MA_ROPE_TVT_v24_PureSim_20261014-1223_LATEST.pdf` / `.tex` |
+| **V3** | 14 Oct 2026, 09:25 | 15 | Reward and utility text now matches the code | `releases_archive/MA_ROPE_TVT_v24_PureSim_20261014-0925.pdf` / `.tex` |
 | **V2** | 14 Oct 2026, 09:14 | 15 | Fixes for the three faculty questions (latency, Fig. 1 vs Fig. 9, Table II vs Table V) | `releases_archive/MA_ROPE_TVT_v24_PureSim_20261014-0914.pdf` / `.tex` |
 | **V1** | 8 Oct 2026, 17:54 | 16 | Version under review (assumed to be what was sent; please confirm) | `releases_archive/MA_ROPE_TVT_v24_PureSim_20261008-1754.pdf` / `.tex` |
 
@@ -25,7 +26,26 @@ One file, newest first. Each row of the change tables was verified by searching 
 | 11 | Utility equations divided by Z = 1.25 ("Z makes the block sum to beta") | Sec. III-E, eq. (5a)-(5c) | yes | yes | removed |
 | 12 | Utility equations match the code: beta/2, beta/2, beta/4 terms and a clip to [0,1] | Sec. III-E | no | no | yes |
 
-## Results that did NOT change
+## V4 (14 Oct 2026, 12:23): changes since V3, from the independent AI review
+
+| # | Change | Where | V3 | V4 |
+|---|---|---|---|---|
+| 13 | References Wu2021, Jing2019, Yun2022 and "Mao et al." (no verifiable source) removed from text and bibliography; replaced by verified records (Auer UCB1, Mach and Becvar survey, Mao Lyapunov JSAC) | Intro, Related Work, Baselines, Sec. III-D | cited | removed |
+| 14 | Corrected metadata of Yacheur (pages 2400-2411), Mirza (authors, title, vol. 24 no. 12 pp. 14329-14346), Moon and Lim (authors, title); Xiong et al. now cited with its real title | References | wrong | verified against Crossref |
+| 15 | "No prior work jointly optimizes ..." replaced by an acknowledgement of Xiong et al. (heterogeneous V2X + federated Q-learning) and a narrower contribution statement | Introduction, Related Work, Table I | claimed | narrowed |
+| 16 | "Raw sensor data never leaves the vehicle" corrected: offloaded task data is sent to the RSU; federated training pools no raw observations | Abstract, Privacy analysis | claimed | corrected |
+| 17 | "Independent ns-3 co-simulation confirms the results" removed (no setup or results in the paper) | Conclusion | claimed | removed |
+| 18 | Figs. 5, 6, 7 regenerated from the same results file as the tables (they plotted an older campaign: MA-ROPE about 0.89 at N=32 instead of 0.827) | Results | mismatch | match tables and captions |
+| 19 | Fig. 8 legend made unambiguous (dashed = queue model off, solid = on, labelled on the curves) | Results | style-only legend | explicit |
+| 20 | Table XI: "deployed" label moved from the 2-RAT, 9-action row to a new 4-RAT, 11-action row | Table XI | wrong row | correct |
+| 21 | Disclosure added: frozen policies evaluated with epsilon = 0 at N=8 (5 seeds) made no offload attempts; OTR covers transmitted PDUs only; queue is per-step; matched controls are future work | Results, limitations | absent | added |
+
+Results tables, simulator and code are unchanged. Page count stays 15.
+
+### Reviewer points NOT fixable by text (need new experiments)
+All-generated-task deadline success metric; persistent server queue with transmission time (and the Eq. 4b structure); matched controls (queue-aware greedy, best single RAT, no partial offloading, independent D3QN); a single versioned results bundle for every figure and table (Figs. 3 and 4 still come from the speed-sweep file); the ns-3 evidence (exists in the repository, not yet written into the paper).
+
+## Results that did NOT change (V1 to V3; V4 as noted above)
 All headline results are identical in V1, V2 and V3: fleet OTR 0.8274 and 0.1230 (N=32), safety OTR 0.7537, retention 0.975 and 0.367, latency 830.0 ms and 226.5 ms. The simulator code was not changed in any version; only text, tables and two figures were.
 
 ## Numbering after V2 (important if sir has V1)

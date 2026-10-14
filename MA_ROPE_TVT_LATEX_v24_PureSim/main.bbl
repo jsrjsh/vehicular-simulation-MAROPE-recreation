@@ -31,50 +31,52 @@ F.~Guo, X.~Luo, and X.~Liu, ``Hybrid cloud-edge-vehicle collaborative task
   offloading in {VEC} based on reinforcement learning and game theory,''
   \emph{IEEE Open J. Veh. Technol.}, vol.~7, pp. 290--305, Feb. 2026.
 
-\bibitem{wu2021}
-Y.~Wu, F.~Liu, and Z.~Chen, ``Ucb-based task offloading for vehicular edge
-  computing,'' \emph{IEEE Internet Things J.}, vol.~8, no.~15, 2021.
-
 \bibitem{haq2026}
 M.~Z. Haq, N.~N. Qadri, O.~Chughtai, S.~Ahmad, W.~Khalid, and H.~Yu, ``Adaptive
   network selection for latency-aware {V2X} systems under varying network and
   vehicle densities,'' \emph{IEEE Access}, vol.~13, pp. 150\,838--150\,851,
   2025.
 
-\bibitem{jing2019}
-J.~Jing, M.~Chen, and Y.~Zhang, ``{L}yapunov-based task offloading with queue
-  stability for vehicular networks,'' \emph{IEEE Wireless Commun. Lett.},
-  vol.~8, no.~2, pp. 234--238, Apr. 2019.
+\bibitem{mach2017}
+P.~Mach and Z.~Becvar, ``Mobile edge computing: {A} survey on architecture and
+  computation offloading,'' \emph{IEEE Commun. Surveys Tuts.}, vol.~19, no.~3,
+  pp. 1628--1656, 2017.
 
-\bibitem{yun2022}
-H.~Yun, S.~Kim, and J.~Park, ``{GA}-{DQN}: {G}enetic algorithm enhanced {DQN}
-  for vehicular edge offloading,'' \emph{IEEE Access}, vol.~10, pp.
-  45\,678--45\,690, May 2022.
+\bibitem{xiong2021}
+K.~Xiong, S.~Leng, C.~Huang, C.~Yuen, and Y.~L. Guan, ``Intelligent task
+  offloading for heterogeneous {V2X} communications,'' \emph{IEEE Trans.
+  Intell. Transp. Syst.}, vol.~22, no.~4, pp. 2226--2238, Apr. 2021.
+
+\bibitem{auer2002}
+P.~Auer, N.~Cesa-Bianchi, and P.~Fischer, ``Finite-time analysis of the
+  multiarmed bandit problem,'' \emph{Mach. Learn.}, vol.~47, no. 2--3, pp.
+  235--256, 2002.
+
+\bibitem{mao2016}
+Y.~Mao, J.~Zhang, and K.~B. Letaief, ``Dynamic computation offloading for
+  mobile-edge computing with energy harvesting devices,'' \emph{IEEE J. Sel.
+  Areas Commun.}, vol.~34, no.~12, pp. 3590--3605, Dec. 2016.
 
 \bibitem{lowe2017}
 R.~Lowe \emph{et~al.}, ``Multi-agent actor-critic for mixed
   cooperative-competitive environments,'' in \emph{Proc. NeurIPS}, 2017, pp.
   6379--6390.
 
-\bibitem{mao2017}
-X.~Mao \emph{et~al.}, ``imec: Mobile edge computing with adaptive parallelism
-  control,'' in \emph{Proc. IEEE INFOCOM}, 2017, pp. 1--9.
-
 \bibitem{yacheur2023}
 B.~Y. Yacheur, T.~Ahmed, and M.~Mosbah, ``Efficient {DRL}-based selection
   strategy in hybrid vehicular networks,'' \emph{IEEE Trans. Netw. Service
-  Manag.}, vol.~20, no.~3, pp. 2456--2470, Sept. 2023.
+  Manag.}, vol.~20, no.~3, pp. 2400--2411, Sept. 2023.
 
 \bibitem{mirza2023}
-A.~Mirza, B.~Chen, and P.~Kumar, ``{MCLA}: {M}obility- and load-aware task
-  offloading for heterogeneous vehicular edge computing networks,'' \emph{IEEE
-  Trans. Intell. Transp. Syst.}, vol.~24, no.~10, pp. 10\,234--10\,248, Oct.
-  2023.
+M.~A. Mirza, J.~Yu, S.~Raza, M.~Ahmed, M.~Asif, A.~Irshad, and N.~Kumar,
+  ``{MCLA} task offloading framework for {5G-NR-V2X}-based heterogeneous
+  {VECNs},'' \emph{IEEE Trans. Intell. Transp. Syst.}, vol.~24, no.~12, pp.
+  14\,329--14\,346, Dec. 2023.
 
 \bibitem{moonlim2022}
-G.~Moon and S.~Lim, ``Federated deep reinforcement learning for task offloading
-  and power control in vehicular edge computing,'' \emph{Sensors}, vol.~22,
-  no.~24, p. 9595, Dec. 2022.
+S.~Moon and Y.~Lim, ``Federated deep reinforcement learning based task
+  offloading with power control in vehicular edge computing,'' \emph{Sensors},
+  vol.~22, no.~24, p. 9595, Dec. 2022.
 
 \bibitem{zhu2019}
 L.~Zhu, Z.~Liu, and S.~Han, ``Deep leakage from gradients,'' in \emph{Advances

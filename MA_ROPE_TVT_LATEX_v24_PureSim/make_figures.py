@@ -1,6 +1,6 @@
 """Redraw Figs 5-9 as vector PDFs from the CSVs that the original raster images were drawn from.
 Data: results/speed_sweep_corrected/speed_sweep_results.csv  (Figs 5,6)
-      results/CAMPAIGN_CORRECTED_20260803/CORRECTED_BASELINE_RESULTS.csv (Figs 7,8,9)
+      results/../_claude_workspace/results/CAMPAIGN_PHYSICS_FIX_20260818/CORRECTED_BASELINE_RESULTS.csv (Figs 7,8,9)
 Values are unchanged from the original figures; only style/resolution differ. Error bars = std over 5 seeds."""
 import pandas as pd, numpy as np, matplotlib
 matplotlib.use('Agg')
@@ -32,7 +32,7 @@ for m in ('ma-rope','alloffload','nooffload'): line(ax,sp,sg(m,'prr'),m)
 tidy(ax,'Vehicle speed (km/h)','Empirical PRR'); ax.set_ylim(0.85,1.01); ax.legend(loc='lower left',frameon=True,framealpha=0.9,edgecolor='#cccccc',ncol=3,columnspacing=0.8,handlelength=1.6)
 fig.tight_layout(); fig.savefig('figures/plots/fig6_prr_speed.pdf'); plt.close()
 # ---- fleet sweep (Figs 7,8,9)
-f=pd.read_csv(R+'CAMPAIGN_CORRECTED_20260803/CORRECTED_BASELINE_RESULTS.csv'); N=[8,16,32]
+f=pd.read_csv(R+'../_claude_workspace/results/CAMPAIGN_PHYSICS_FIX_20260818/CORRECTED_BASELINE_RESULTS.csv'); N=[8,16,32]
 def fg(m,col,k=1): return (f[f.method==m].pivot(index='seed',columns='n_agents',values=col)*k)
 fig,ax=plt.subplots(1,2,figsize=(COL,2.2))
 for m in ('ma-rope','alloffload'):
