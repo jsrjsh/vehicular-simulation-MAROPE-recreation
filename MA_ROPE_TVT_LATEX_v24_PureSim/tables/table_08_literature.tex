@@ -1,17 +1,19 @@
-\begin{table}[h!]
+\begin{table*}[t]
 \caption{Literature Comparison: Feature Coverage. FL: Federated Learning.}
 \label{tab:literature}
 \centering
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{|l|c|c|c|c|c|c|}
-\hline
+% booktabs-restyled
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{>{\hsize=1.132\hsize\raggedright\arraybackslash}X>{\hsize=1.029\hsize\centering\arraybackslash}X>{\hsize=0.926\hsize\centering\arraybackslash}X>{\hsize=1.029\hsize\centering\arraybackslash}X>{\hsize=1.029\hsize\centering\arraybackslash}X>{\hsize=0.824\hsize\centering\arraybackslash}X>{\hsize=1.029\hsize\centering\arraybackslash}X}
+\toprule
 \textbf{Paper} & \textbf{Multi-RAT} & \textbf{Partial $\rho$} & \textbf{Queue Cont.} & \textbf{FL Privacy} & \textbf{Jakes} & \textbf{Yacheur Ch.} \\
-\hline
+\midrule
 Guo 2026~\cite{guo2026} & $\times$ & Partial & Per-node & $\times$ & $\times$ & $\times$ \\
 Yacheur 2023~\cite{yacheur2023} & \checkmark ITS+LTE & $\times$ & $\times$ & $\times$ & \checkmark & \checkmark \\
 Wu 2021~\cite{wu2021} & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ \\
 \textbf{MA-ROPE (ours)} & \textbf{\checkmark 4 RATs} & \textbf{\checkmark $\rho\in\{0..1\}$} & \textbf{\checkmark shared RSU} & \textbf{\checkmark FedAvg} & \textbf{\checkmark Jakes} & \textbf{\checkmark adopted} \\
-\hline
-\end{tabular}%
-}
-\end{table}
+\bottomrule
+\end{tabularx}
+\end{table*}

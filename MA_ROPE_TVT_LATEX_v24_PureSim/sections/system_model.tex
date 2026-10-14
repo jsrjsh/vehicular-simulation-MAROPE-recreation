@@ -8,7 +8,7 @@ We consider a two-tier V2X network comprising N vehicles, R roadside units (RSUs
 
 \subsection{RAT Physical Layer Model}
 
-Following Yacheur et al. \cite{yacheur2023} \Cref{tab:rat_physical}, we assign per-RAT physical parameters as in \Cref{tab:rat_physical}. LTE and 5G-NR operate at -110 dBm noise floor; ITS-G5 and WiFi-6 at -90 dBm. Cellular RATs experience Jakes Doppler fading at vehicular speeds; ITS-G5 and WiFi-6 use the Constant Speed propagation model, as analyzed in Fig. 14.
+Following Yacheur et al.~\cite{yacheur2023}, we assign per-RAT physical parameters as in \Cref{tab:rat_physical}. LTE and 5G-NR operate at -110 dBm noise floor; ITS-G5 and WiFi-6 at -90 dBm. Cellular RATs experience Jakes Doppler fading at vehicular speeds; ITS-G5 and WiFi-6 use the Constant Speed propagation model, as analyzed in \Cref{fig:jakes_fading}.
 
 \input{tables/table_09_rat_physical}
 
@@ -32,6 +32,13 @@ where $n_{tx}$ is the number of offload PDU transmission attempts and $n_{rx}$ i
 
 Each vehicle generates task $\tau_i = (C_i, V_i, D_i, T_i)$ where $C_i$ is computational workload (CPU cycles), $V_i$ is data volume (MB), $D_i$ is the task's deadline, its maximum tolerable delay (ms), and $T_i \in \{\text{safety}, \text{infotainment}, \text{compute}\}$ determines that deadline: safety tasks require $D_i = 100$ ms (e.g., 3GPP TR 36.885~\cite{molina2017}), infotainment 500 ms, compute 2000 ms.
 
+A vehicle may partition task $\tau_i$ into local and remote execution fractions, parameterized by the offload ratio $\rho \in [0, 1]$:
+\begin{equation}
+\label{eq:offload_ratio}
+C_{\text{local}} = (1 - \rho) \cdot C_i, \quad C_{\text{remote}} = \rho \cdot C_i,
+\end{equation}
+where $\rho = 0$ denotes fully local execution and $\rho = 1$ denotes full offloading to the MEC server.
+
 \subsection{End-to-End Latency Model}
 
 End-to-end task latency is the primary measurable QoS quantity in this work. For each offload PDU attempt at step t, the total latency decomposes into six additive components:
@@ -43,7 +50,7 @@ End-to-end task latency is the primary measurable QoS quantity in this work. For
 L_{total} = L_{prop} + L_{tx} + L_{queue} + L_{remote} + L_{rx} + L_{prop}
 \end{equation}
 
-where $L_{prop} = d/(2c/3)$ is propagation delay over vehicle-to-RSU distance d at 2/3 speed of light; $L_{tx} = V_i/\text{BW}_r$ is uplink transmission delay for data volume $V_i$ (MB) over RAT bandwidth $\text{BW}_r$; $L_{remote} = C_i/f_{MEC}$ is remote compute delay for workload $C_i$ (CPU cycles) at MEC frequency $f_{MEC}$; $L_{rx}$ is the downlink reception delay for the computed results; and $L_{queue} = 1/(\mu_k - \lambda_k)$ is the M/M/1 queuing delay at the shared RSU, where $\mu_k$ is the server service rate and $\lambda_k$ is the total vehicle arrival rate across all co-located vehicles. The $L_{queue}$ term is the critical shared-resource term: it couples all vehicles' decisions through the common RSU queue and is responsible for the AllOffload collapse observed in Section V.
+where $L_{prop} = d/(2c/3)$ is propagation delay over vehicle-to-RSU distance d at 2/3 speed of light; $L_{tx} = V_i/\text{BW}_r$ is uplink transmission delay for data volume $V_i$ (MB) over RAT bandwidth $\text{BW}_r$; $L_{remote} = C_i/f_{MEC}$ is remote compute delay for workload $C_i$ (CPU cycles) at MEC frequency $f_{MEC}$; $L_{rx}$ is the downlink reception delay for the computed results; and $L_{queue} = \tau\,Q_r$ is the queueing delay at the shared RSU $r$, where $Q_r$ is the offload backlog, the sum of the offload ratios requested by all vehicles served by RSU $r$ in the current step, and $\tau = 50$ ms is the modelled edge-server service time per unit of backlog (an effective 20 tasks/s per RSU). This linear backlog model is a simplification of a real queue, and $\tau$ is a calibration constant, not a measured value. In the simulator the per-RAT access delay of \Cref{tab:rat_physical} replaces $L_{prop}$, $L_{tx}$ and $L_{rx}$ (link data rates do not enter the latency), and $L_{remote}$ scales with the offloaded data volume at 0.5 ms per MB; transmission time is therefore not simulated separately. The $L_{queue}$ term is the critical shared-resource term: it couples all vehicles' decisions through the common RSU queue and is responsible for the AllOffload collapse observed in \Cref{sec:results}.
 
 For partial offloading with ratio $\rho$, local and remote execution proceed in parallel following the model of Mao et al. \cite{mao2017}. The realized end-to-end delay is:
 
@@ -68,28 +75,28 @@ where $\rho \in \{0.25, 0.50, 0.75, 1.0\}$ is the partial offload ratio, $\rho \
 
 Note that $\text{OTR} \leq \text{PRR}$ always, since PRR counts all link-successful receptions regardless of deadline. The gap ($\text{PRR} - \text{OTR}$) is the latency-induced deadline violation rate: packets the channel delivered but that arrived too late for the application to use. This is the quantity MA-ROPE directly minimises via the $\exp(-L/D)$ term in the utility reward (\Cref{eq:utility_all}).
 
-\subsection{Energy and Utility}
+\subsection{Energy and Utility}\label{sec:energy_utility}
 
-Total energy consumption is modeled as $E_{total} = P_{tx} \cdot L_{tx} + \epsilon_r \cdot \rho \cdot V_i$, where $P_{tx} \cdot L_{tx}$ captures radio transmit energy over the realized transmission duration and $\epsilon_r$ (J/MB) is the RAT-specific processing or transfer energy cost. The implementation used to produce the results in this paper does not evaluate this formula directly; it instead computes energy through a simplified expression that can return negative values for common cases, which we determined makes any energy figure derived from it scientifically unreliable. Absolute energy is therefore not reported anywhere in Section V. The energy term does, however, still enter the $\exp(-E/3)$ component of both utility functions below via that same simplified expression, so the $U_{PRR}$ and $U_{OTR}$ values reported in Section V (Table 6 and the density-scaling results) inherit its unreliability and should be read as reward-shaping and secondary evaluation signals rather than independently validated quantities. This paper's primary claims rest on Fleet OTR, PRR, and the Deadline Retention Ratio, which are computed directly from transmission and deadline outcomes and do not depend on the utility formula or its energy term; see the Discussion and Conclusion for the full disclosure and the path to a validated energy model. MA-ROPE defines two complementary utility functions, each optimized for a different deployment criterion (Yacheur et al. \cite{yacheur2023} Eq. (2) extended):
+Total energy consumption is modeled as $E_{total} = P_{tx} \cdot L_{tx} + \epsilon_r \cdot \rho \cdot V_i$, where $P_{tx} \cdot L_{tx}$ captures radio transmit energy over the realized transmission duration and $\epsilon_r$ (J/MB) is the RAT-specific processing or transfer energy cost. The implementation used to produce the results in this paper does not evaluate this formula directly; it instead computes energy through a simplified expression that can return negative values for common cases, which we determined makes any energy figure derived from it scientifically unreliable. Absolute energy is therefore not reported anywhere in \Cref{sec:results}. The energy term does, however, still enter the $\exp(-E/3)$ component of both utility functions below via that same simplified expression, so the $U_{PRR}$ and $U_{OTR}$ values reported in \Cref{sec:results} (\Cref{tab:full_performance} and the density-scaling results) inherit its unreliability and should be read as reward-shaping and secondary evaluation signals rather than independently validated quantities. This paper's primary claims rest on Fleet OTR, PRR, and the Deadline Retention Ratio, which are computed directly from transmission and deadline outcomes and do not depend on the utility formula or its energy term; see the Discussion and Conclusion for the full disclosure and the path to a validated energy model. MA-ROPE defines two complementary utility functions, each optimized for a different deployment criterion (Yacheur et al. \cite{yacheur2023} Eq. (2) extended):
 
 \begin{subequations}
 \label{eq:utility_all}
 \begin{equation}
-U_{PRR} = \alpha \cdot \text{PRR} + \frac{\beta}{Z} \left[ \frac{1}{2}\exp\left(-\frac{L}{D}\right) + \frac{1}{2}\exp\left(-\frac{E}{3}\right) + \frac{1}{4}\Delta\text{CBR} \right]
+\begin{split}U_{PRR} ={}& \alpha \cdot \text{PRR} + \frac{\beta}{2}\exp\left(-\frac{L}{D}\right) \\ &+ \frac{\beta}{2}\exp\left(-\frac{E}{3}\right) + \frac{\beta}{4}\Delta\text{CBR}\end{split}
 \label{eq:uprr}
 \end{equation}
 
 \begin{equation}
-U_{OTR} = \alpha \cdot \text{OTR} + \frac{\beta}{Z} \left[ \frac{1}{2}\exp\left(-\frac{L}{D}\right) + \frac{1}{2}\exp\left(-\frac{E}{3}\right) + \frac{1}{4}\Delta\text{CBR} \right]
+\begin{split}U_{OTR} ={}& \alpha \cdot \text{OTR} + \frac{\beta}{2}\exp\left(-\frac{L}{D}\right) \\ &+ \frac{\beta}{2}\exp\left(-\frac{E}{3}\right) + \frac{\beta}{4}\Delta\text{CBR}\end{split}
 \label{eq:uotr}
 \end{equation}
 
 \begin{equation}
-Z = 1.25
-\label{eq:z}
+U \leftarrow \min\{1,\max\{0,U\}\}
+\label{eq:uclip}
 \end{equation}
 \end{subequations}
 
-$U_{PRR}$ (\Cref{eq:uprr}) uses empirical $\text{PRR} = n_{rx}/n_{tx}$ as the reliability term and provides dense reward feedback during D3QN training. $U_{OTR}$ (\Cref{eq:uotr}) replaces PRR with $\text{OTR} = n_{rx\_on\_time}/n_{tx}$, the fraction of PDUs delivered within deadline, and is the primary deployment criterion for safety-critical 3GPP V2X safety workloads. The normalization constant Z makes the auxiliary latency, energy, and Channel Busy Ratio (CBR) block sum to $\beta$; $\alpha + \beta = 1$. Task-adaptive weights are grounded in the task-mix prior: safety $\alpha=0.70$, infotainment $\alpha=0.40$, and compute $\alpha=0.20$. The $\Delta\text{CBR}$ term remains an early-warning congestion signal orthogonal to the explicit queue model.
+$U_{PRR}$ (\Cref{eq:uprr}) uses empirical $\text{PRR} = n_{rx}/n_{tx}$ as the reliability term and provides dense reward feedback during D3QN training. $U_{OTR}$ (\Cref{eq:uotr}) replaces PRR with $\text{OTR} = n_{rx\_on\_time}/n_{tx}$, the fraction of PDUs delivered within deadline, and is the primary deployment criterion for safety-critical 3GPP V2X safety workloads. Both utilities are clipped to $[0,1]$ (\Cref{eq:uclip}); $\alpha + \beta = 1$. Task-adaptive weights are grounded in the task-mix prior: safety $\alpha=0.70$, infotainment $\alpha=0.40$, and compute $\alpha=0.20$. The $\Delta\text{CBR}$ term remains an early-warning congestion signal orthogonal to the explicit queue model.
 
 \input{tables/table_10_dual_utility}

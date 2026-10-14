@@ -21,8 +21,13 @@
 \providecommand{\BIBdecl}{\relax}
 \BIBdecl
 
+\bibitem{zhao2024}
+J.~Bo and X.~Zhao, ``Vehicle edge computing task offloading strategy based on
+  multi-agent deep reinforcement learning,'' \emph{J. Grid Comput.}, vol.~23,
+  no.~2, 2025, art. no. 13.
+
 \bibitem{guo2026}
-X.~L. F.~Guo and X.~Liu, ``Hybrid cloud-edge-vehicle collaborative task
+F.~Guo, X.~Luo, and X.~Liu, ``Hybrid cloud-edge-vehicle collaborative task
   offloading in {VEC} based on reinforcement learning and game theory,''
   \emph{IEEE Open J. Veh. Technol.}, vol.~7, pp. 290--305, Feb. 2026.
 
@@ -30,14 +35,20 @@ X.~L. F.~Guo and X.~Liu, ``Hybrid cloud-edge-vehicle collaborative task
 Y.~Wu, F.~Liu, and Z.~Chen, ``Ucb-based task offloading for vehicular edge
   computing,'' \emph{IEEE Internet Things J.}, vol.~8, no.~15, 2021.
 
+\bibitem{haq2026}
+M.~Z. Haq, N.~N. Qadri, O.~Chughtai, S.~Ahmad, W.~Khalid, and H.~Yu, ``Adaptive
+  network selection for latency-aware {V2X} systems under varying network and
+  vehicle densities,'' \emph{IEEE Access}, vol.~13, pp. 150\,838--150\,851,
+  2025.
+
 \bibitem{jing2019}
-M.~C. J.~Jing and Y.~Zhang, ``{L}yapunov-based task offloading with queue
+J.~Jing, M.~Chen, and Y.~Zhang, ``{L}yapunov-based task offloading with queue
   stability for vehicular networks,'' \emph{IEEE Wireless Commun. Lett.},
   vol.~8, no.~2, pp. 234--238, Apr. 2019.
 
 \bibitem{yun2022}
-S.~K. H.~Yun and J.~Park, ``{GA}-{DQN}: {G}enetic algorithm enhanced {DQN} for
-  vehicular edge offloading,'' \emph{IEEE Access}, vol.~10, pp.
+H.~Yun, S.~Kim, and J.~Park, ``{GA}-{DQN}: {G}enetic algorithm enhanced {DQN}
+  for vehicular edge offloading,'' \emph{IEEE Access}, vol.~10, pp.
   45\,678--45\,690, May 2022.
 
 \bibitem{lowe2017}
@@ -50,12 +61,12 @@ X.~Mao \emph{et~al.}, ``imec: Mobile edge computing with adaptive parallelism
   control,'' in \emph{Proc. IEEE INFOCOM}, 2017, pp. 1--9.
 
 \bibitem{yacheur2023}
-T.~A. B.~Y.~Yacheur and M.~Mosbah, ``Efficient {DRL}-based selection strategy
-  in hybrid vehicular networks,'' \emph{IEEE Trans. Netw. Service Manag.},
-  vol.~20, no.~3, pp. 2456--2470, Sept. 2023.
+B.~Y. Yacheur, T.~Ahmed, and M.~Mosbah, ``Efficient {DRL}-based selection
+  strategy in hybrid vehicular networks,'' \emph{IEEE Trans. Netw. Service
+  Manag.}, vol.~20, no.~3, pp. 2456--2470, Sept. 2023.
 
 \bibitem{mirza2023}
-B.~C. A.~Mirza and P.~Kumar, ``{MCLA}: {M}obility- and load-aware task
+A.~Mirza, B.~Chen, and P.~Kumar, ``{MCLA}: {M}obility- and load-aware task
   offloading for heterogeneous vehicular edge computing networks,'' \emph{IEEE
   Trans. Intell. Transp. Syst.}, vol.~24, no.~10, pp. 10\,234--10\,248, Oct.
   2023.

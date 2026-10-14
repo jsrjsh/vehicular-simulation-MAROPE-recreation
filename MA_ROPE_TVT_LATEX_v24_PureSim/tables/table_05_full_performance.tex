@@ -1,18 +1,20 @@
-\begin{table}[h!]
+\begin{table}[t]
 \caption{Full Performance Comparison: URLLC stress, N=32 vehicles, 5 seeds. $U_{PRR}$: Eq. (4a), training signal. $U_{OTR}$: Eq. (4b), deadline compliance. Fleet OTR = on-time offload PDUs / transmitted offload PDUs.}
 \label{tab:full_performance}
 \centering
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{|l|r|r|r|r|r|}
-\hline
+% booktabs-restyled
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\columnwidth}{>{\hsize=2.053\hsize\raggedright\arraybackslash}X>{\hsize=0.789\hsize\raggedleft\arraybackslash}X>{\hsize=0.789\hsize\raggedleft\arraybackslash}X>{\hsize=0.789\hsize\raggedleft\arraybackslash}X>{\hsize=0.789\hsize\raggedleft\arraybackslash}X>{\hsize=0.789\hsize\raggedleft\arraybackslash}X}
+\toprule
 \textbf{Method} & \textbf{U\_PRR} & \textbf{U\_OTR} & \textbf{Fleet OTR} & \textbf{PRR} & \textbf{Latency (ms)} \\
-\hline
+\midrule
 \textbf{MA-ROPE Full \textasteriskcentered} & \textbf{0.9560} & \textbf{0.5212} & \textbf{0.8274} & \textbf{0.9380} & \textbf{226.5} \\
 AllOffload (5G 100\%) & 0.6022 & 0.1255 & 0.1230 & 0.9643 & 830.0 \\
 NoOffload (local) & 0.9610 & 0.5079 & 1.0000 & 1.0000 & 233.7 \\
 UCB-RAT & 0.8871 & 0.4852 & 0.3328 & 0.9627 & 304.6 \\
 CoopEC-RAT & 0.9329 & 0.5282 & 0.7249 & 0.9681 & 213.7 \\
-\hline
-\end{tabular}%
-}
+\bottomrule
+\end{tabularx}
 \end{table}

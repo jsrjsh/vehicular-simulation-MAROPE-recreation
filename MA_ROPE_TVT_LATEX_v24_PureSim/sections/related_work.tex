@@ -40,20 +40,3 @@ MA-ROPE differs from each of these in that it (1) jointly optimizes RAT selectio
 
 \input{tables/table_08_literature}
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.45\textwidth]{figures/image1.png}
-\caption{Literature gap matrix. MA-ROPE (bottom row, blue highlight) is the only framework with all six properties: supported, partial, or not supported.}
-\label{fig:gap_matrix}
-\end{figure}
-
-\subsection{Contribution Decomposition}
-
-Fig. 2 decomposes MA-ROPE's utility into per-component contributions at the reference fleet size of N=8. This ablation predates the local-latency and Jakes-fading corrections described in Section V and has not been rerun under the corrected physics; each of its five stages (AllOffload, adding shared-queue awareness, multi-RAT selection, the DRL policy, and FedAvg) would require training a separate intermediate model variant to reproduce, which is left for future work. It is reported here as a historical, reference-only illustration of how each design component contributes incrementally, not as part of the corrected primary campaign, and its absolute utility values should not be compared against Section V's results. The primary dense-fleet results, at the higher N=32 density central to this paper's claims and computed entirely from the corrected campaign, are reported separately in Section V.
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.45\textwidth]{figures/image2.png}
-\caption{Contribution waterfall (URLLC, N=8 reference, historical pre-correction ablation, not part of the corrected primary campaign). AllOffload baseline (U=0.8166) to MA-ROPE full (U=0.8443): each component contributes independently.}
-\label{fig:waterfall}
-\end{figure}

@@ -1,17 +1,19 @@
-\begin{table}[h!]
+\begin{table}[t]
 \caption{RAT Physical-Layer Parameters}
 \label{tab:rat_params}
 \centering
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{|l|r|r|r|}
-\hline
+% booktabs-restyled
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\columnwidth}{>{\hsize=1.083\hsize\raggedright\arraybackslash}X>{\hsize=0.750\hsize\raggedleft\arraybackslash}X>{\hsize=0.750\hsize\raggedleft\arraybackslash}X>{\hsize=1.417\hsize\raggedleft\arraybackslash}X}
+\toprule
 \textbf{RAT} & \textbf{Peak Data Rate} & \textbf{Coverage Range} & \textbf{Fading Model} \\
-\hline
+\midrule
 LTE & 50 Mbps & 1000 m & Jakes, $f_d = 100$ Hz \\
 ITS-G5 (DSRC) & 27 Mbps & 300 m & Jakes, $f_d = 50$ Hz \\
 WiFi-6 (802.11ax) & 1200 Mbps & 100 m & Jakes, $f_d = 30$ Hz \\
 5G-NR (mmWave) & 2000 Mbps & 300 m & Saleh-Valenzuela, $f_d = 200$ Hz \\
-\hline
-\end{tabular}%
-}
+\bottomrule
+\end{tabularx}
 \end{table}

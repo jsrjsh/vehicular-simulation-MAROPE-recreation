@@ -1,14 +1,16 @@
-\begin{table}[h!]
+\begin{table*}[t]
 \caption{Federated D3QN and FedAvg Hyperparameters}
 \label{tab:hyperparameters}
 \centering
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{|l|c|c|l|}
-\hline
+% booktabs-restyled
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{>{\hsize=1.500\hsize\raggedright\arraybackslash}X>{\hsize=0.600\hsize\centering\arraybackslash}X>{\hsize=0.400\hsize\centering\arraybackslash}X>{\hsize=1.500\hsize\raggedright\arraybackslash}X}
+\toprule
 \textbf{Parameter} & \textbf{Value} & \textbf{Symbol} & \textbf{Justification} \\
-\hline
-\multicolumn{4}{|c|}{\textbf{Deep Reinforcement Learning (D3QN)}} \\
-\hline
+\midrule
+\multicolumn{4}{c}{\textbf{Deep Reinforcement Learning (D3QN)}} \\
 Learning rate (neural network) & 0.0001 & $\alpha$ & Prevents divergence in double-Q stabilization \\
 Discount factor & 0.95 & $\gamma$ & Task completion horizons typically 5--10 seconds \\
 Exploration decay ($\epsilon$-greedy) & $0.995^t$ & $\epsilon(t)$ & Linear annealing from 1.0 to 0.05 over training \\
@@ -17,16 +19,14 @@ Replay buffer size & 50,000 & $B$ & Trade-off: larger stabilizes, constrained by
 Minibatch size & 64 & batch\_size & Standard for DQN; aligns with GPU optimization \\
 Target network update frequency & 1,000 steps & $\tau$ & Reduces temporal correlations \\
 Network architecture & $\text{input}-256-256-|A|$ & $\pi$ & Dueling DQN: separate advantage and value streams \\
-\hline
-\multicolumn{4}{|c|}{\textbf{Federated Learning (FedAvg)}} \\
-\hline
+\midrule
+\multicolumn{4}{c}{\textbf{Federated Learning (FedAvg)}} \\
 Global aggregation rounds & $K = 5$ & $K$ & Trade-off: communication cost vs. gradient staleness \\
 Local training epochs per round & 3 & $E$ & Vehicle trains 3 episodes locally before aggregation \\
 Federated learning rate & 0.001 & $\eta_{\text{fed}}$ & Slower than local $\alpha$; ensures stable aggregation \\
 Participants (vehicles) & 8, 16, 32 & $N$ & Density-sweep experiments \\
 Episodes per participant & 100 & $T$ & Total training = $N \times E \times T$ epochs \\
 Gradient clipping threshold & 1.0 & $\text{clip}$ & Prevents exploding gradients in federated setting \\
-\hline
-\end{tabular}%
-}
-\end{table}
+\bottomrule
+\end{tabularx}
+\end{table*}

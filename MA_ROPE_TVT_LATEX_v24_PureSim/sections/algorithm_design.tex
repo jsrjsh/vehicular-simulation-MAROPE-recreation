@@ -10,10 +10,15 @@ Following Yacheur et al. \cite{yacheur2023}, each agent observes a 12-dimensiona
 
 \begin{equation}
 \label{eq:state}
-s = [\text{SINR}_{LTE}, \text{SINR}_{ITS}, \text{SINR}_{WiFi}, \text{SINR}_{5G}, \text{PRR}_{LTE}, \text{PRR}_{ITS}, \text{PRR}_{WiFi}, \text{PRR}_{5G}, Q, D, L, B]
+\begin{split}s = [&\text{SINR}_{LTE}, \text{SINR}_{ITS}, \text{SINR}_{WiFi}, \text{SINR}_{5G}, \\ &\text{PRR}_{LTE}, \text{PRR}_{ITS}, \text{PRR}_{WiFi}, \text{PRR}_{5G}, Q, D, L, B]\end{split}
 \end{equation}
 
-Each agent selects from 11 implemented discrete actions spanning local execution and selected RAT-$\rho$ pairs across LTE, ITS-G5, WiFi-6, and 5G-NR. The nominal $\rho$ is modulated by channel quality following Yacheur Division Mode \cite{yacheur2023} Algorithm 2:
+The joint action at time $t$ combines RAT selection and offload ratio:
+\begin{equation}
+\label{eq:action_space}
+a_t = (m_t, \rho_t) \quad \text{where} \quad a_t \in A = M \times R
+\end{equation}
+where $m_t \in M$ represents the 4 RAT options (LTE, ITS-G5, WiFi-6, 5G-NR) and $\rho_t \in R$ denotes the 6 offload ratio levels from 0.0 to 1.0. This defines a theoretical action space of $|A| = 24$ potential (RAT, $\rho$) pairs. The implemented action space, however, consists of 11 discrete actions selected via strategic masking to avoid infeasible or suboptimal combinations (e.g., LTE at low offload ratios being bandwidth-limited, or ITS-G5 at full offloading exceeding its range envelope). These 11 actions include 1 action for local execution ($\rho=0$), 3 actions for 5G-NR (reliable fallback), 3 for WiFi-6 (high bandwidth, short range), 2 for ITS-G5 (V2X-specialized), and 2 for LTE (wide coverage fallback). Invalid actions are masked in the DQN $\epsilon$-greedy exploration. The nominal $\rho$ is modulated by channel quality following Yacheur Division Mode \cite{yacheur2023} Algorithm 2:
 
 \begin{equation}
 \label{eq:rho_final}
@@ -29,7 +34,9 @@ The Q-value is decomposed as $Q(s,a) = V(s) + A(s,a) - \text{mean}_{a'} A(s,a')$
 y = r + \gamma \cdot Q_{tgt}(s', \text{argmax}_{a'} Q_{online}(s', a'))
 \end{equation}
 
-Architecture: Linear(12$\rightarrow$256)$\rightarrow$ReLU$\rightarrow$Linear(256$\rightarrow$256)$\rightarrow$ReLU, split into value head Linear(256$\rightarrow$128$\rightarrow$1) and advantage head Linear(256$\rightarrow$128$\rightarrow$11) for the implemented action set.
+\begingroup\raggedright
+Architecture: Linear(12$\rightarrow$256)$\rightarrow$\allowbreak ReLU$\rightarrow$\allowbreak Linear(256$\rightarrow$256)$\rightarrow$ReLU, split into value head Linear(256$\rightarrow$128$\rightarrow$1) and advantage head Linear(256$\rightarrow$128$\rightarrow$11) for the implemented action set.
+\par\endgroup
 
 \subsection{FedAvg Cooperative Learning}
 
@@ -40,7 +47,7 @@ At the end of each episode, each agent i uploads local model weights $w_i$. The 
 w_{global} = \sum_i \frac{n_i}{N} \cdot w_i, \text{ participation } \geq 70\%
 \end{equation}
 
-Privacy analysis: FedAvg shares model weights instead of raw vehicle observations. This reduces data exposure relative to a centralized approach such as MADDPG, which requires pooling raw observations across agents during training, but model updates can still leak information under gradient-inversion or membership-inference attacks. Production deployments should pair FedAvg with secure aggregation, access control, and/or differential privacy. A validated centralized (MADDPG-style) performance upper bound is not reported in this paper's results (Section V); see the Conclusion for the disclosed reason and future-work scope.
+Privacy analysis: FedAvg shares model weights instead of raw vehicle observations. This reduces data exposure relative to a centralized approach such as MADDPG, which requires pooling raw observations across agents during training, but model updates can still leak information under gradient-inversion or membership-inference attacks. Production deployments should pair FedAvg with secure aggregation, access control, and/or differential privacy. A validated centralized (MADDPG-style) performance upper bound is not reported in this paper's results (\Cref{sec:results}); see the Conclusion for the disclosed reason and future-work scope.
 
 
 

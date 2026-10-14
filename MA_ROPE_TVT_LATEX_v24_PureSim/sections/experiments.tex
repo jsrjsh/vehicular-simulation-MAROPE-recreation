@@ -1,4 +1,4 @@
-\section{Experiments and Results}
+\section{Experiments and Results}\label{sec:results}
 
 \subsection{Experimental Setup}
 Although standard network simulators such as ns-3, Veins, or SUMO (Simulation of Urban MObility) provide comprehensive full-stack emulation, evaluating federated multi-agent reinforcement learning across heterogeneous RATs requires tight, synchronous coupling between the physical environment and the distributed training loop. We therefore implemented a custom Python-based V2X simulator tailored for algorithmic evaluation and fast DRL inference. To ensure fidelity, the physical-layer behavior rigorously follows established standards, including 3GPP TR 38.901 for cellular fading and IEEE 802.11ax for WiFi. This design choice emphasizes the validation of the multi-agent decision surface and offloading orchestration rather than introducing a new generalized network simulator.

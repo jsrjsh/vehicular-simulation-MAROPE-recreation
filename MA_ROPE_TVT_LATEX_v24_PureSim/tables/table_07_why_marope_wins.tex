@@ -1,12 +1,15 @@
-\begin{table}[h!]
+\begin{table}[t]
 \caption{Fleet-Density Scaling of Deadline Compliance and Link Reliability (5 seeds)}
 \label{tab:why_marope_wins}
 \centering
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{|l|r|r|l|}
-\hline
+% booktabs-restyled
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\columnwidth}{>{\hsize=1.308\hsize\raggedright\arraybackslash}X>{\hsize=0.538\hsize\raggedleft\arraybackslash}X>{\hsize=1.154\hsize\raggedleft\arraybackslash}X>{\hsize=1.000\hsize\raggedright\arraybackslash}X}
+\toprule
 \textbf{Metric} & \textbf{MA-ROPE} & \textbf{Comparator} & \textbf{Relative Difference} \\
-\hline
+\midrule
 Fleet OTR @ N=8 & 0.849 & AllOffload 0.335 & +51.3 pp \\
 Fleet OTR @ N=16 & 0.861 & AllOffload 0.263 & +59.8 pp \\
 Fleet OTR @ N=32 & 0.827 & AllOffload 0.123 & +70.4 pp \\
@@ -15,7 +18,6 @@ Fleet-wide link failure @ N=32 & 0.28\% & AllOffload 3.57\% & $\sim$12.8x lower 
 Per-attempt link failure @ N=32 & 6.20\% & AllOffload 3.57\% & 1.7x higher \\
 DRR (N=8$\rightarrow$32) & 0.975 & AllOffload 0.367 & 2.66x higher retention \\
 Step time & 166.6 \textmu s & Single-RAT 167.6 \textmu s & No penalty \\
-\hline
-\end{tabular}%
-}
+\bottomrule
+\end{tabularx}
 \end{table}

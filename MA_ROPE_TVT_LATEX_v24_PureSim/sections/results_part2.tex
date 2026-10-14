@@ -1,6 +1,6 @@
 \subsubsection{Queue Contention and Key Findings}
 
-\Cref{fig:queue_contention} demonstrates the MEC queue contention effect. In the controlled ablation (no-queue model vs. shared-queue model), AllOffload drops from U=0.916 under the idealized single-vehicle no-queue assumption to U=0.676 under shared RSU contention with 8 vehicles. MA-ROPE remains stable in the N=8 reference setting (U=0.8443) and carries the same queue-aware multi-RAT advantage into the N=32 results summarized in \Cref{tab:full_performance} and \Cref{tab:why_marope_wins}.
+\Cref{fig:queue_contention} shows the MEC queue contention effect for one RSU shared by 1 to 8 vehicles under the corrected simulator (5 seeds per point). With the shared-queue model, AllOffload's utility falls from 0.722 for a single vehicle to 0.619 for eight; without the queue model it stays near 0.77, so the loss comes from contention at the shared server. MA-ROPE's utility stays between 0.95 and 0.96 across the whole range, close to that of local execution (NoOffload, 0.96). The N=32 comparisons are summarized in \Cref{tab:full_performance} and \Cref{tab:why_marope_wins}.
 
 \input{figures/fig_queue_contention}
 

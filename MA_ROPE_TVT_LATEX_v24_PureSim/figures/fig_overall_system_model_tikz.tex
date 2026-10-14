@@ -1,0 +1,56 @@
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[font=\scriptsize,>={Stealth[length=1.5mm]},
+  box/.style={draw=#1!70!black,fill=#1!12,rounded corners=1.5pt,align=center,inner sep=2pt,minimum height=0.72cm},
+  arr/.style={->,line width=0.5pt}]
+% privacy-preserving cooperation group
+\draw[rounded corners=4pt,fill=green!8,draw=green!60!black] (5.5,6.55) rectangle (14.6,8.55);
+\node[font=\scriptsize\itshape] at (10.05,8.25) {Privacy-preserving cooperation (FedAvg)};
+\node[box=green,minimum width=2.4cm] (up) at (7.0,7.3) {Upload\\[-1pt]local weights};
+\node[box=green,minimum width=2.4cm] (agg) at (10.0,7.3) {FedAvg\\[-1pt]aggregator};
+\node[box=green,minimum width=2.4cm] (bc) at (13.0,7.3) {Broadcast\\[-1pt]global model};
+\draw[arr] (up) -- (agg); \draw[arr] (agg) -- (bc);
+% main decision row
+\node[box=blue,minimum width=2.9cm] (task) at (1.5,4.9) {Task generation\\[-1pt]$\tau_i=(C_i,V_i,D_i,T_i)$};
+\node[box=blue,minimum width=3.1cm] (obs) at (5.0,4.9) {12-D observation\\[-1pt]SINR, PRR, queue, task};
+\node[box=blue,minimum width=3.1cm] (dqn) at (8.7,4.9) {Local dueling\\[-1pt]double DQN};
+\node[diamond,draw=orange!70!black,fill=orange!12,inner sep=0pt,minimum width=2.7cm,minimum height=1.2cm,align=center] (dec) at (12.4,4.9) {Offload\\[-1pt]decision};
+\node[box=orange,minimum width=3.4cm] (part) at (16.3,4.9) {Partial task partition\\[-1pt]$\rho\in\{0.25,0.5,0.75,1\}$};
+\draw[arr] (task) -- (obs); \draw[arr] (obs) -- (dqn); \draw[arr] (dqn) -- (dec);
+\draw[arr] (dec) -- node[above,pos=0.5,inner sep=1pt]{$\rho{>}0$} (part);
+\draw[arr] (7.8,5.26) -- node[right,pos=0.5,inner sep=1.5pt]{$w_i$} (7.8,7.0);
+\draw[arr] (13.0,7.0) -- (13.0,5.85) -- node[above,pos=0.5,inner sep=1pt]{$w_{\mathrm{global}}$} (9.6,5.85) -- (9.6,5.26);
+% local branch
+\node[box=orange,minimum width=3.0cm] (loc) at (5.0,3.1) {Local execution\\[-1pt]$\rho=0$};
+\draw[arr] (12.4,4.3) -- (12.4,4.0) -- node[above,pos=0.5,inner sep=1pt]{$\rho{=}0$} (5.0,4.0) -- (loc.north);
+% heterogeneous access
+\draw[rounded corners=4pt,fill=yellow!14,draw=orange!60!black] (9.8,1.95) rectangle (18.0,3.45);
+\node[font=\scriptsize\itshape] at (13.9,3.2) {Heterogeneous V2X access};
+\node[box=white,minimum width=1.6cm,fill=white] (lte) at (10.9,2.5) {LTE};
+\node[box=white,minimum width=1.6cm,fill=white] (its) at (12.75,2.5) {ITS-G5};
+\node[box=white,minimum width=1.6cm,fill=white] (wifi) at (14.6,2.5) {WiFi-6};
+\node[box=white,minimum width=1.6cm,fill=white] (nr) at (16.5,2.5) {5G-NR};
+\draw[arr] (part.south) -- (16.3,3.45);
+% edge infrastructure
+\draw[rounded corners=4pt,fill=red!7,draw=red!60!black] (6.8,0.0) rectangle (18.0,1.65);
+\node[font=\scriptsize\itshape,anchor=north west] at (6.9,1.62) {Edge infrastructure};
+\node[box=white,fill=white,minimum width=2.4cm] (bs) at (8.1,0.62) {5G-NR\\[-1pt]base station};
+\node[box=white,fill=white,minimum width=2.0cm] (rsu) at (11.4,0.62) {Selected\\[-1pt]RSU};
+\node[box=white,fill=white,minimum width=2.4cm] (q) at (14.1,0.62) {Shared MEC\\[-1pt]queue};
+\node[box=white,fill=white,minimum width=2.0cm] (mec) at (16.9,0.62) {MEC\\[-1pt]execution};
+\draw[dotted,thick] (bs) -- (rsu); \draw[arr] (rsu) -- (q); \draw[arr] (q) -- (mec);
+\draw[arr] (11.4,1.95) -- (rsu.north);
+% completion and feedback
+\node[box=orange,minimum width=3.2cm] (pc) at (11.7,-1.35) {Parallel completion};
+\node[box=orange,minimum width=3.9cm] (ev) at (7.2,-1.35) {Outcome evaluation\\[-1pt]energy, latency, PRR, OTR};
+\node[box=orange,minimum width=2.6cm] (ut) at (2.2,-1.35) {Utility / reward};
+\draw[arr] (mec.south) -- (16.9,-0.55) -- (11.7,-0.55) -- (pc.north);
+\draw (loc.south) -- (5.0,-0.55) -- (11.7,-0.55);
+\draw[arr] (pc) -- (ev); \draw[arr] (ev) -- (ut);
+\draw[arr] (ut.west) -- (-0.45,-1.35) -- (-0.45,4.9) -- (task.west);
+\node[rotate=90,font=\scriptsize\bfseries] at (-0.8,1.75) {Next state and reward};
+\end{tikzpicture}}
+\caption{Overall system model showing task offloading flow, MDP state and action space, and end-to-end latency components.}
+\label{fig:overall_system_model}
+\end{figure*}

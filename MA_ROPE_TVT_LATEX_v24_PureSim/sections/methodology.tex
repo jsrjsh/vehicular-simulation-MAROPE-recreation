@@ -1,62 +1,15 @@
 
 
 \section{Methodology}
-\subsection{System Model and Problem Formulation}
+\subsection{Reward Function}
 
-
-
-Consider a vehicular edge computing scenario where a fleet of $N$ vehicles is associated with a single Roadside Unit (RSU) equipped with a Multi-access Edge Computing (MEC) server. Each vehicle $i \in \{1, 2, \ldots, N\}$ generates compute-intensive tasks with heterogeneous Quality-of-Service (QoS) requirements. A task submitted at time $t$ must be completed by its application deadline $D_{\text{max}}$ to be deemed deadline-compliant.
-
-\vspace{1cm}\subsection{Task and Transmission Model}
-
-Each task is characterized by its computational complexity ($C_{\text{task}}$ in CPU cycles, ranging from $C_{\min}$ to $C_{\max}$ in steps of $\Delta C$), transmission size ($B_{\text{task}}$ in bits, determined by task type), application deadline ($D_{\text{max}}$ in milliseconds, which is task-dependent), and its arrival time $t_{\text{arrival}}$.
-
-A vehicle may partition a task into local and remote execution fractions, parameterized by offload ratio $\rho \in [0, 1]$:
-\begin{equation}
-\label{eq:offload_ratio}
-C_{\text{local}} = (1 - \rho) \cdot C_{\text{task}}, \quad C_{\text{remote}} = \rho \cdot C_{\text{task}}
-\end{equation}
-
-where $\rho = 0$ denotes fully local execution and $\rho = 1$ denotes full offloading to the MEC server.
-
-
-\subsection{State, Action, and Reward Formulation}
-
-\subsubsection*{1) State Space Definition}
-
-The Markov Decision Process (MDP) state at timestep $t$ is defined as:
-\begin{equation}
-\label{eq:state_space}
-s_t = \left( n_1(t), n_2(t), \ldots, n_M(t), q(t), h_1(t), h_2(t), \ldots, h_M(t) \right) \in S
-\end{equation}
-
-where $n_m(t) \in \{1, 2, \ldots, N_{\text{max}}\}$ represents the number of vehicles on RAT $m$ (LTE, ITS-G5, WiFi-6, 5G-NR) during a $\Delta t = 1$ second observation window, $q(t) \in \{0, 1, \ldots, Q_{\text{max}}\}$ is the current MEC server queue length denoting pending compute tasks, and $h_m(t) \in \{0, 1, \ldots, H_{\max}\}$ is the channel state index for RAT $m$, reflecting Jakes fading quantized to 8 levels based on SNR thresholds. The state is updated every decision epoch with density counts and queue lengths as integers, and channel states as discrete indices.
-
-\subsubsection*{2) Action Space Definition}
-
-The joint action at time $t$ combines RAT selection and offload ratio:
-\begin{equation}
-\label{eq:action_space}
-a_t = (m_t, \rho_t) \quad \text{where} \quad a_t \in A = M \times R
-\end{equation}
-
-where $m_t \in M$ represents the 4 RAT options (LTE, ITS-G5, WiFi-6, 5G-NR) and $\rho_t \in R$ denotes the 6 offload ratio levels from 0.0 to 1.0. This defines a theoretical action space of $|A| = 24$ potential (RAT, $\rho$) pairs. The implemented action space, however, consists of 11 discrete actions selected via strategic masking to avoid infeasible or suboptimal combinations (e.g., LTE at low offload ratios being bandwidth-limited, or ITS-G5 at full offloading exceeding its range envelope). These 11 actions include 1 action for local execution ($\rho=0$), 3 actions for 5G-NR (reliable fallback), 3 for WiFi-6 (high bandwidth, short range), 2 for ITS-G5 (V2X-specialized), and 2 for LTE (wide coverage fallback). Invalid actions are masked in the DQN $\epsilon$-greedy exploration.
-
-\subsubsection*{3) Reward Function}
-
-The immediate reward signal at timestep $t$ is designed to encourage deadline-compliant delivery while balancing energy:
-\begin{equation}
-\label{eq:reward_function}
-r_t = w_1 \cdot \text{OTR}_t - w_2 \cdot (\max(L_t - D_{\max}, 0))^2 - w_3 \cdot E_t
-\end{equation}
-
-where $\text{OTR}_t$ is the dimensionless ratio of tasks completed on-time to total tasks in epoch $t$, $L_t$ is the actual task completion latency in milliseconds (including transmission, queue wait, and MEC processing), $D_{\max}$ is the URLLC deadline threshold (e.g., 100 ms), and $E_t$ is the energy consumed by transmission in epoch $t$ in joules. The weights $w_1 = 0.6$, $w_2 = 0.3$, and $w_3 = 0.1$ are normalized to a unit sum and were tuned via grid search in preliminary experiments. This formulation directly encodes deadline compliance through OTR as the primary goal, discourages marginally-late deliveries via the latency penalty, and prevents wasteful transmission strategies using the energy penalty.
+The training reward of each vehicle is the composite utility $U_{PRR}$ of \Cref{eq:uprr}, evaluated at every decision step and clipped to $[0,1]$ (\Cref{eq:uclip}): $r_t = U_{PRR}(t)$. It combines the empirical packet-reception ratio, a latency term $\exp(-L/D)$ that falls as the completion latency $L$ approaches the task deadline $D$, an energy term $\exp(-E/3)$, and a congestion-change term $\Delta\text{CBR}$, with task-adaptive weights $(\alpha,\beta) = (0.70, 0.30)$ for safety, $(0.40, 0.60)$ for infotainment and $(0.20, 0.80)$ for compute tasks. The deadline-based utility $U_{OTR}$ (\Cref{eq:uotr}) is computed alongside but is used for evaluation only. The energy term carries the limitation disclosed in \Cref{sec:energy_utility}: it is a reward-shaping signal, not a validated energy measure.
 
 \subsection{Deadline Retention Ratio (DRR) Metric}
 
 \subsubsection*{1) Definition and Motivation}
 
-Standard performance metrics (OTR, latency) are evaluated at a single network density (e.g., $N = 32$ vehicles). However, policies trained at one density may degrade rapidly under increasing contention. We introduce the Deadline Retention Ratio ($R_D$) to quantify robustness across fleet sizes.
+Standard performance metrics (OTR, latency) are evaluated at a single network density (e.g., $N = 32$ vehicles). However, policies trained at one density may degrade rapidly under increasing contention. We introduce the Deadline Retention Ratio ($R_D$, also written $\text{DRR}(N_{\text{test}}, N_{\text{ref}})$) to quantify robustness across fleet sizes.
 
 \begin{equation}
 \label{eq:drr_definition}
@@ -71,25 +24,27 @@ where $N_{\text{ref}}$ is the reference (smaller) fleet size and $N_{\text{test}
 \caption{Deadline Retention Ratio Computation}
 \label{alg:drr}
 \begin{algorithmic}[1]
-\Require Evaluation logs containing task completion times for both $N_{\text{ref}}$ and $N_{\text{test}}$ scenarios
-\Ensure Scalar $R_D \in [0, 1]$
-\State $\text{completed\_on\_time}_{\text{ref}} \gets 0$
-\State $\text{total\_tasks}_{\text{ref}} \gets 0$
-\For{each task $\tau$ in reference scenario $(N_{\text{ref}})$}
-  \If{completion\_time$(\tau) \le D_{\max}$}
-    \State $\text{completed\_on\_time}_{\text{ref}} \gets \text{completed\_on\_time}_{\text{ref}} + 1$
-  \EndIf
-  \State $\text{total\_tasks}_{\text{ref}} \gets \text{total\_tasks}_{\text{ref}} + 1$
-\EndFor
-\State $\text{OTR}_{\text{ref}} \gets \frac{\text{completed\_on\_time}_{\text{ref}}}{\text{total\_tasks}_{\text{ref}}}$
-\State [Repeat for $N_{\text{test}}$ scenario to compute $\text{OTR}_{\text{test}}$]
-\State $R_D \gets \frac{\text{OTR}_{\text{test}}}{\text{OTR}_{\text{ref}}}$
+\REQUIRE Evaluation logs containing task completion times for both $N_{\text{ref}}$ and $N_{\text{test}}$ scenarios
+\ENSURE Scalar $R_D \in [0, 1]$
+\STATE $c_{\text{ref}} \gets 0$
+\STATE $n_{\text{ref}} \gets 0$
+\FOR{each task $\tau$ in reference scenario $(N_{\text{ref}})$}
+  \IF{completion\_time$(\tau) \le D_{\max}$}
+    \STATE $c_{\text{ref}} \gets c_{\text{ref}} + 1$
+  \ENDIF
+  \STATE $n_{\text{ref}} \gets n_{\text{ref}} + 1$
+\ENDFOR
+\STATE $\text{OTR}_{\text{ref}} \gets \frac{c_{\text{ref}}}{n_{\text{ref}}}$
+\STATE [Repeat for $N_{\text{test}}$ scenario to compute $\text{OTR}_{\text{test}}$]
+\STATE $R_D \gets \frac{\text{OTR}_{\text{test}}}{\text{OTR}_{\text{ref}}}$
 \STATE \textbf{return} $R_D$
 \end{algorithmic}
 \end{algorithm}
 
+\noindent where $c_{\text{ref}}$ is the number of tasks completed within deadline ($D_{\max}$) and $n_{\text{ref}}$ is the total task count in the reference scenario (with $c_{\text{test}}$ and $n_{\text{test}}$ defined analogously).
+
 \subsubsection*{3) Interpretation}
-$R_D = 0.94$ $R_D = 0.94$ means the policy retains 94\% of its reference-density deadline performance when fleet size increases fourfold; $R_D = 0.60$ indicates severe degradation under contention.
+$R_D = 0.94$ means the policy retains 94\% of its reference-density deadline performance when fleet size increases fourfold; $R_D = 0.60$ indicates severe degradation under contention.
 
 \subsection{Federated Learning Hyperparameters}
 
@@ -109,25 +64,17 @@ The framework is implemented in Python 3.8+ utilizing PyTorch 1.10.0 with CUDA 1
 
 Vehicle mobility follows a Synthetic Random Waypoint model within a $10 \text{ km} \times 10 \text{ km}$ grid. Vehicle speeds are uniformly sampled from 5 to 30 m/s to represent urban to highway conditions, with direction changes occurring every 30 to 60 seconds towards randomly selected waypoints. Task generation is modeled as a Poisson process with an arrival rate of $\lambda = 1$ task per vehicle per second for the URLLC stress scenario, and task sizes follow a log-normal distribution to mimic real V2X compute workloads.
 
-\subsubsection*{3) RAT Capacity and Coverage}
+\subsubsection*{3) RAT Parameters and Channel Model}
 
-\input{tables/table_12_rat_params}
-
-\textbf{Channel Model:} Jakes fading envelope for each RAT, with SNR-dependent modulation and coding. Channel coherence time is 10 ms; state changes are sampled every 100 ms.
+The per-RAT parameters used by the simulator are those of \Cref{tab:rat_physical}. \textbf{Channel Model:} LTE and 5G-NR links include Jakes (Rayleigh) fading, drawn once per 100 ms step with a loss that depends on the ratio of the step to the coherence time implied by the Doppler frequency (vehicle speed and carrier frequency); ITS-G5 and WiFi-6 use a constant, non-fading channel.
 
 \subsubsection*{4) MEC Server Queue Model}
 
-The MEC server operates a First-In-First-Out (FIFO) queue shared among all $N$ vehicles. It has a processing capacity of $\mu = 1000$ tasks per second, with service time per task calculated based on a remote CPU frequency of 2000 MHz. The maximum queue depth is limited to 100 tasks, beyond which new submissions are dropped. Vehicles observe this queue length, discretized to 8 levels, every 1-second interval.
+Each RSU's edge server is modelled as a shared backlog. In every 100 ms step, the backlog $Q_r$ of RSU $r$ is the sum of the offload ratios requested by the vehicles it serves, and each unit of backlog delays every offloading vehicle at that RSU by $\tau = 50$ ms (an effective service rate of 20 tasks/s per RSU). $\tau$ is a modelling constant calibrated for this study. Vehicles observe the backlog normalised by the fleet size, $Q_r/N \in [0,1]$, as a continuous feature.
 
 \subsubsection*{5) Task Completion Time and Deadline Evaluation}
 
-Total latency for a task submitted at time $t_{\text{arrive}}$ with offload ratio $\rho$:
-\begin{equation}
-\label{eq:total_latency_detailed}
-L_{\text{total}} = \underbrace{T_{\text{prop}}}_{\text{UL prop.}} + \underbrace{T_{\text{tx}}}_{\text{UL transmission}} + \underbrace{T_{\text{queue}}}_{\text{MEC queue}} + \underbrace{T_{\text{mec}}}_{\text{MEC processing}} + \underbrace{T_{\text{rx}}}_{\text{DL reception}} + \underbrace{T_{\text{prop}}}_{\text{DL prop.}} + \underbrace{T_{\text{local}}}_{\text{local (parallel)}}
-\end{equation}
-
-Here, $T_{\text{prop}}$ is the propagation delay, $T_{\text{tx}}$ is the uplink transmission time on the selected RAT $m_t$ given channel state $h_m(t)$, $T_{\text{rx}}$ is the downlink reception time, and $T_{\text{queue}}$ is the wait time in seconds based on a 1000 tasks/s service rate. $T_{\text{mec}}$ and $T_{\text{local}}$ represent the execution times at the MEC server (processing at 2000 MHz) and the local device CPU (processing at 1000 MHz), respectively. A task $\tau$ is considered compliant if its total latency plus arrival time does not exceed the task deadline $D_{\max}$.
+Task completion time follows the end-to-end latency model of \Cref{eq:ltotal_partial}. In the simulator, the queueing delay is $\tau Q_r$ as above, the per-RAT access delay follows \Cref{tab:rat_physical}, remote processing adds 0.5 ms per MB of offloaded data, and local processing runs at 2 GHz. A task $\tau$ is deadline-compliant if its total latency does not exceed its deadline $D_i$.
 
 \subsubsection*{6) Reproducibility Configuration}
 

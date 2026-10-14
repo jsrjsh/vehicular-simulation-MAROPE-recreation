@@ -1,16 +1,18 @@
-\begin{table}[h!]
+\begin{table}[t]
 \caption{Multi-RAT vs Single-RAT Step Overhead (500 samples, 10-step warmup)}
 \label{tab:multi_rat}
 \centering
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{|l|r|r|r|}
-\hline
+% booktabs-restyled
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\columnwidth}{>{\hsize=1.391\hsize\raggedright\arraybackslash}X>{\hsize=0.870\hsize\raggedleft\arraybackslash}X>{\hsize=0.870\hsize\raggedleft\arraybackslash}X>{\hsize=0.870\hsize\raggedleft\arraybackslash}X}
+\toprule
 \textbf{Mode} & \textbf{Mean step (\textmu s)} & \textbf{Std (\textmu s)} & \textbf{Overhead vs local (\textmu s)} \\
-\hline
+\midrule
 Local only ($\rho = 0$) & 138.65 & 11.45 & 0.00 \\
 Single-RAT (ITS-G5 offload) & 167.57 & 13.78 & 28.92 \\
 Multi-RAT full ($|A| = 11$) & 166.63 & 12.23 & 27.99 \\
-\hline
-\end{tabular}%
-}
+\bottomrule
+\end{tabularx}
 \end{table}

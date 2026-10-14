@@ -1,0 +1,32 @@
+You are a panel of adversarial senior reviewers and system designers (wireless networking, mobile edge computing, safe reinforcement learning, federated learning). Below is a complete description of my research system, its equations, my results and the weaknesses I found. First attack it. Then propose a better, defensible, foolproof formulation and experiment plan. Be concrete: give equations, pseudocode and a ranked list of what to change. Say clearly what you would NOT claim.
+
+## 1. Problem
+N vehicles move on a road served by roadside units (RSUs) with edge servers (MEC). Each vehicle gets tasks (safety, infotainment, compute) and, per decision step, chooses a radio access technology (RAT: LTE, ITS-G5, WiFi-6, 5G-NR) and a partial offload ratio rho in {0.25, 0.5, 0.75, 1.0} (rho = 0 means local). Offloaded work shares the RSU's edge server, so decisions couple. Deadlines are URLLC-like (safety 100 ms). Vehicles learn locally and share model weights by federated averaging (privacy: raw data stays local). Claim to test: the joint (RAT, rho) policy keeps deadline-compliant delivery as fleet size grows, unlike single-RAT full offloading.
+
+## 2. Simulator (as implemented)
+- Road: 1-D ring of 2600 m, 2 RSUs at 500 and 1500 m; speeds uniform 20-38 m/s; N = 8, 16, 32; 100 steps per episode; a task arrives with probability 0.3 per step. Task mix 65% safety / 20% infotainment / 15% compute with (deadline D, data, CPU cycles) = (100 ms, 0.1 MB, 1e8), (500 ms, 2 MB, 5e8), (1000 ms, 5 MB, 2e9), and utility weights (alpha, beta) = (0.7, 0.3), (0.4, 0.6), (0.2, 0.8).
+- Channel per RAT r: SINR = P_tx - PL_r(d) - N0 + X_sigma - L_fade. P_tx = 23 dBm (LTE, ITS-G5, 5G-NR), 20 dBm (WiFi-6); N0 = -110 dBm (LTE, 5G-NR), -90 dBm (ITS-G5, WiFi-6); shadowing sigma = 4 dB (3 dB WiFi-6); carriers 1.8, 5.9, 5.0, 3.5 GHz. Path loss: 47.9 + 10 log10(d/10) (LTE, ITS-G5); 32.4 + 20 log10 f_GHz + 20 log10 d (5G-NR); 40.05 + 20 log10(f/2.4) + 20 log10 d (WiFi-6). Jakes fading only on LTE and 5G-NR: f_D = v f_c / c, T_c = 0.423 / f_D, r = min(0.1 / T_c, 10), envelope A = sqrt(x1^2 + x2^2) with x ~ N(0,1), L_fade = max(-20 log10(A) * min(r/5, 1.5), 0). Link success: Bernoulli with p = 1 / (1 + exp(-(SINR - tau) / (3 sigma))), tau = 4 dB (5 dB WiFi-6).
+- rho adaptation: rho' = clip(rho * gamma_r / sum_j gamma_j, 0, 1), gamma_j = 10^(SINR_j / 10) over the four RATs.
+- Latency: L = max((1 - rho') L_local, L_remote + L_queue + L_access). L_local = cycles / 2e9; L_access = fixed per RAT (20, 10, 5, 1 ms); L_remote = 0.5 ms per MB x data x rho' (safety tasks 1.5x faster); L_queue = 50 ms x Q_r with Q_r = sum of requested rho of the vehicles served by RSU r in that step. There is no transmission-time term; link throughput does not enter latency. AllOffload at N = 32 therefore gives about 813 ms, 100% of it queueing.
+- Energy (known flaw): E = P_cpu log10(c_ratio) + tx_mJ log10(D / (1 - rho')) + rho' log10(rho'), which can be negative.
+- Congestion signal: CBR_r = clip(Q_r / N, 0, 1); dCBR = clip(CBR_prev - CBR_curr, -0.5, 0.5).
+- Observation (12-dim, continuous): normalised SINR (SINR + 20)/60 for 4 RATs; empirical PRR n_rx/n_tx for 4 RATs; Q_r / N; data/5 MB; D/2000 ms; battery/100.
+- Actions (11): local; LTE rho 0.25/0.5/0.75; ITS-G5 0.25/0.5; 5G-NR 0.25/0.5/1.0; WiFi-6 0.5/1.0. LTE actions are masked for safety tasks.
+- Reward: r = clip(alpha PRR + (beta/2) e^(-L/D) + (beta/2) e^(-E/3) + (beta/4) dCBR, 0, 1). Evaluation utility U_OTR replaces PRR by OTR.
+- Metrics: PRR = n_rx / n_tx; OTR = on-time receptions / transmissions, counted over OFFLOADED packets only; Deadline Retention Ratio DRR(N, N_ref) = OTR(N) / OTR(N_ref).
+
+## 3. Learning
+Dueling Double DQN per vehicle (12 -> 256 -> 256 -> value 128 -> 1 and advantage 128 -> 11), prioritized replay (buffer 5000, batch 32), gamma 0.95, learning rate 1e-3 in code, target update every 100 steps, epsilon decaying to 0.05, Huber loss, gradient clip 10. FedAvg every 50 steps with participation probability 0.9. 100 training episodes, 5 seeds. Evaluation uses epsilon = 0.05.
+
+## 4. Results (5 seeds, fleet OTR at N = 8 / 16 / 32; paper protocol)
+AllOffload 0.335 / 0.263 / 0.123; UCB-bandit reconstruction 0.667 / 0.446 / 0.333; CoopEC-like greedy rule 0.765 / 0.716 / 0.725; MA-ROPE 0.849 / 0.861 / 0.827; NoOffload 1.0 (by construction). Safety OTR at N = 32: MA-ROPE 0.77, CoopEC 0.005, UCB 0.02, AllOffload 0. Retention DRR(32, 8): MA-ROPE 0.975, AllOffload 0.367. A clean reward without the energy term gives the same N = 32 OTR (0.828).
+
+## 5. Weaknesses I found myself (assume there are more)
+1. With exploration switched off, the learned policy makes ZERO offload attempts in 5 of 5 seeds (N = 8); its utility equals NoOffload's. The reported OTR comes from epsilon = 0.05 random exploration.
+2. OTR ignores locally executed tasks. NoOffload has local latency of about 232 ms against a 100 ms safety deadline, yet scores OTR = 1.0.
+3. Ablations (single RAT, fixed rho, hiding the queue) are not worse than the full agent; only FedAvg matters. Probably confounded by weakness 1.
+4. The queue is a linear backlog model with an arbitrary 50 ms constant; no transmission time; energy formula is unphysical.
+5. Baselines are crude reconstructions, so wins over them may be strawman wins. Training is not reproducible from the seed. 1-D road, N <= 32.
+
+## 6. What I want from you
+(a) The strongest objections a top-tier reviewer would raise. (b) A better problem formulation: for example a constrained MDP with a hard deadline-miss probability constraint for safety tasks, a reward that "do nothing" cannot satisfy, and a metric that counts every task (local and offloaded). (c) A physically grounded model: SINR to rate to transmission time, a proper queue (M/G/1 or processor sharing, admission control), an SI-correct energy model. (d) Better algorithms than D3QN with FedAvg (safe RL with shielding, MAPPO/QMIX or mean-field for large N, FedProx or personalization for non-IID, differential privacy with measured epsilon) and when each is warranted. (e) A fair baseline set (queue-aware greedy, Lyapunov, optimization-based). (f) An evaluation protocol that avoids the pitfalls above (greedy evaluation, held-out episodes, significance tests, ablations not confounded by exploration). (g) What claims are defensible right now, and a staged plan of experiments, including a SUMO/ns-3 city-scale validation, that would make the final paper hard to fault.

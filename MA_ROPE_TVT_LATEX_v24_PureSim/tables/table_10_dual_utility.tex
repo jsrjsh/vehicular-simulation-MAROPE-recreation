@@ -1,15 +1,17 @@
-\begin{table}[h!]
+\begin{table}[t]
 \caption{Dual Utility Criteria in MA-ROPE (\Cref{eq:uprr} and \Cref{eq:uotr})}
 \label{tab:dual_utility}
 \centering
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{|l|c|c|c|}
-\hline
+% booktabs-restyled
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\columnwidth}{>{\hsize=0.870\hsize\raggedright\arraybackslash}X>{\hsize=1.043\hsize\centering\arraybackslash}X>{\hsize=1.043\hsize\centering\arraybackslash}X>{\hsize=1.043\hsize\centering\arraybackslash}X}
+\toprule
 \textbf{Criterion} & \textbf{Reliability Term} & \textbf{Training Use} & \textbf{Deployment Use} \\
-\hline
+\midrule
 $U_{PRR}$ (\Cref{eq:uprr}) & $\text{PRR} = n_{rx}/n_{tx}$ & D3QN training signal (dense reward) & Throughput / balanced scenarios \\
 $U_{OTR}$ (\Cref{eq:uotr}) & $\text{OTR} = n_{rx\_on\_time}/n_{tx}$ & Evaluation metric (not used in D3QN training) & Safety V2X (e.g., 3GPP TR 36.885~\cite{molina2017}) \\
-\hline
-\end{tabular}%
-}
+\bottomrule
+\end{tabularx}
 \end{table}

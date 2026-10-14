@@ -1,17 +1,19 @@
-\begin{table}[h!]
+\begin{table}[t]
 \caption{Compact Per-Message-Type Deadline Analysis (N=8, corrected physics, MA-ROPE full policy, 5 seeds)}
 \label{tab:deadline_analysis}
 \centering
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{|l|r|r|r|r|r|}
-\hline
+% booktabs-restyled
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\columnwidth}{>{\hsize=1.455\hsize\raggedright\arraybackslash}X>{\hsize=0.909\hsize\raggedleft\arraybackslash}X>{\hsize=0.909\hsize\raggedleft\arraybackslash}X>{\hsize=0.909\hsize\raggedleft\arraybackslash}X>{\hsize=0.909\hsize\raggedleft\arraybackslash}X>{\hsize=0.909\hsize\raggedleft\arraybackslash}X}
+\toprule
 \textbf{Task scope} & \textbf{DL} & \textbf{PRR} & \textbf{OTR} & \textbf{Gap} & \textbf{Mean L} \\
-\hline
+\midrule
 All tasks & - & 0.9415 & 0.8529 & 8.9\% & 214.5 \\
 Safety & 100 & 0.9435 & 0.8243 & 11.9\% & 107.4 \\
 Infotainment & 500 & 0.9317 & 0.8752 & 5.7\% & 229.8 \\
 Compute & 1000 & 0.9431 & 0.9431 & 0.0\% & 665.6 \\
-\hline
-\end{tabular}%
-}
+\bottomrule
+\end{tabularx}
 \end{table}

@@ -1,15 +1,17 @@
-\begin{table}[h!]
+\begin{table}[t]
 \caption{Safety-Task Delivery at N=32: Safety PRR and Safety OTR, 5 seeds}
 \label{tab:safety_task}
 \centering
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{|l|r|r|r|}
-\hline
+% booktabs-restyled
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\columnwidth}{>{\hsize=1.692\hsize\raggedright\arraybackslash}X>{\hsize=0.769\hsize\raggedleft\arraybackslash}X>{\hsize=0.769\hsize\raggedleft\arraybackslash}X>{\hsize=0.769\hsize\raggedleft\arraybackslash}X}
+\toprule
 \textbf{Method} & \textbf{Safety PRR} & \textbf{Safety OTR} & \textbf{PRR-OTR gap} \\
-\hline
+\midrule
 \textbf{MA-ROPE Full \textasteriskcentered} & \textbf{0.9317} & \textbf{0.7537} & \textbf{17.8\%} \\
 AllOffload & 0.9654 & 0.0000 & 96.5\% \\
-\hline
-\end{tabular}%
-}
+\bottomrule
+\end{tabularx}
 \end{table}
